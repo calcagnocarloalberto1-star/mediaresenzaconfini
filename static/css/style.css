@@ -37,16 +37,20 @@ a:hover { color: var(--gold); text-decoration: underline; }
   background-position: center 42%;
   background-repeat: no-repeat;
   border-bottom: 3px solid var(--gold);
+  height: clamp(340px, 58vh, 580px);
+  display: flex;
+  align-items: flex-end;
 }
 .site-header-overlay {
-  background: linear-gradient(180deg, rgba(11,22,38,0.35) 0%, rgba(11,22,38,0.62) 65%, rgba(11,22,38,0.8) 100%);
+  width: 100%;
+  background: linear-gradient(180deg, rgba(11,22,38,0) 0%, rgba(11,22,38,0.4) 62%, rgba(11,22,38,0.74) 100%);
 }
 .site-header-brand {
   display: flex;
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 72px 24px 56px;
+  padding: 100px 24px 40px;
 }
 .site-header-brand a { color: #fff; text-decoration: none; }
 .brand-name {
@@ -141,5 +145,3 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 /* Search box (static placeholder) */
 .search-box { margin: 18px 0; }
 .search-box input { width: 100%; max-width: 420px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px; font-size: 0.95rem; font-family: var(--sans); }
-
-.tag-list span.country-pill { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 20px; padding: 3px 12px; font-size: 0.8rem; color: var(--ink-soft); }
