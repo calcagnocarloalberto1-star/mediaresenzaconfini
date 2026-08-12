@@ -127,6 +127,8 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .country-group h3 { font-family: var(--serif); font-size: 1rem; color: var(--gold); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 8px; }
 .country-group ul { list-style: none; margin: 0; padding: 0; }
 .country-group li { margin-bottom: 5px; font-size: 0.9rem; }
+.country-group a.ext-link { color: var(--ink-soft); border-bottom: 1px dashed var(--line); }
+.country-group a.ext-link::after { content: " ↗"; font-size: 0.75em; }
 
 /* Page (static) */
 .static-page { max-width: 760px; padding: 8px 0 56px; }
