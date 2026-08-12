@@ -1,0 +1,29 @@
+name: Aggiorna statistiche visitatori (paesi)
+
+on:
+  schedule:
+    - cron: '17 4 * * *'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  update-countries:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Fetch country stats from GoatCounter and update static/countries.json
+        env:
+          GC_TOKEN: ${{ secrets.GOATCOUNTER_API_TOKEN }}
+        run: python3 .github/scripts/update_countries.py
+
+      - name: Commit and push if changed
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add static/countries.json
+          git diff --cached --quiet || git commit -m "Aggiorna elenco paesi visitatori (automatico)"
+          git push
