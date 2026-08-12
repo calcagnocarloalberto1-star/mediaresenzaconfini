@@ -38,9 +38,10 @@
     <h1>Il riferimento italiano sulla mediazione e la risoluzione alternativa delle controversie nel mondo</h1>
     <p class="lede">Dal 2011, analisi, dottrina e diritto comparato su mediazione, conciliazione, arbitrato e ADR: come funzionano, come si sono sviluppati e cosa dicono le leggi nei diversi paesi del mondo.</p>
     <div class="stats">
-      <div class="stat"><b>540</b><span>Articoli</span></div>
+      <div class="stat"><b id="stat-articles">540</b><span>Articoli</span></div>
       <div class="stat"><b>58</b><span>Paesi analizzati</span></div>
       <div class="stat"><b>15+</b><span>Anni di archivio</span></div>
+      <div class="stat"><b id="stat-views">185.649</b><span>Visualizzazioni dal 2011</span></div>
     </div>
   </div>
 </div>
@@ -59,6 +60,12 @@
       <div class="count-label">Paesi</div>
     </div>
   </div>
+</section>
+
+<section class="section">
+  <h2>Da dove arrivano i visitatori</h2>
+  <p class="section-intro">Statistiche di lettura senza cookie, attive dal 12 agosto 2026: l'elenco cresce nel tempo. Finora il sito &egrave; stato letto da <b id="stat-visitor-countries">alcuni</b> paesi:</p>
+  <div class="tag-list" id="visitor-countries-list"><span class="country-pill">Dati in arrivo&hellip;</span></div>
 </section>
 
 <section class="section">
@@ -114,8 +121,68 @@
 <footer class="site-footer">
   <div class="wrap">
     <div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>
-    <div><a href="/about/">Chi siamo</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a></div>
+    <div><a href="/about/">Chi siamo</a &middot; <a href="/privacy-policy/">Privacy</a &middot; <a href="/cookie-policy/">Cookie</a></div>
   </div>
 </footer>
+
+<script>
+(function () {
+  var GH_API = 'https://api.github.com/repos/calcagnocarloalberto1-star/mediaresenzaconfini/git/trees/main?recursive=1';
+  var GC_TOTAL = 'https://mediaresenzaconfini.goatcounter.com/counter/TOTAL.json';
+  var BASELINE_VIEWS = 185649; // storico Jetpack Stats (WordPress) rilevato il 12/08/2026, prima del passaggio a GoatCounter
+
+  function fmtIt(n) {
+    return Number(n).toLocaleString('it-IT');
+  }
+
+  // Numero di articoli pubblicati: contati dal repository, cresce automaticamente a ogni nuovo articolo pubblicato
+  fetch(GH_API).then(function (r) {
+    return r.ok ? r.json() : Promise.reject(r.status);
+  }).then(function (data) {
+    var re = /^\d{4}\/\d{2}\/\d{2}\/[^\/]+\/index\.html$/;
+    var count = (data.tree || []).filter(function (item) {
+      return item.type === 'blob' && re.test(item.path);
+    }).length;
+    var el = document.getElementById('stat-articles');
+    if (el && count > 0) el.textContent = fmtIt(count);
+  }).catch(function () { /* resta il valore statico dell'ultima build */ });
+
+  // Visualizzazioni totali dal 2011: storico WordPress + conteggio live GoatCounter (senza cookie)
+  fetch(GC_TOTAL).then(function (r) {
+    return r.ok ? r.json() : Promise.reject(r.status);
+  }).then(function (data) {
+    var live = parseInt(String(data.count).replace(/[^\d]/g, ''), 10);
+    var el = document.getElementById('stat-views');
+    if (el && !isNaN(live)) el.textContent = fmtIt(BASELINE_VIEWS + live);
+  }).catch(function () { /* resta il valore storico di base */ });
+
+  // Paesi che hanno visitato il sito, aggiornati periodicamente da un'azione automatica su GitHub
+  fetch('/static/countries.json').then(function (r) {
+    return r.ok ? r.json() : Promise.reject(r.status);
+  }).then(function (data) {
+    var countEl = document.getElementById('stat-visitor-countries');
+    var listEl = document.getElementById('visitor-countries-list');
+    var countries = data.countries || [];
+    if (!countries.length) {
+      if (listEl) listEl.innerHTML = '<span class="country-pill">Il conteggio è appena iniziato: l\'elenco si popolerà con l\'arrivo dei visitatori.</span>';
+      return;
+    }
+    if (countEl) countEl.textContent = countries.length;
+    if (listEl) {
+      listEl.innerHTML = '';
+      countries.forEach(function (c) {
+        var span = document.createElement('span');
+        span.className = 'country-pill';
+        span.textContent = c.name || c.id;
+        listEl.appendChild(span);
+      });
+    }
+  }).catch(function () {
+    var listEl = document.getElementById('visitor-countries-list');
+    if (listEl) listEl.innerHTML = '<span class="country-pill">Dati non ancora disponibili.</span>';
+  });
+})();
+</script>
+
 </body>
 </html>
