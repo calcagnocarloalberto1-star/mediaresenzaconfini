@@ -1,13 +1,13 @@
 :root {
-  --ink: #1a2233;
-  --ink-soft: #4a5568;
-  --navy: #12233d;
-  --navy-deep: #0b1626;
-  --gold: #a9762f;
-  --gold-soft: #c99a4f;
-  --paper: #fbfaf7;
-  --paper-alt: #f2efe8;
-  --line: #e3ddd0;
+  --ink: #22282f;
+  --ink-soft: #5b6470;
+  --navy: #1e2c3d;
+  --navy-deep: #131d29;
+  --gold: #8f7a55;
+  --gold-soft: #b9a67e;
+  --paper: #faf9f6;
+  --paper-alt: #f1efe9;
+  --line: #e0dcd2;
   --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
   --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   --maxw: 1120px;
