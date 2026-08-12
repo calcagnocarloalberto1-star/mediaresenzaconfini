@@ -140,3 +140,5 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 /* Search box (static placeholder) */
 .search-box { margin: 18px 0; }
 .search-box input { width: 100%; max-width: 420px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px; font-size: 0.95rem; font-family: var(--sans); }
+
+.tag-list span.country-pill { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 20px; padding: 3px 12px; font-size: 0.8rem; color: var(--ink-soft); }
