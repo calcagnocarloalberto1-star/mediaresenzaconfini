@@ -39,7 +39,7 @@ a:hover { color: var(--gold); text-decoration: underline; }
   border-bottom: 3px solid var(--gold);
   height: clamp(340px, 58vh, 580px);
   display: flex;
-  align-items: flex-end;
+  align-items: center;
 }
 .site-header-overlay {
   width: 100%;
@@ -49,23 +49,36 @@ a:hover { color: var(--gold); text-decoration: underline; }
   flex-direction: column;
   align-items: center;
   text-align: center;
-  padding: 48px 24px 40px;
+  padding: 24px;
 }
-.site-header-brand a { color: #fff; text-decoration: none; }
+.site-header-brand a { text-decoration: none; }
 .brand-name {
+  display: inline-block;
   font-family: var(--serif);
-  font-size: clamp(2.2rem, 5vw, 3.4rem);
+  font-size: clamp(2rem, 4.6vw, 3.2rem);
   font-weight: 700;
   letter-spacing: 0.01em;
-  text-shadow: 0 2px 18px rgba(0,0,0,0.55);
+  color: var(--navy);
+  background: rgba(250,249,246,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 10px 30px;
+  border-radius: 10px;
+  box-shadow: 0 8px 26px rgba(19,29,41,0.22);
 }
 .brand-tagline {
+  display: inline-block;
   font-size: clamp(0.85rem, 1.6vw, 1.05rem);
-  color: #e7ecf5;
+  color: var(--ink-soft);
   font-style: italic;
-  margin-top: 10px;
+  margin-top: 12px;
   max-width: 720px;
-  text-shadow: 0 1px 10px rgba(0,0,0,0.55);
+  background: rgba(250,249,246,0.88);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  padding: 8px 22px;
+  border-radius: 8px;
+  box-shadow: 0 6px 18px rgba(19,29,41,0.18);
 }
 
 nav.main-nav { background: var(--paper-alt); border-bottom: 3px solid var(--gold); }
