@@ -1,0 +1,59 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Cerca — mediaresenzaconfini</title>
+<meta name="description" content="Cerca articoli e pagine su mediazione, conciliazione, arbitrato e ADR nel sito mediaresenzaconfini.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+<script data-goatcounter="https://mediaresenzaconfini.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+</head>
+<body>
+<header class="site-header">
+  <div class="site-header-photo" style="background-image: url('/static/img/header-mediazione.jpg');">
+    <div class="site-header-overlay">
+      <div class="wrap site-header-brand">
+        <a href="/"><span class="brand-name">mediaresenzaconfini</span></a>
+      </div>
+    </div>
+  </div>
+  <nav class="main-nav">
+    <div class="wrap">
+      <a href="/">Home</a>
+      <a href="/categoria/mediazione/">Mediazione</a>
+      <a href="/categoria/arbitrato/">Arbitrato</a>
+      <a href="/categoria/conciliazione/">Conciliazione</a>
+      <a href="/legislazione-internazionale/">Legislazione internazionale</a>
+      <a href="/categoria/saggi/">Saggi</a>
+      <a href="/about/">Chi sono</a>
+      <form class="search-box" action="/cerca/" method="get" role="search">
+        <input type="search" name="q" placeholder="Cerca…" aria-label="Cerca nel sito">
+      </form>
+    </div>
+  </nav>
+</header>
+
+<main class="wrap">
+
+<div class="breadcrumb"><a href="/">Home</a></div>
+<div class="search-page">
+  <h1>Cerca nel sito</h1>
+  <form class="search-box" action="/cerca/" method="get" role="search">
+    <input type="search" id="search-q" name="q" placeholder="Cerca articoli, pagine, argomenti…" aria-label="Cerca nel sito" autofocus>
+  </form>
+  <div class="search-meta" id="search-meta">Digita per cercare tra gli articoli e le pagine del sito.</div>
+  <div class="card-grid" id="search-results"></div>
+</div>
+
+</main>
+<footer class="site-footer">
+  <div class="wrap">
+    <div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>
+    <div><a href="/about/">Chi sono</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a></div>
+  </div>
+</footer>
+<script src="/static/js/search.js" defer></script>
+</body>
+</html>
