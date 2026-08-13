@@ -148,3 +148,6 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 .search-page .search-box { margin: 6px 0 8px; }
 .search-page .search-box input { max-width: 100%; padding: 14px 18px; font-size: 1.1rem; border-radius: 6px; }
 .search-meta { color: var(--ink-soft); font-size: 0.9rem; margin-bottom: 24px; }
+
+/* Search result highlighting */
+.card mark { background: var(--gold-soft); color: var(--navy-deep); padding: 0 2px; border-radius: 2px; font-weight: 600; }
