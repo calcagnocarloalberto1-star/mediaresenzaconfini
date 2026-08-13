@@ -18,6 +18,7 @@
     return r.ok ? r.json() : Promise.reject(r.status);
   }).then(function (data) {
     indexData = data;
+    prepareIndex(data);
     return data;
   }).catch(function () {
     if (metaEl) metaEl.textContent = 'Indice di ricerca non disponibile al momento. Riprova più tardi.';
@@ -42,18 +43,106 @@
     });
   }
 
-  function scoreEntry(entry, tokens, normTitle, normExcerpt) {
-    var score = 0;
+  // Pre-normalize title/excerpt/category once per entry so we don't redo it on every keystroke.
+  function prepareIndex(data) {
+    if (data._prepared) return;
+    for (var i = 0; i < data.length; i++) {
+      var e = data[i];
+      e._nt = normalize(e.t);
+      e._ne = normalize(e.e);
+      e._nc = normalize(e.c || '');
+    }
+    data._prepared = true;
+  }
+
+  function countOccurrences(haystack, needle) {
+    if (!needle) return 0;
+    var count = 0, pos = 0;
+    while (true) {
+      var idx = haystack.indexOf(needle, pos);
+      if (idx === -1) break;
+      count++;
+      pos = idx + needle.length;
+    }
+    return count;
+  }
+
+  // Lightweight inverse-document-frequency: rare query words carry a lot more
+  // weight than words that show up in most of the site (e.g. "mediazione",
+  // which is the core topic and would otherwise swamp every other signal).
+  function buildIdf(data, tokens) {
+    var idf = {};
     for (var i = 0; i < tokens.length; i++) {
       var t = tokens[i];
-      var ti = normTitle.indexOf(t);
-      if (ti !== -1) {
-        score += 5;
-        if (ti === 0 || normTitle.charAt(ti - 1) === ' ') score += 2;
+      if (idf[t] !== undefined) continue;
+      var df = 0;
+      for (var k = 0; k < data.length; k++) {
+        if (data[k]._nt.indexOf(t) !== -1 || data[k]._ne.indexOf(t) !== -1) df++;
       }
-      if (normExcerpt.indexOf(t) !== -1) score += 1;
+      idf[t] = Math.log((data.length + 1) / (df + 1)) + 1;
+    }
+    return idf;
+  }
+
+  function scoreEntry(entry, tokens, idfMap, fullPhrase) {
+    var score = 0;
+    var nt = entry._nt, ne = entry._ne, nc = entry._nc;
+    for (var i = 0; i < tokens.length; i++) {
+      var t = tokens[i];
+      var w = idfMap[t] || 1;
+      var titleCount = countOccurrences(nt, t);
+      if (titleCount > 0) {
+        score += w * 4 * Math.min(titleCount, 3);
+        var firstIdx = nt.indexOf(t);
+        if (firstIdx === 0 || nt.charAt(firstIdx - 1) === ' ') score += w * 2;
+      }
+      var excerptCount = countOccurrences(ne, t);
+      if (excerptCount > 0) score += w * Math.min(excerptCount, 5);
+      if (nc.indexOf(t) !== -1) score += w * 3;
+    }
+    if (tokens.length > 1 && fullPhrase) {
+      if (nt.indexOf(fullPhrase) !== -1) score += 20;
+      else if (ne.indexOf(fullPhrase) !== -1) score += 8;
     }
     return score;
+  }
+
+  // Wraps matched query terms in <mark> so results visibly show *why* they matched,
+  // instead of looking like a generic reverse-chronological article list.
+  function highlight(original, normalizedHay, tokens) {
+    original = original || '';
+    if (!tokens.length) return escapeHtml(original);
+    var ranges = [];
+    for (var i = 0; i < tokens.length; i++) {
+      var t = tokens[i];
+      var pos = 0;
+      while (true) {
+        var idx = normalizedHay.indexOf(t, pos);
+        if (idx === -1) break;
+        ranges.push([idx, idx + t.length]);
+        pos = idx + t.length;
+      }
+    }
+    if (!ranges.length) return escapeHtml(original);
+    ranges.sort(function (a, b) { return a[0] - b[0]; });
+    var merged = [ranges[0]];
+    for (var i = 1; i < ranges.length; i++) {
+      var last = merged[merged.length - 1];
+      if (ranges[i][0] <= last[1]) last[1] = Math.max(last[1], ranges[i][1]);
+      else merged.push(ranges[i]);
+    }
+    var out = '';
+    var cursor = 0;
+    for (var i = 0; i < merged.length; i++) {
+      var r = merged[i];
+      if (r[0] >= original.length) break;
+      var end = Math.min(r[1], original.length);
+      out += escapeHtml(original.slice(cursor, r[0]));
+      out += '<mark>' + escapeHtml(original.slice(r[0], end)) + '</mark>';
+      cursor = end;
+    }
+    out += escapeHtml(original.slice(cursor));
+    return out;
   }
 
   function formatDate(d) {
@@ -72,12 +161,14 @@
       return;
     }
 
+    prepareIndex(data);
+    var idfMap = buildIdf(data, tokens);
+    var fullPhrase = tokens.join(' ');
+
     var scored = [];
     for (var i = 0; i < data.length; i++) {
       var e = data[i];
-      var nt = normalize(e.t);
-      var ne = normalize(e.e);
-      var s = scoreEntry(e, tokens, nt, ne);
+      var s = scoreEntry(e, tokens, idfMap, fullPhrase);
       if (s > 0) scored.push({ e: e, s: s });
     }
     scored.sort(function (a, b) {
@@ -98,11 +189,13 @@
       var card = document.createElement('div');
       card.className = 'card';
       var dateHtml = item.d ? '<div class="meta">' + escapeHtml(formatDate(item.d)) + '</div>' : '';
+      var titleHtml = highlight(item.t, item._nt, tokens);
+      var excerptHtml = highlight(item.e, item._ne, tokens);
       card.innerHTML =
         '<div class="eyebrow">' + escapeHtml(item.c || 'ADR') + '</div>' +
-        '<h3><a href="' + ROOT.replace(/\/$/, '') + item.u + '">' + escapeHtml(item.t) + '</a></h3>' +
+        '<h3><a href="' + ROOT.replace(/\/$/, '') + item.u + '">' + titleHtml + '</a></h3>' +
         dateHtml +
-        '<p>' + escapeHtml(item.e) + '</p>';
+        '<p>' + excerptHtml + '</p>';
       frag.appendChild(card);
     }
     resultsEl.appendChild(frag);
