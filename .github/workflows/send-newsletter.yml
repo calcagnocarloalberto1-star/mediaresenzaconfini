@@ -1,0 +1,31 @@
+name: Invia newsletter per nuovo articolo
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'feed.xml'
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  send-newsletter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Invia email via API Buttondown se c'è un nuovo articolo in feed.xml
+        env:
+          BUTTONDOWN_API_KEY: ${{ secrets.BUTTONDOWN_API_KEY }}
+        run: python3 .github/scripts/send_newsletter.py
+
+      - name: Commit e push del tracking dell'ultimo articolo inviato
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add static/last-newsletter-guid.txt
+          git diff --cached --quiet || git commit -m "Aggiorna tracking ultima newsletter inviata (automatico)"
+          git push
