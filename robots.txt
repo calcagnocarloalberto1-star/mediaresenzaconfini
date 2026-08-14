@@ -1,3 +1,4 @@
 User-agent: *
 Allow: /
+Disallow: /pubblica/
 Sitemap: https://mediaresenzaconfini.it/sitemap.xml
