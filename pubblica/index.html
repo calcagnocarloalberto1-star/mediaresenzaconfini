@@ -1,0 +1,797 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex, nofollow">
+<title>Pubblica un nuovo articolo — mediaresenzaconfini</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/css/style.css">
+<style>
+  .admin-wrap { max-width: 860px; margin: 0 auto; padding: 28px 20px 80px; }
+  .admin-header { border-bottom: 3px solid var(--gold); background: var(--paper-alt); padding: 18px 20px; margin-bottom: 0; }
+  .admin-header .wrap { max-width: 860px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 8px; }
+  .admin-header a.back { color: var(--ink-soft); font-size: 0.9rem; }
+  .admin-title { font-family: var(--serif); font-size: 1.3rem; margin: 0; }
+  .admin-card { background: #fff; border: 1px solid var(--line); border-radius: 8px; padding: 22px 24px; margin-top: 22px; }
+  .admin-card h2 { font-family: var(--serif); font-size: 1.15rem; margin: 0 0 6px; }
+  .admin-card .hint { color: var(--ink-soft); font-size: 0.88rem; margin: 0 0 16px; line-height: 1.5; }
+  .field { margin-bottom: 16px; }
+  .field label { display: block; font-weight: 600; font-size: 0.88rem; margin-bottom: 5px; }
+  .field .sub { color: var(--ink-soft); font-weight: 400; font-size: 0.8rem; display: block; margin-top: 2px; }
+  .field input[type="text"], .field input[type="date"], .field input[type="password"], .field select, .field textarea {
+    width: 100%; box-sizing: border-box; padding: 9px 12px; border: 1px solid var(--line); border-radius: 5px;
+    font-family: var(--sans); font-size: 0.95rem; background: #fff; color: var(--ink);
+  }
+  .field textarea { font-family: var(--sans); line-height: 1.5; resize: vertical; }
+  .field input[type="file"] { font-size: 0.9rem; }
+  .row { display: flex; gap: 14px; flex-wrap: wrap; }
+  .row .field { flex: 1; min-width: 200px; }
+  .status-pill { display: inline-block; padding: 3px 10px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; }
+  .status-pill.ok { background: #e2f3e6; color: #1e6b34; }
+  .status-pill.err { background: #fbe4e4; color: #a3231f; }
+  .status-pill.pending { background: #eee; color: #666; }
+  #log { background: #10151f; color: #d8e0ee; font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.85rem;
+    border-radius: 6px; padding: 14px 16px; max-height: 340px; overflow-y: auto; white-space: pre-wrap; margin-top: 16px; display: none; }
+  #log .line-ok { color: #7ee0a8; }
+  #log .line-err { color: #ff8b8b; }
+  #log .line-info { color: #9db4e8; }
+  .btn-primary { background: var(--navy); color: #fff; border: none; padding: 12px 26px; border-radius: 5px; font-weight: 600; font-size: 0.95rem; cursor: pointer; font-family: var(--sans); }
+  .btn-primary:hover { background: var(--gold); }
+  .btn-primary:disabled { background: #b7bdc9; cursor: not-allowed; }
+  .btn-secondary { background: #fff; color: var(--navy); border: 1px solid var(--navy); padding: 8px 18px; border-radius: 5px; font-weight: 600; font-size: 0.88rem; cursor: pointer; font-family: var(--sans); }
+  .btn-secondary:hover { background: var(--paper-alt); }
+  .attach-list { list-style: none; padding: 0; margin: 10px 0 0; }
+  .attach-list li { display: flex; justify-content: space-between; align-items: center; padding: 6px 0; border-bottom: 1px solid var(--line); font-size: 0.88rem; }
+  .attach-list li:last-child { border-bottom: none; }
+  .attach-list button { background: none; border: none; color: #a3231f; cursor: pointer; font-size: 0.82rem; }
+  details.token-help { margin-top: 10px; }
+  details.token-help summary { cursor: pointer; font-size: 0.85rem; color: var(--navy); font-weight: 600; }
+  details.token-help ol { font-size: 0.85rem; color: var(--ink-soft); line-height: 1.6; padding-left: 20px; margin: 10px 0 0; }
+  .preview-url { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 0.82rem; color: var(--ink-soft); margin-top: 4px; word-break: break-all; }
+  .warn-box { background: #fff8e6; border: 1px solid #f0d896; border-radius: 6px; padding: 12px 16px; font-size: 0.85rem; color: #6b5511; margin-top: 16px; line-height: 1.5; }
+</style>
+</head>
+<body>
+<div class="admin-header">
+  <div class="wrap">
+    <a class="back" href="/">&larr; Torna al sito</a>
+    <span class="status-pill pending" id="conn-status">Non collegato</span>
+  </div>
+</div>
+
+<div class="admin-wrap">
+  <h1 class="admin-title">Pannello di pubblicazione</h1>
+  <p class="hint">Da qui puoi pubblicare un nuovo articolo su mediaresenzaconfini.it e allegare file di qualsiasi tipo (PDF, immagini, documenti, ecc.). Questa pagina non è collegata dal menu del sito e non è indicizzata dai motori di ricerca: solo chi conosce l'indirizzo e possiede un token di accesso valido può pubblicare.</p>
+
+  <div class="admin-card" id="card-token">
+    <h2>1. Accesso</h2>
+    <p class="hint">Per scrivere sul sito serve un token di accesso personale di GitHub (il servizio che ospita il sito). Il token resta solo su questo computer/browser: non viene mai inviato a nessuno tranne GitHub.</p>
+    <div class="field">
+      <label for="token-input">Token di accesso GitHub</label>
+      <input type="password" id="token-input" placeholder="github_pat_xxx...">
+      <span class="sub"><label style="display:inline;font-weight:400;"><input type="checkbox" id="token-remember" style="width:auto;"> Ricorda il token su questo browser</label></span>
+    </div>
+    <button class="btn-secondary" id="btn-verify">Verifica token</button>
+    <details class="token-help">
+      <summary>Non hai ancora un token? Ecco come crearne uno (2 minuti)</summary>
+      <ol>
+        <li>Vai su <a href="https://github.com/settings/personal-access-tokens/new" target="_blank" rel="noopener">github.com/settings/personal-access-tokens/new</a> (accedi con l'account GitHub del sito, se richiesto).</li>
+        <li>In "Token name" scrivi ad esempio "Pannello pubblicazione mediaresenzaconfini".</li>
+        <li>In "Expiration" scegli una durata (es. 1 anno) — puoi crearne uno nuovo quando scade.</li>
+        <li>In "Repository access" scegli "Only select repositories" e seleziona <strong>calcagnocarloalberto1-star/mediaresenzaconfini</strong>.</li>
+        <li>In "Permissions" &rarr; "Repository permissions" trova <strong>Contents</strong> e impostalo su <strong>Read and write</strong>.</li>
+        <li>Scorri in fondo e clicca "Generate token". Copia il token (inizia con <code>github_pat_</code>) e incollalo qui sopra: GitHub lo mostra una sola volta.</li>
+      </ol>
+    </details>
+  </div>
+
+  <div class="admin-card" id="card-form" style="opacity:0.5; pointer-events:none;">
+    <h2>2. Nuovo articolo</h2>
+    <p class="hint">Scrivi il testo separando i paragrafi con una riga vuota. Per un titolo di paragrafo scrivi la riga preceduta da <code>## </code> (titolo principale) o <code>### </code> (sottotitolo). Per il <strong>grassetto</strong> usa <code>**testo**</code>, per il <em>corsivo</em> <code>*testo*</code>, per un elenco puntato inizia ogni riga con <code>- </code>, per un elenco numerato con <code>1. </code>. Per un link usa <code>[testo](https://esempio.it)</code>.</p>
+
+    <div class="field">
+      <label for="f-title">Titolo dell'articolo</label>
+      <input type="text" id="f-title" placeholder="Es. Le novità della mediazione familiare nel 2026">
+    </div>
+
+    <div class="row">
+      <div class="field">
+        <label for="f-cat">Categoria</label>
+        <select id="f-cat">
+          <option value="mediazione">Mediazione</option>
+          <option value="arbitrato">Arbitrato</option>
+          <option value="conciliazione">Conciliazione</option>
+          <option value="adr">ADR</option>
+          <option value="saggi">Saggi</option>
+          <option value="sistemi-di-composizione">Sistemi di composizione</option>
+          <option value="__custom__">Altro (specifica)…</option>
+        </select>
+      </div>
+      <div class="field" id="f-cat-custom-wrap" style="display:none;">
+        <label for="f-cat-custom">Nome della nuova categoria</label>
+        <input type="text" id="f-cat-custom" placeholder="Es. Diritto di famiglia">
+      </div>
+      <div class="field">
+        <label for="f-date">Data di pubblicazione</label>
+        <input type="date" id="f-date">
+      </div>
+    </div>
+    <div class="preview-url" id="url-preview"></div>
+
+    <div class="field">
+      <label for="f-body">Testo dell'articolo</label>
+      <textarea id="f-body" rows="16" placeholder="## Introduzione&#10;&#10;Scrivi qui il primo paragrafo dell'articolo...&#10;&#10;## Sviluppo&#10;&#10;Continua con il resto del testo..."></textarea>
+    </div>
+
+    <div class="field">
+      <label for="f-files">Allegati (facoltativi, qualsiasi tipo di file)</label>
+      <input type="file" id="f-files" multiple>
+      <span class="sub">Ogni allegato compare automaticamente in un elenco "Allegati" in fondo all'articolo, con link diretto al download. Limite consigliato: 25&nbsp;MB per file — per file più grandi (es. video) è meglio caricarli altrove (YouTube, Google Drive) e inserire il link nel testo.</span>
+      <ul class="attach-list" id="attach-list"></ul>
+    </div>
+
+    <button class="btn-primary" id="btn-publish">Pubblica articolo</button>
+    <div class="warn-box">
+      La pubblicazione è <strong>diretta</strong>: l'articolo va online subito (circa 1 minuto, il tempo che GitHub Pages impiega a ricostruire il sito). Non c'è una fase di bozza da approvare — controlla il testo prima di pubblicare.
+    </div>
+    <div id="log"></div>
+  </div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  var OWNER = "calcagnocarloalberto1-star";
+  var REPO = "mediaresenzaconfini";
+  var API = "https://api.github.com/repos/" + OWNER + "/" + REPO;
+  var SITE = "https://mediaresenzaconfini.it";
+  var IMG = SITE + "/static/img/header-mediazione.jpg";
+  var PAGINATED_CATS = ["mediazione", "arbitrato"];
+  var PER_PAGE = 50;
+  var MAX_ATTACH_BYTES = 25 * 1024 * 1024;
+
+  var CAT_LABELS = {
+    "mediazione": "Mediazione",
+    "arbitrato": "Arbitrato",
+    "conciliazione": "Conciliazione",
+    "adr": "ADR",
+    "saggi": "Saggi",
+    "sistemi-di-composizione": "Sistemi di composizione"
+  };
+
+  var MESI = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+
+  var WEBSITE_JSONLD = {"@context":"https://schema.org","@type":"WebSite","name":"mediaresenzaconfini","url":SITE + "/","publisher":{"@type":"Person","name":"Carlo Alberto Calcagno"},"potentialAction":{"@type":"SearchAction","target":SITE + "/cerca/?q={search_term_string}","query-input":"required name=search_term_string"}};
+  var PERSON_JSONLD = {"@context":"https://schema.org","@type":"Person","name":"Carlo Alberto Calcagno","url":SITE + "/about/","jobTitle":"Avvocato, mediatore civile e commerciale, mediatore familiare, formatore ADR","worksFor":{"@type":"Organization","name":"mediaresenzaconfini","url":SITE + "/"}};
+
+  var NAV_BLOCK = '<nav class="main-nav">\n<div class="wrap">\n<input type="checkbox" id="nav-toggle" class="nav-toggle-input">\n<label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">&#9776;</label>\n<div class="nav-links">\n<a href="/">Home</a>\n<a href="/categoria/mediazione/">Mediazione</a>\n<a href="/categoria/arbitrato/">Arbitrato</a>\n<a href="/categoria/conciliazione/">Conciliazione</a>\n<a href="/legislazione-internazionale/">Legislazione internazionale</a>\n<a href="/categoria/saggi/">Saggi</a>\n<a href="/about/">Chi sono</a>\n</div>\n<form class="search-box" action="/cerca/" method="get" role="search">\n<input type="search" name="q" placeholder="Cerca…" aria-label="Cerca nel sito">\n</form>\n</div>\n</nav>';
+
+  var HEADER_BLOCK = '<header class="site-header">\n<div class="site-header-photo" style="background-image: url(\'' + IMG + '\');">\n<div class="site-header-overlay">\n<div class="wrap site-header-brand">\n<a href="/"><span class="brand-name">mediaresenzaconfini</span></a>\n</div>\n</div>\n</div>\n' + NAV_BLOCK + '\n</header>';
+
+  var FOOTER_BLOCK = '<footer class="site-footer">\n<div class="wrap">\n<div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>\n<div><a href="/about/">Chi sono</a> &middot; <a href="/link-utili/">Link utili</a> &middot; <a href="/statistiche/">Statistiche</a> &middot; <a href="/contatti/">Contatti</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a></div>\n</div>\n</footer>';
+
+  var GC_SCRIPT = '<script data-goatcounter="https://mediaresenzaconfini.goatcounter.com/count" async src="//gc.zgo.at/count.js"><\/script>';
+
+  // ---------- token / storage ----------
+  var tokenInput = document.getElementById('token-input');
+  var rememberBox = document.getElementById('token-remember');
+  var connStatus = document.getElementById('conn-status');
+  var formCard = document.getElementById('card-form');
+  var publishBtn = document.getElementById('btn-publish');
+
+  var savedToken = localStorage.getItem('msc_admin_token');
+  if (savedToken) { tokenInput.value = savedToken; rememberBox.checked = true; }
+
+  function getToken() { return tokenInput.value.trim(); }
+
+  // ---------- utils ----------
+  function escapeHtml(s) {
+    return (s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  }
+
+  function slugify(s) {
+    return (s || '').toString().normalize('NFD').replace(/[̀-ͯ]/g,'')
+      .toLowerCase().trim()
+      .replace(/['"„”«»]/g,'')
+      .replace(/[^a-z0-9]+/g,'-')
+      .replace(/^-+|-+$/g,'')
+      .slice(0, 80) || 'articolo';
+  }
+
+  function sanitizeFilename(name) {
+    var dot = name.lastIndexOf('.');
+    var base = dot > 0 ? name.slice(0, dot) : name;
+    var ext = dot > 0 ? name.slice(dot + 1).toLowerCase().replace(/[^a-z0-9]/g,'') : '';
+    base = base.normalize('NFD').replace(/[̀-ͯ]/g,'').toLowerCase()
+      .replace(/[^a-z0-9]+/g,'-').replace(/^-+|-+$/g,'').slice(0, 60) || 'file';
+    return ext ? base + '.' + ext : base;
+  }
+
+  function formatDateIt(iso) {
+    var parts = iso.split('-').map(Number);
+    return parts[2] + ' ' + MESI[parts[1]-1] + ' ' + parts[0];
+  }
+
+  function truncate(text, n) {
+    text = (text || '').trim();
+    if (text.length <= n) return text;
+    return text.slice(0, n).trim() + '…';
+  }
+
+  function bytesToB64(bytes) {
+    var binary = '';
+    var chunk = 0x8000;
+    for (var i = 0; i < bytes.length; i += chunk) {
+      binary += String.fromCharCode.apply(null, bytes.subarray(i, i + chunk));
+    }
+    return btoa(binary);
+  }
+
+  function utf8ToB64(str) {
+    return bytesToB64(new TextEncoder().encode(str));
+  }
+
+  function b64ToUtf8(b64) {
+    var binary = atob(b64.replace(/\n/g, ''));
+    var bytes = new Uint8Array(binary.length);
+    for (var i = 0; i < binary.length; i++) bytes[i] = binary.charCodeAt(i);
+    return new TextDecoder('utf-8').decode(bytes);
+  }
+
+  function encodePath(path) {
+    return path.split('/').map(encodeURIComponent).join('/');
+  }
+
+  function fileToBytes(file) {
+    return new Promise(function (resolve, reject) {
+      var reader = new FileReader();
+      reader.onload = function () { resolve(new Uint8Array(reader.result)); };
+      reader.onerror = reject;
+      reader.readAsArrayBuffer(file);
+    });
+  }
+
+  function humanSize(bytes) {
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1024*1024) return Math.round(bytes/1024) + ' KB';
+    return (bytes/(1024*1024)).toFixed(1) + ' MB';
+  }
+
+  // ---------- lightweight markdown-ish body parser ----------
+  function inlineFormat(s) {
+    s = escapeHtml(s);
+    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (m, text, url) {
+      // s was already escaped above, so url/text here are already HTML-escaped — don't re-escape.
+      return '<a href="' + url + '">' + text + '</a>';
+    });
+    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
+    s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
+    return s;
+  }
+
+  function bodyToHtml(text) {
+    var blocks = text.replace(/\r\n/g, '\n').split(/\n{2,}/).map(function (b) { return b.trim(); }).filter(Boolean);
+    var html = '';
+    blocks.forEach(function (block) {
+      if (/^###\s+/.test(block)) { html += '<h3>' + inlineFormat(block.replace(/^###\s+/, '')) + '</h3>\n'; return; }
+      if (/^##\s+/.test(block)) { html += '<h2>' + inlineFormat(block.replace(/^##\s+/, '')) + '</h2>\n'; return; }
+      var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      if (lines.length && lines.every(function (l) { return /^-\s+/.test(l); })) {
+        html += '<ul>\n' + lines.map(function (l) { return '<li>' + inlineFormat(l.replace(/^-\s+/, '')) + '</li>'; }).join('\n') + '\n</ul>\n';
+        return;
+      }
+      if (lines.length && lines.every(function (l) { return /^\d+\.\s+/.test(l); })) {
+        html += '<ol>\n' + lines.map(function (l) { return '<li>' + inlineFormat(l.replace(/^\d+\.\s+/, '')) + '</li>'; }).join('\n') + '\n</ol>\n';
+        return;
+      }
+      html += '<p>' + inlineFormat(lines.join(' ')) + '</p>\n';
+    });
+    return html;
+  }
+
+  function plainTextFromBody(text) {
+    var t = (text || '').replace(/\r\n/g, '\n');
+    t = t.replace(/^#{2,3}\s+/gm, '');
+    t = t.replace(/^[-*]\s+/gm, '');
+    t = t.replace(/^\d+\.\s+/gm, '');
+    t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
+    t = t.replace(/\*\*([^*]+)\*\*/g, '$1');
+    t = t.replace(/\*([^*]+)\*/g, '$1');
+    t = t.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
+    return t;
+  }
+
+  // ---------- GitHub API ----------
+  function ghHeaders(token) {
+    return { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
+  }
+
+  function ghGetFile(path, token) {
+    return fetch(API + '/contents/' + encodePath(path) + '?t=' + Date.now(), { headers: ghHeaders(token), cache: 'no-store' })
+      .then(function (res) {
+        if (res.status === 404) return null;
+        if (!res.ok) return res.text().then(function (t) { throw new Error('Lettura di "' + path + '" fallita (' + res.status + '): ' + t); });
+        return res.json();
+      })
+      .then(function (data) {
+        if (!data) return null;
+        return { sha: data.sha, text: b64ToUtf8(data.content) };
+      });
+  }
+
+  function ghPutFile(path, contentB64, message, token, sha) {
+    var body = { message: message, content: contentB64, branch: 'main' };
+    if (sha) body.sha = sha;
+    return fetch(API + '/contents/' + encodePath(path), {
+      method: 'PUT',
+      headers: Object.assign({ 'Content-Type': 'application/json' }, ghHeaders(token)),
+      body: JSON.stringify(body)
+    }).then(function (res) {
+      if (!res.ok) return res.text().then(function (t) { throw new Error('Scrittura di "' + path + '" fallita (' + res.status + '): ' + t); });
+      return res.json();
+    });
+  }
+
+  // ---------- log UI ----------
+  var logEl = document.getElementById('log');
+  function log(msg, kind) {
+    logEl.style.display = 'block';
+    var line = document.createElement('div');
+    line.className = kind ? 'line-' + kind : '';
+    line.textContent = msg;
+    logEl.appendChild(line);
+    logEl.scrollTop = logEl.scrollHeight;
+  }
+
+  // ---------- verify token ----------
+  document.getElementById('btn-verify').addEventListener('click', function () {
+    var token = getToken();
+    if (!token) { connStatus.textContent = 'Inserisci un token'; connStatus.className = 'status-pill err'; return; }
+    connStatus.textContent = 'Verifica in corso…';
+    connStatus.className = 'status-pill pending';
+    fetch(API, { headers: ghHeaders(token) }).then(function (res) {
+      if (!res.ok) throw new Error('status ' + res.status);
+      return res.json();
+    }).then(function (data) {
+      connStatus.textContent = 'Collegato a ' + data.full_name;
+      connStatus.className = 'status-pill ok';
+      formCard.style.opacity = '1';
+      formCard.style.pointerEvents = 'auto';
+      if (rememberBox.checked) localStorage.setItem('msc_admin_token', token);
+      else localStorage.removeItem('msc_admin_token');
+    }).catch(function (err) {
+      connStatus.textContent = 'Token non valido o senza permessi';
+      connStatus.className = 'status-pill err';
+      formCard.style.opacity = '0.5';
+      formCard.style.pointerEvents = 'none';
+    });
+  });
+
+  rememberBox.addEventListener('change', function () {
+    if (!rememberBox.checked) localStorage.removeItem('msc_admin_token');
+  });
+
+  // ---------- category custom field ----------
+  var catSelect = document.getElementById('f-cat');
+  var catCustomWrap = document.getElementById('f-cat-custom-wrap');
+  catSelect.addEventListener('change', function () {
+    catCustomWrap.style.display = catSelect.value === '__custom__' ? 'block' : 'none';
+  });
+
+  function currentCategory() {
+    if (catSelect.value === '__custom__') {
+      var custom = document.getElementById('f-cat-custom').value.trim();
+      return { slug: slugify(custom), label: custom || 'Categoria' };
+    }
+    return { slug: catSelect.value, label: CAT_LABELS[catSelect.value] };
+  }
+
+  // ---------- date default + URL preview ----------
+  var dateInput = document.getElementById('f-date');
+  var todayIso = new Date().toISOString ? null : null;
+  (function setToday() {
+    var d = new Date();
+    var iso = d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+    dateInput.value = iso;
+  })();
+
+  var titleInput = document.getElementById('f-title');
+  var urlPreview = document.getElementById('url-preview');
+  function updateUrlPreview() {
+    var iso = dateInput.value || '';
+    var parts = iso.split('-');
+    var slug = slugify(titleInput.value);
+    if (parts.length === 3 && titleInput.value.trim()) {
+      urlPreview.textContent = SITE + '/' + parts[0] + '/' + parts[1] + '/' + parts[2] + '/' + slug + '/';
+    } else {
+      urlPreview.textContent = '';
+    }
+  }
+  titleInput.addEventListener('input', updateUrlPreview);
+  dateInput.addEventListener('input', updateUrlPreview);
+  catSelect.addEventListener('change', updateUrlPreview);
+
+  // ---------- attachments ----------
+  var filesInput = document.getElementById('f-files');
+  var attachListEl = document.getElementById('attach-list');
+  var pendingFiles = [];
+  filesInput.addEventListener('change', function () {
+    Array.prototype.forEach.call(filesInput.files, function (f) {
+      if (f.size > MAX_ATTACH_BYTES) {
+        log('File "' + f.name + '" troppo grande (' + humanSize(f.size) + ', limite 25 MB) — non è stato aggiunto.', 'err');
+        return;
+      }
+      pendingFiles.push(f);
+    });
+    filesInput.value = '';
+    renderAttachList();
+  });
+
+  function renderAttachList() {
+    attachListEl.innerHTML = '';
+    pendingFiles.forEach(function (f, idx) {
+      var li = document.createElement('li');
+      var span = document.createElement('span');
+      span.textContent = f.name + ' (' + humanSize(f.size) + ')';
+      var btn = document.createElement('button');
+      btn.textContent = 'Rimuovi';
+      btn.addEventListener('click', function () { pendingFiles.splice(idx, 1); renderAttachList(); });
+      li.appendChild(span);
+      li.appendChild(btn);
+      attachListEl.appendChild(li);
+    });
+  }
+
+  // ---------- HTML surgery helpers ----------
+  function findMatchingCloseDiv(html, afterIdx) {
+    var depth = 1;
+    var idx = afterIdx;
+    while (depth > 0) {
+      var nextOpen = html.indexOf('<div', idx);
+      var nextClose = html.indexOf('</div>', idx);
+      if (nextClose === -1) throw new Error('HTML non bilanciato durante la lettura della pagina.');
+      if (nextOpen !== -1 && nextOpen < nextClose) {
+        depth++;
+        idx = nextOpen + 4;
+      } else {
+        depth--;
+        idx = nextClose + 6;
+        if (depth === 0) return nextClose;
+      }
+    }
+  }
+
+  function locateCardGrid(html) {
+    var marker = '<div class="card-grid">';
+    var start = html.indexOf(marker);
+    if (start === -1) throw new Error('Griglia articoli (card-grid) non trovata nella pagina.');
+    var contentStart = start + marker.length;
+    var closeIdx = findMatchingCloseDiv(html, contentStart);
+    return { start: contentStart, end: closeIdx };
+  }
+
+  function extractCards(html, start, end) {
+    var cards = [];
+    var idx = start;
+    var marker = '<div class="card">';
+    while (true) {
+      var cardStart = html.indexOf(marker, idx);
+      if (cardStart === -1 || cardStart >= end) break;
+      var afterOpen = cardStart + marker.length;
+      var closeIdx = findMatchingCloseDiv(html, afterOpen);
+      var cardEnd = closeIdx + '</div>'.length;
+      cards.push(html.slice(cardStart, cardEnd).trim());
+      idx = cardEnd;
+    }
+    return cards;
+  }
+
+  // ---------- card builders ----------
+  function buildCategoryCardHtml(entry) {
+    return '<div class="card">\n<div class="eyebrow">' + escapeHtml(formatDateIt(entry.date)) + '</div>\n<h3><a href="' + escapeHtml(entry.url) + '">' + escapeHtml(entry.title) + '</a></h3>\n<p>' + escapeHtml(entry.excerpt) + '</p>\n</div>';
+  }
+
+  function buildHomeCardHtml(entry) {
+    return '<div class="card">\n<div class="eyebrow">' + escapeHtml(entry.catLabel) + '</div>\n<h3><a href="' + escapeHtml(entry.url) + '">' + escapeHtml(entry.title) + '</a></h3>\n<div class="meta">' + escapeHtml(formatDateIt(entry.date)) + '</div>\n<p>' + escapeHtml(entry.excerpt) + '</p>\n</div>';
+  }
+
+  // ---------- pagination nav / meta builders ----------
+  function paginationNav(catSlug, page, totalPages) {
+    if (totalPages <= 1) return '';
+    var prev = page > 1
+      ? '<a href="/categoria/' + catSlug + '/' + (page - 1 === 1 ? '' : 'pagina/' + (page - 1) + '/') + '" class="pagination-prev">&laquo; Precedente</a>'
+      : '<span class="pagination-prev pagination-disabled">&laquo; Precedente</span>';
+    var pages = '';
+    for (var p = 1; p <= totalPages; p++) {
+      var href = p === 1 ? '/categoria/' + catSlug + '/' : '/categoria/' + catSlug + '/pagina/' + p + '/';
+      pages += (p === page)
+        ? '<span class="pagination-current" aria-current="page">' + p + '</span>\n'
+        : '<a href="' + href + '">' + p + '</a>\n';
+    }
+    var next = page < totalPages
+      ? '<a href="/categoria/' + catSlug + '/pagina/' + (page + 1) + '/" class="pagination-next">Successivo &raquo;</a>'
+      : '<span class="pagination-next pagination-disabled">Successivo &raquo;</span>';
+    return '<nav class="pagination" aria-label="Navigazione pagine">\n' + prev + '\n<span class="pagination-pages">\n' + pages + '</span>\n' + next + '\n</nav>';
+  }
+
+  function headPagingLinks(catSlug, page, totalPages) {
+    var base = SITE + '/categoria/' + catSlug + '/';
+    var s = '<link rel="canonical" href="' + base + (page === 1 ? '' : 'pagina/' + page + '/') + '">\n';
+    if (page > 1) s += '<link rel="prev" href="' + base + (page - 1 === 1 ? '' : 'pagina/' + (page - 1) + '/') + '">\n';
+    if (page < totalPages) s += '<link rel="next" href="' + base + 'pagina/' + (page + 1) + '/">\n';
+    return s;
+  }
+
+  function sectionIntro(page, totalPages, total) {
+    if (totalPages <= 1) return '<p class="section-intro">' + total + (total === 1 ? ' articolo in questa categoria.' : ' articoli in questa categoria.') + '</p>';
+    var startN = (page - 1) * PER_PAGE + 1;
+    var endN = Math.min(page * PER_PAGE, total);
+    return '<p class="section-intro">' + total + ' articoli in questa categoria &mdash; pagina ' + page + ' di ' + totalPages + ' (articoli ' + startN + '–' + endN + ')</p>';
+  }
+
+  function catMetaDesc(catLabel, page, totalPages, total) {
+    if (totalPages <= 1) return total + ' articoli sulla categoria ' + catLabel + '.';
+    var startN = (page - 1) * PER_PAGE + 1;
+    var endN = Math.min(page * PER_PAGE, total);
+    return catLabel + ': articoli ' + startN + '–' + endN + ' di ' + total + '.';
+  }
+
+  function breadcrumbJsonld(items) {
+    return {
+      "@context": "https://schema.org", "@type": "BreadcrumbList",
+      "itemListElement": items.map(function (it, i) { return { "@type": "ListItem", "position": i + 1, "name": it[0], "item": it[1] }; })
+    };
+  }
+
+  function jsonldScripts(list) {
+    return list.map(function (obj) { return '<script type="application/ld+json">' + JSON.stringify(obj) + '<\/script>'; }).join('\n');
+  }
+
+  // ---------- category page template (used both for rebuild and single-page create) ----------
+  function buildCategoryPageHtml(catSlug, catLabel, page, totalPages, total, cardsHtmlArray) {
+    var title = page === 1 ? (catLabel + ' — mediaresenzaconfini') : (catLabel + ' — pagina ' + page + ' — mediaresenzaconfini');
+    var desc = catMetaDesc(catLabel, page, totalPages, total);
+    var canonicalUrl = SITE + '/categoria/' + catSlug + '/' + (page === 1 ? '' : 'pagina/' + page + '/');
+    var jsonld = jsonldScripts([WEBSITE_JSONLD, PERSON_JSONLD, breadcrumbJsonld([["Home", SITE + '/'], [catLabel, canonicalUrl]])]);
+    var ogBlock = '<meta property="og:type" content="website">\n<meta property="og:site_name" content="mediaresenzaconfini">\n<meta property="og:title" content="' + escapeHtml(title) + '">\n<meta property="og:description" content="' + escapeHtml(desc) + '">\n<meta property="og:url" content="' + canonicalUrl + '">\n<meta property="og:image" content="' + IMG + '">\n<meta property="og:locale" content="it_IT">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + escapeHtml(title) + '">\n<meta name="twitter:description" content="' + escapeHtml(desc) + '">\n<meta name="twitter:image" content="' + IMG + '">';
+
+    return '<!doctype html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + escapeHtml(title) + '</title>\n<meta name="description" content="' + escapeHtml(desc) + '">\n' + headPagingLinks(catSlug, page, totalPages) + ogBlock + '\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n<link rel="stylesheet" href="/static/css/style.css">\n' + GC_SCRIPT + '\n' + jsonld + '\n</head>\n<body>\n' + HEADER_BLOCK + '\n\n<main class="wrap">\n\n<div class="breadcrumb"><a href="/">Home</a> &rsaquo; ' + escapeHtml(catLabel) + '</div>\n<section class="section">\n<h1>' + escapeHtml(catLabel) + '</h1>\n' + sectionIntro(page, totalPages, total) + '\n<div class="card-grid">\n' + cardsHtmlArray.join('\n\n') + '\n</div>\n' + paginationNav(catSlug, page, totalPages) + '\n</section>\n\n</main>\n' + FOOTER_BLOCK + '\n</body>\n</html>\n';
+  }
+
+  // ---------- attachments block ----------
+  function buildAttachmentsBlock(uploaded) {
+    if (!uploaded.length) return '';
+    var items = uploaded.map(function (f) {
+      return '<li><a href="' + escapeHtml(f.url) + '" download>' + escapeHtml(f.displayName) + '</a> <span class="attachment-size">(' + humanSize(f.size) + ')</span></li>';
+    }).join('\n');
+    return '\n\n<div class="post-attachments">\n<div class="label">Allegati</div>\n<ul class="attachment-list">\n' + items + '\n</ul>\n</div>';
+  }
+
+  // ---------- article page template ----------
+  function buildArticleHtml(a) {
+    var title = a.title;
+    var fullTitle = title + ' — mediaresenzaconfini';
+    var desc = a.metaDesc;
+    var canonicalUrl = a.canonicalUrl;
+    var ogBlock = '<meta property="og:type" content="article">\n<meta property="og:site_name" content="mediaresenzaconfini">\n<meta property="og:title" content="' + escapeHtml(fullTitle) + '">\n<meta property="og:description" content="' + escapeHtml(desc) + '">\n<meta property="og:url" content="' + canonicalUrl + '">\n<meta property="og:image" content="' + IMG + '">\n<meta property="og:locale" content="it_IT">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + escapeHtml(fullTitle) + '">\n<meta name="twitter:description" content="' + escapeHtml(desc) + '">\n<meta name="twitter:image" content="' + IMG + '">';
+    var articleJsonld = {
+      "@context": "https://schema.org", "@type": "Article",
+      "headline": title, "description": desc,
+      "datePublished": a.iso, "dateModified": a.iso,
+      "author": { "@type": "Person", "name": "Carlo Alberto Calcagno", "url": SITE + '/about/' },
+      "publisher": { "@type": "Organization", "name": "mediaresenzaconfini", "url": SITE + '/' },
+      "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl }, "url": canonicalUrl
+    };
+    var jsonld = jsonldScripts([WEBSITE_JSONLD, PERSON_JSONLD, breadcrumbJsonld([["Home", SITE + '/'], [a.catLabel, SITE + '/categoria/' + a.catSlug + '/'], [title, canonicalUrl]]), articleJsonld]);
+
+    return '<!doctype html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + escapeHtml(fullTitle) + '</title>\n<meta name="description" content="' + escapeHtml(desc) + '">\n<link rel="canonical" href="' + canonicalUrl + '">\n' + ogBlock + '\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n<link rel="stylesheet" href="/static/css/style.css">\n' + GC_SCRIPT + '\n' + jsonld + '\n</head>\n<body>\n' + HEADER_BLOCK + '\n\n<main class="wrap">\n\n<div class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/categoria/' + a.catSlug + '/">' + escapeHtml(a.catLabel) + '</a></div>\n<article class="post">\n<div class="post-header">\n<h1>' + escapeHtml(title) + '</h1>\n<div class="post-meta">\n<span>' + escapeHtml(formatDateIt(a.iso)) + '</span>\n<span class="tag-pill">' + escapeHtml(a.catLabel) + '</span>\n</div>\n</div>\n<div class="post-body">\n' + a.bodyHtml + '</div>' + a.attachmentsBlock + '\n</article>\n\n</main>\n' + FOOTER_BLOCK + '\n</body>\n</html>\n';
+  }
+
+  // ---------- publish flow ----------
+  async function rebuildCategoryListing(catSlug, catLabel, newCardHtml, token) {
+    var isPaginated = PAGINATED_CATS.indexOf(catSlug) !== -1;
+    var basePath = 'categoria/' + catSlug + '/index.html';
+    var page1 = await ghGetFile(basePath, token);
+
+    if (!page1) {
+      var freshHtml = buildCategoryPageHtml(catSlug, catLabel, 1, 1, 1, [newCardHtml]);
+      await ghPutFile(basePath, utf8ToB64(freshHtml), 'Crea pagina categoria ' + catLabel, token, null);
+      log('Categoria "' + catLabel + '" creata (nuova categoria, prima pubblicazione).', 'ok');
+      return;
+    }
+
+    if (!isPaginated) {
+      var region = locateCardGrid(page1.text);
+      var cards = extractCards(page1.text, region.start, region.end);
+      var allCards = [newCardHtml].concat(cards);
+      var html = buildCategoryPageHtml(catSlug, catLabel, 1, 1, allCards.length, allCards);
+      await ghPutFile(basePath, utf8ToB64(html), 'Aggiungi articolo alla categoria ' + catLabel, token, page1.sha);
+      log('Categoria "' + catLabel + '" aggiornata (' + allCards.length + ' articoli, pagina unica).', 'ok');
+      return;
+    }
+
+    // paginated category: discover existing page count from page1's pagination links
+    var pageLinkRe = new RegExp('/categoria/' + catSlug + '/pagina/(\\d+)/', 'g');
+    var found, maxPage = 1, m;
+    while ((m = pageLinkRe.exec(page1.text)) !== null) { maxPage = Math.max(maxPage, parseInt(m[1], 10)); }
+
+    var allCards2 = [];
+    var pageShas = {};
+    var region1 = locateCardGrid(page1.text);
+    pageShas[1] = page1.sha;
+    allCards2 = allCards2.concat(extractCards(page1.text, region1.start, region1.end));
+
+    for (var p = 2; p <= maxPage; p++) {
+      var path = 'categoria/' + catSlug + '/pagina/' + p + '/index.html';
+      var f = await ghGetFile(path, token);
+      if (!f) continue;
+      pageShas[p] = f.sha;
+      var r = locateCardGrid(f.text);
+      allCards2 = allCards2.concat(extractCards(f.text, r.start, r.end));
+    }
+
+    allCards2.unshift(newCardHtml);
+    var total = allCards2.length;
+    var totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+
+    for (var pp = 1; pp <= totalPages; pp++) {
+      var pageCards = allCards2.slice((pp - 1) * PER_PAGE, pp * PER_PAGE);
+      var pHtml = buildCategoryPageHtml(catSlug, catLabel, pp, totalPages, total, pageCards);
+      var pPath = pp === 1 ? basePath : 'categoria/' + catSlug + '/pagina/' + pp + '/index.html';
+      var pSha = pageShas[pp] || null;
+      await ghPutFile(pPath, utf8ToB64(pHtml), 'Aggiorna paginazione categoria ' + catLabel + ' (pagina ' + pp + '/' + totalPages + ')', token, pSha);
+      log('Pagina ' + pp + '/' + totalPages + ' di "' + catLabel + '" aggiornata (' + pageCards.length + ' articoli).', 'ok');
+    }
+  }
+
+  async function updateHomepage(homeCardHtml) {
+    var token = getToken();
+    var home = await ghGetFile('index.html', token);
+    if (!home) throw new Error('Impossibile leggere la homepage.');
+    var html = home.text;
+    var h2Marker = '<h2>Ultimi articoli</h2>';
+    var h2Idx = html.indexOf(h2Marker);
+    if (h2Idx === -1) throw new Error('Sezione "Ultimi articoli" non trovata in homepage.');
+    var region = locateCardGrid(html.slice(h2Idx));
+    var absStart = h2Idx + region.start;
+    var absEnd = h2Idx + region.end;
+    var cards = extractCards(html, absStart, absEnd);
+    var newCards = [homeCardHtml].concat(cards).slice(0, 6);
+    var newInner = '\n' + newCards.join('\n\n') + '\n';
+    var newHtml = html.slice(0, absStart) + newInner + html.slice(absEnd);
+    await ghPutFile('index.html', utf8ToB64(newHtml), 'Aggiorna Ultimi articoli in homepage', token, home.sha);
+  }
+
+  async function updateSearchIndex(entry) {
+    var token = getToken();
+    var f = await ghGetFile('static/search-index.json', token);
+    if (!f) throw new Error('Indice di ricerca non trovato.');
+    var data = JSON.parse(f.text);
+    data.unshift({ t: entry.title, u: entry.path, e: entry.excerpt, c: entry.catLabel, d: entry.iso });
+    var newText = JSON.stringify(data);
+    await ghPutFile('static/search-index.json', utf8ToB64(newText), 'Aggiungi articolo all\'indice di ricerca', token, f.sha);
+  }
+
+  async function updateSitemap(canonicalUrl) {
+    var token = getToken();
+    var f = await ghGetFile('sitemap.xml', token);
+    if (!f) throw new Error('sitemap.xml non trovato.');
+    var marker = '</url>';
+    var firstEnd = f.text.indexOf(marker);
+    if (firstEnd === -1) throw new Error('Formato sitemap.xml inatteso.');
+    var insertPos = firstEnd + marker.length;
+    var newLine = '\n  <url><loc>' + canonicalUrl + '</loc></url>';
+    var newText = f.text.slice(0, insertPos) + newLine + f.text.slice(insertPos);
+    await ghPutFile('sitemap.xml', utf8ToB64(newText), 'Aggiungi articolo alla sitemap', token, f.sha);
+  }
+
+  publishBtn.addEventListener('click', async function () {
+    var token = getToken();
+    if (!token) { log('Devi prima verificare il token di accesso.', 'err'); return; }
+
+    var title = titleInput.value.trim();
+    var bodyRaw = document.getElementById('f-body').value;
+    var iso = dateInput.value;
+    var cat = currentCategory();
+
+    if (!title) { log('Inserisci il titolo dell\'articolo.', 'err'); return; }
+    if (!bodyRaw.trim()) { log('Inserisci il testo dell\'articolo.', 'err'); return; }
+    if (!iso) { log('Seleziona una data.', 'err'); return; }
+    if (!cat.slug) { log('Specifica una categoria valida.', 'err'); return; }
+
+    publishBtn.disabled = true;
+    logEl.innerHTML = '';
+    logEl.style.display = 'block';
+
+    try {
+      var parts = iso.split('-');
+      var slug = slugify(title);
+      var articlePath = parts[0] + '/' + parts[1] + '/' + parts[2] + '/' + slug + '/index.html';
+      var articleUrlPath = '/' + parts[0] + '/' + parts[1] + '/' + parts[2] + '/' + slug + '/';
+      var canonicalUrl = SITE + articleUrlPath;
+
+      log('Controllo che l\'indirizzo non sia già in uso…', 'info');
+      var existing = await ghGetFile(articlePath, token);
+      if (existing) {
+        log('Esiste già un contenuto a questo indirizzo (' + canonicalUrl + '). Cambia titolo o data e riprova.', 'err');
+        publishBtn.disabled = false;
+        return;
+      }
+
+      var plainText = plainTextFromBody(bodyRaw);
+      var metaDesc = truncate(plainText, 155);
+      var excerpt = truncate(plainText, 140);
+      var bodyHtml = bodyToHtml(bodyRaw);
+
+      // 1. upload attachments
+      var uploaded = [];
+      for (var i = 0; i < pendingFiles.length; i++) {
+        var file = pendingFiles[i];
+        log('Carico allegato: ' + file.name + ' (' + humanSize(file.size) + ')…', 'info');
+        var bytes = await fileToBytes(file);
+        var b64 = bytesToB64(bytes);
+        var fname = sanitizeFilename(file.name);
+        var used = uploaded.map(function (u) { return u.filename; });
+        var candidate = fname, n = 2;
+        while (used.indexOf(candidate) !== -1) {
+          var dot = fname.lastIndexOf('.');
+          candidate = dot > 0 ? (fname.slice(0, dot) + '-' + n + fname.slice(dot)) : (fname + '-' + n);
+          n++;
+        }
+        var attachPath = 'static/uploads/' + slug + '/' + candidate;
+        await ghPutFile(attachPath, b64, 'Carica allegato ' + candidate + ' per articolo "' + title + '"', token, null);
+        uploaded.push({ filename: candidate, displayName: file.name, url: '/' + attachPath, size: file.size });
+        log('Allegato caricato: ' + candidate, 'ok');
+      }
+
+      var attachmentsBlock = buildAttachmentsBlock(uploaded);
+
+      // 2. create article
+      log('Creo la pagina dell\'articolo…', 'info');
+      var articleHtml = buildArticleHtml({
+        title: title, iso: iso, catSlug: cat.slug, catLabel: cat.label,
+        metaDesc: metaDesc, canonicalUrl: canonicalUrl, bodyHtml: bodyHtml, attachmentsBlock: attachmentsBlock
+      });
+      await ghPutFile(articlePath, utf8ToB64(articleHtml), 'Pubblica nuovo articolo: ' + title, token, null);
+      log('Articolo creato: ' + canonicalUrl, 'ok');
+
+      // 3. search index (best-effort)
+      try {
+        await updateSearchIndex({ title: title, path: articleUrlPath, excerpt: excerpt, catLabel: cat.label, iso: iso });
+        log('Indice di ricerca aggiornato.', 'ok');
+      } catch (e) { log('Indice di ricerca: ' + e.message, 'err'); }
+
+      // 4. sitemap (best-effort)
+      try {
+        await updateSitemap(canonicalUrl);
+        log('Sitemap aggiornata.', 'ok');
+      } catch (e) { log('Sitemap: ' + e.message, 'err'); }
+
+      // 5. homepage (best-effort)
+      try {
+        var homeCard = buildHomeCardHtml({ title: title, url: articleUrlPath, excerpt: excerpt, catLabel: cat.label, date: iso });
+        await updateHomepage(homeCard);
+        log('Homepage ("Ultimi articoli") aggiornata.', 'ok');
+      } catch (e) { log('Homepage: ' + e.message, 'err'); }
+
+      // 6. category listing (best-effort)
+      try {
+        var catCard = buildCategoryCardHtml({ title: title, url: articleUrlPath, excerpt: excerpt, date: iso });
+        await rebuildCategoryListing(cat.slug, cat.label, catCard, token);
+      } catch (e) { log('Categoria "' + cat.label + '": ' + e.message, 'err'); }
+
+      log('', 'info');
+      log('Fatto. L\'articolo sarà visibile su ' + canonicalUrl + ' entro circa un minuto (tempo di pubblicazione di GitHub Pages).', 'ok');
+    } catch (err) {
+      log('Errore: ' + err.message, 'err');
+    } finally {
+      publishBtn.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>
