@@ -130,6 +130,9 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .attachment-list li { font-size: 0.92rem; }
 .attachment-list a { font-weight: 600; }
 .attachment-size { color: var(--ink-soft); font-size: 0.82rem; margin-left: 4px; }
+.post-subscribe { max-width: 560px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
+.post-subscribe h2 { font-size: 1.15rem; margin-bottom: 8px; }
+.post-subscribe p { color: var(--ink-soft); font-size: 0.92rem; }
 .tag-list span.country-pill { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 20px; padding: 3px 12px; font-size: 0.8rem; color: var(--ink-soft); }
 
 /* Country index */
