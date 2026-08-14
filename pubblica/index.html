@@ -679,6 +679,19 @@
     return '\n\n<div class="post-attachments">\n<div class="label">Allegati</div>\n<ul class="attachment-list">\n' + items + '\n</ul>\n</div>';
   }
 
+  // ---------- share links (end of article, visible to every reader) ----------
+  function buildShareBlock(title, url) {
+    var shareText = title + ' \u2014 mediaresenzaconfini';
+    var encUrl = encodeURIComponent(url);
+    var encText = encodeURIComponent(shareText);
+    return '\n\n<div class="post-share">\n<div class="post-share-label">Condividi questo articolo</div>\n<div class="post-share-links">\n' +
+      '<a href="https://wa.me/?text=' + encText + '%20' + encUrl + '" target="_blank" rel="noopener">WhatsApp</a>\n' +
+      '<a href="https://twitter.com/intent/tweet?text=' + encText + '&url=' + encUrl + '" target="_blank" rel="noopener">X / Twitter</a>\n' +
+      '<a href="https://www.linkedin.com/sharing/share-offsite/?url=' + encUrl + '" target="_blank" rel="noopener">LinkedIn</a>\n' +
+      '<a href="https://www.facebook.com/sharer/sharer.php?u=' + encUrl + '" target="_blank" rel="noopener">Facebook</a>\n' +
+      '</div>\n</div>';
+  }
+
   // ---------- newsletter CTA (end of article) ----------
   function buildNewsletterCta() {
     return '\n\n<div class="post-subscribe">\n<h2>Ricevi i nuovi articoli via email</h2>\n<p>Iscriviti per essere avvisato via email a ogni nuova pubblicazione su mediazione, conciliazione, arbitrato e ADR. Nessuna pubblicità, cancellazione in un click.</p>\n<form action="https://buttondown.com/api/emails/embed-subscribe/carlo_alberto" method="post" class="subscribe-form">\n<label for="bd-email-article" class="visually-hidden">La tua email</label>\n<input type="email" name="email" id="bd-email-article" placeholder="La tua email" required>\n<input type="submit" value="Iscriviti">\n</form>\n</div>';
@@ -701,7 +714,7 @@
     };
     var jsonld = jsonldScripts([WEBSITE_JSONLD, PERSON_JSONLD, breadcrumbJsonld([["Home", SITE + '/'], [a.catLabel, SITE + '/categoria/' + a.catSlug + '/'], [title, canonicalUrl]]), articleJsonld]);
 
-    return '<!doctype html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + escapeHtml(fullTitle) + '</title>\n<meta name="description" content="' + escapeHtml(desc) + '">\n<link rel="canonical" href="' + canonicalUrl + '">\n' + ogBlock + '\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n<link rel="stylesheet" href="/static/css/style.css">\n' + GC_SCRIPT + '\n' + jsonld + '\n</head>\n<body>\n' + HEADER_BLOCK + '\n\n<main class="wrap">\n\n<div class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/categoria/' + a.catSlug + '/">' + escapeHtml(a.catLabel) + '</a></div>\n<article class="post">\n<div class="post-header">\n<h1>' + escapeHtml(title) + '</h1>\n<div class="post-meta">\n<span>' + escapeHtml(formatDateIt(a.iso)) + '</span>\n<span class="tag-pill">' + escapeHtml(a.catLabel) + '</span>\n</div>\n</div>\n<div class="post-body">\n' + a.bodyHtml + '</div>' + a.attachmentsBlock + buildNewsletterCta() + '\n</article>\n\n</main>\n' + FOOTER_BLOCK + '\n</body>\n</html>\n';
+    return '<!doctype html>\n<html lang="it">\n<head>\n<meta charset="utf-8">\n<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>' + escapeHtml(fullTitle) + '</title>\n<meta name="description" content="' + escapeHtml(desc) + '">\n<link rel="canonical" href="' + canonicalUrl + '">\n' + ogBlock + '\n<link rel="preconnect" href="https://fonts.googleapis.com">\n<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">\n<link rel="stylesheet" href="/static/css/style.css">\n' + GC_SCRIPT + '\n' + jsonld + '\n</head>\n<body>\n' + HEADER_BLOCK + '\n\n<main class="wrap">\n\n<div class="breadcrumb"><a href="/">Home</a> &rsaquo; <a href="/categoria/' + a.catSlug + '/">' + escapeHtml(a.catLabel) + '</a></div>\n<article class="post">\n<div class="post-header">\n<h1>' + escapeHtml(title) + '</h1>\n<div class="post-meta">\n<span>' + escapeHtml(formatDateIt(a.iso)) + '</span>\n<span class="tag-pill">' + escapeHtml(a.catLabel) + '</span>\n</div>\n</div>\n<div class="post-body">\n' + a.bodyHtml + '</div>' + a.attachmentsBlock + buildShareBlock(title, canonicalUrl) + buildNewsletterCta() + '\n</article>\n\n</main>\n' + FOOTER_BLOCK + '\n</body>\n</html>\n';
   }
 
   // ---------- publish flow ----------
