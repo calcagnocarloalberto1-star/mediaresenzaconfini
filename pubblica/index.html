@@ -89,7 +89,7 @@
 
   <div class="admin-card" id="card-form" style="opacity:0.5; pointer-events:none;">
     <h2>2. Nuovo articolo</h2>
-    <p class="hint">Scrivi il testo separando i paragrafi con una riga vuota. Per un titolo di paragrafo scrivi la riga preceduta da <code>## </code> (titolo principale) o <code>### </code> (sottotitolo). Per il <strong>grassetto</strong> usa <code>**testo**</code>, per il <em>corsivo</em> <code>*testo*</code>, per un elenco puntato inizia ogni riga con <code>- </code>, per un elenco numerato con <code>1. </code>. Per un link usa <code>[testo](https://esempio.it)</code>.</p>
+    <p class="hint">Scrivi il testo separando i paragrafi con una riga vuota. Per un titolo di paragrafo scrivi la riga preceduta da <code>## </code> (titolo principale) o <code>### </code> (sottotitolo). Per il <strong>grassetto</strong> usa <code>**testo**</code>, per il <em>corsivo</em> <code>*testo*</code>, per un elenco puntato inizia ogni riga con <code>- </code>, per un elenco numerato con <code>1. </code>. Per un link usa <code>[testo](https://esempio.it)</code>. Per una <strong>tabella</strong>, scrivi una riga di intestazione con le colonne separate da <code>|</code>, poi una riga con <code>| --- | --- |</code> (un trattino per colonna), poi una riga per ogni riga di dati — es. <code>| Nome | Ruolo |</code> seguito da <code>| --- | --- |</code> e <code>| Mario | Mediatore |</code>.</p>
 
     <div class="field">
       <label for="f-title">Titolo dell'articolo</label>
@@ -280,6 +280,19 @@
       if (/^###\s+/.test(block)) { html += '<h3>' + inlineFormat(block.replace(/^###\s+/, '')) + '</h3>\n'; return; }
       if (/^##\s+/.test(block)) { html += '<h2>' + inlineFormat(block.replace(/^##\s+/, '')) + '</h2>\n'; return; }
       var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
+      if (lines.length >= 2 && lines[0].indexOf('|') !== -1 && /^\|?[\s:-]*-[\s:|-]*\|?$/.test(lines[1])) {
+        var tableRow = function (l) {
+          return l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function (c) { return c.trim(); });
+        };
+        var headCells = tableRow(lines[0]);
+        var bodyRows = lines.slice(2).map(tableRow);
+        var thead = '<thead>\n<tr>' + headCells.map(function (c) { return '<th>' + inlineFormat(c) + '</th>'; }).join('') + '</tr>\n</thead>\n';
+        var tbody = '<tbody>\n' + bodyRows.map(function (row) {
+          return '<tr>' + row.map(function (c) { return '<td>' + inlineFormat(c) + '</td>'; }).join('') + '</tr>';
+        }).join('\n') + '\n</tbody>\n';
+        html += '<div class="table-wrap"><table>\n' + thead + tbody + '</table></div>\n';
+        return;
+      }
       if (lines.length && lines.every(function (l) { return /^-\s+/.test(l); })) {
         html += '<ul>\n' + lines.map(function (l) { return '<li>' + inlineFormat(l.replace(/^-\s+/, '')) + '</li>'; }).join('\n') + '\n</ul>\n';
         return;
@@ -296,6 +309,9 @@
   function plainTextFromBody(text) {
     var t = (text || '').replace(/\r\n/g, '\n');
     t = t.replace(/^#{2,3}\s+/gm, '');
+    t = t.replace(/^\|?[\s:-]*-[\s:|-]*\|?$/gm, '');
+    t = t.replace(/^\|(.*)\|$/gm, '$1');
+    t = t.replace(/\|/g, ' ');
     t = t.replace(/^[-*]\s+/gm, '');
     t = t.replace(/^\d+\.\s+/gm, '');
     t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
