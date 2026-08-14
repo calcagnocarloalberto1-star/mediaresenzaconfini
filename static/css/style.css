@@ -123,6 +123,13 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
 .tag-list a { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 20px; padding: 3px 12px; font-size: 0.8rem; color: var(--ink-soft); }
 .tag-list a:hover { background: var(--navy); color: #fff; text-decoration: none; }
+
+.post-attachments { max-width: 760px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
+.post-attachments .label { font-size: 0.78rem; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin-bottom: 8px; }
+.attachment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
+.attachment-list li { font-size: 0.92rem; }
+.attachment-list a { font-weight: 600; }
+.attachment-size { color: var(--ink-soft); font-size: 0.82rem; margin-left: 4px; }
 .tag-list span.country-pill { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 20px; padding: 3px 12px; font-size: 0.8rem; color: var(--ink-soft); }
 
 /* Country index */
