@@ -118,6 +118,10 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .post-body { max-width: 760px; font-size: 1.05rem; color: #232b3a; }
 .post-body p { margin: 0 0 1.1em; text-align: justify; }
 .post-body h2, .post-body h3 { font-family: var(--serif); margin-top: 1.6em; }
+.post-body .table-wrap { overflow-x: auto; margin: 1.4em 0; }
+.post-body table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+.post-body th, .post-body td { padding: 8px 12px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.post-body thead th { background: var(--paper-alt); font-weight: 600; }
 .post-taxonomy { max-width: 760px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); }
 .post-taxonomy .label { font-size: 0.78rem; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin-bottom: 8px; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
