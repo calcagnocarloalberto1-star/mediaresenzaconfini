@@ -1,0 +1,1101 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Editor di contenuto strutturato</title>
+<style>
+  :root{
+    --ink:#1c2530; --ink-soft:#5b6774; --line:#dfe4ea; --paper:#ffffff; --paper-alt:#f5f7f9;
+    --navy:#1f3a5f; --accent:#2f6fed; --accent-soft:#eaf1ff; --danger:#c0392b;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    background:var(--paper-alt); color:var(--ink); padding:24px;
+  }
+  .app{ max-width:820px; margin:0 auto; background:var(--paper); border:1px solid var(--line); border-radius:10px; overflow:hidden; }
+  header.app-head{ padding:16px 20px; border-bottom:1px solid var(--line); }
+  header.app-head h1{ margin:0 0 4px; font-size:1.15rem; }
+  header.app-head p{ margin:0; color:var(--ink-soft); font-size:0.85rem; }
+
+  .tabs{ display:flex; gap:4px; padding:10px 20px 0; border-bottom:1px solid var(--line); }
+  .tab-btn{ border:1px solid var(--line); border-bottom:none; background:var(--paper-alt); color:var(--ink-soft);
+    padding:8px 14px; border-radius:8px 8px 0 0; cursor:pointer; font-size:0.85rem; }
+  .tab-btn.active{ background:var(--paper); color:var(--ink); font-weight:600; }
+
+  .toolbar{ display:flex; flex-wrap:wrap; gap:6px; padding:10px 20px; border-bottom:1px solid var(--line); background:var(--paper-alt); }
+  .toolbar button{
+    border:1px solid var(--line); background:var(--paper); color:var(--ink); padding:7px 11px;
+    border-radius:7px; cursor:pointer; font-size:0.82rem; display:flex; align-items:center; gap:6px;
+  }
+  .toolbar button:hover{ background:var(--accent-soft); border-color:var(--accent); }
+  .toolbar button:active{ transform:translateY(1px); }
+  .toolbar button.active{ background:var(--accent-soft); border-color:var(--accent); color:var(--accent); font-weight:600; }
+  .toolbar .sep{ width:1px; background:var(--line); margin:0 4px; }
+
+  .editor-wrap{ padding:22px 24px; min-height:280px; }
+  .preview-wrap{ padding:22px 24px; display:none; min-height:280px; }
+  .preview-wrap.visible{ display:block; }
+  .editor-wrap.hidden{ display:none; }
+
+  .block{ position:relative; margin-bottom:14px; padding:6px 8px 6px 34px; border-radius:6px; }
+  .block:hover{ background:#fafbfc; }
+  .block:hover .block-controls{ opacity:1; }
+  .block-controls{ position:absolute; left:0; top:4px; opacity:0; transition:opacity .12s; display:flex; flex-direction:column; gap:2px; }
+  .block-controls button{ border:1px solid var(--line); background:var(--paper); font-size:0.68rem; width:22px; height:20px;
+    line-height:1; cursor:pointer; border-radius:4px; color:var(--ink-soft); padding:0; }
+  .block-controls button:hover{ background:var(--accent-soft); }
+
+  .field{ outline:none; min-height:1.4em; line-height:1.55; }
+  .field:empty:before{ content:attr(data-placeholder); color:#9aa5b1; }
+
+  h1.b-heading1{ font-size:1.7rem; margin:0; color:var(--navy); }
+  h2.b-heading2{ font-size:1.25rem; margin:0; color:var(--navy); }
+  p.b-paragraph{ margin:0; font-size:0.98rem; }
+
+  .b-list{ margin:0; padding-left:1.4em; }
+  .b-list li{ margin-bottom:4px; }
+  .b-list li .field{ display:inline-block; min-width:2px; }
+
+  table.b-table{ border-collapse:collapse; width:100%; margin-top:4px; }
+  table.b-table th, table.b-table td{ border:1px solid var(--line); padding:6px 8px; font-size:0.9rem; min-width:60px; }
+  table.b-table th{ background:var(--paper-alt); font-weight:600; }
+  table.b-table [contenteditable]{ outline:none; }
+  .table-controls{ display:flex; gap:6px; margin-top:6px; }
+  .table-controls button{ border:1px solid var(--line); background:var(--paper); border-radius:6px; padding:4px 9px; font-size:0.75rem; cursor:pointer; }
+  .table-controls button:hover{ background:var(--accent-soft); }
+
+  a.editor-link{ color:var(--accent); text-decoration:underline; cursor:text; }
+
+  .empty-hint{ color:var(--ink-soft); font-size:0.85rem; padding:12px 0; }
+
+  /* Modal */
+  .overlay{ position:fixed; inset:0; background:rgba(20,26,33,.45); display:none; align-items:center; justify-content:center; z-index:50; }
+  .overlay.visible{ display:flex; }
+  .modal{ background:var(--paper); border-radius:10px; padding:20px 22px; width:380px; max-width:92vw; box-shadow:0 12px 40px rgba(0,0,0,.25); }
+  .modal h3{ margin:0 0 14px; font-size:1rem; }
+  .modal label{ display:block; font-size:0.8rem; color:var(--ink-soft); margin:10px 0 4px; }
+  .modal input[type=text], .modal input[type=number]{
+    width:100%; padding:8px 10px; border:1px solid var(--line); border-radius:6px; font-size:0.9rem;
+  }
+  .modal .row{ display:flex; gap:12px; }
+  .modal .row > div{ flex:1; }
+  .modal .err{ color:var(--danger); font-size:0.78rem; min-height:1.1em; margin-top:6px; }
+  .modal .actions{ display:flex; justify-content:flex-end; gap:8px; margin-top:18px; }
+  .modal .actions button{ padding:8px 14px; border-radius:7px; border:1px solid var(--line); background:var(--paper); cursor:pointer; font-size:0.85rem; }
+  .modal .actions button.primary{ background:var(--accent); border-color:var(--accent); color:#fff; }
+
+  textarea.md-out{ width:100%; height:220px; font-family:ui-monospace,SFMono-Regular,Menlo,monospace; font-size:0.8rem;
+    border:1px solid var(--line); border-radius:6px; padding:10px; resize:vertical; }
+
+  .preview-wrap h1{ font-size:1.7rem; color:var(--navy); }
+  .preview-wrap h2{ font-size:1.25rem; color:var(--navy); }
+  .preview-wrap table{ border-collapse:collapse; width:100%; }
+  .preview-wrap th, .preview-wrap td{ border:1px solid var(--line); padding:6px 8px; }
+  .preview-wrap th{ background:var(--paper-alt); }
+  .preview-wrap a{ color:var(--accent); }
+
+  footer.status{ padding:8px 20px; border-top:1px solid var(--line); font-size:0.75rem; color:var(--ink-soft); display:flex; justify-content:space-between; }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="app-head">
+    <h1>Editor di contenuto strutturato</h1>
+    <p>Scrivi e formatta usando i pulsanti qui sotto: nessun simbolo di sintassi da digitare.</p>
+  </header>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="editor" type="button">Editor</button>
+    <button class="tab-btn" data-tab="preview" type="button">Anteprima</button>
+  </div>
+
+  <div class="toolbar" id="toolbar">
+    <button type="button" data-cmd="heading1" title="Titolo">Titolo</button>
+    <button type="button" data-cmd="heading2" title="Sottotitolo">Sottotitolo</button>
+    <div class="sep"></div>
+    <button type="button" data-cmd="bold" title="Grassetto"><b>G</b></button>
+    <button type="button" data-cmd="italic" title="Corsivo"><i>C</i></button>
+    <div class="sep"></div>
+    <button type="button" data-cmd="bulletList" title="Elenco puntato">Elenco puntato</button>
+    <button type="button" data-cmd="numberedList" title="Elenco numerato">Elenco numerato</button>
+    <div class="sep"></div>
+    <button type="button" data-cmd="justify" id="justifyBtn" title="Giustifica testo">Giustifica</button>
+    <div class="sep"></div>
+    <button type="button" data-cmd="link" title="Inserisci link">Inserisci link</button>
+    <button type="button" data-cmd="table" title="Inserisci tabella">Inserisci tabella</button>
+    <div class="sep"></div>
+    <button type="button" data-cmd="exportMd" title="Esporta Markdown">Esporta Markdown</button>
+  </div>
+
+  <div class="editor-wrap" id="editorWrap">
+    <div id="editor"></div>
+  </div>
+  <div class="preview-wrap" id="previewWrap">
+    <div id="previewContent"></div>
+  </div>
+
+  <footer class="status">
+    <span id="statusText">Pronto</span>
+    <span id="blockCount"></span>
+  </footer>
+</div>
+
+<!-- Link modal -->
+<div class="overlay" id="linkOverlay">
+  <div class="modal">
+    <h3>Inserisci link</h3>
+    <label for="linkText">Testo da visualizzare</label>
+    <input type="text" id="linkText" placeholder="Testo del link">
+    <label for="linkHref">Indirizzo web</label>
+    <input type="text" id="linkHref" placeholder="Indirizzo del link (es. https://esempio.it)">
+    <div class="err" id="linkErr"></div>
+    <div class="actions">
+      <button type="button" id="linkCancel">Annulla</button>
+      <button type="button" class="primary" id="linkConfirm">Inserisci</button>
+    </div>
+  </div>
+</div>
+
+<!-- Table size modal -->
+<div class="overlay" id="tableOverlay">
+  <div class="modal">
+    <h3>Inserisci tabella</h3>
+    <div class="row">
+      <div>
+        <label for="tblCols">Colonne</label>
+        <input type="number" id="tblCols" min="1" max="12" value="2">
+      </div>
+      <div>
+        <label for="tblRows">Righe</label>
+        <input type="number" id="tblRows" min="1" max="30" value="2">
+      </div>
+    </div>
+    <div class="err" id="tblErr"></div>
+    <div class="actions">
+      <button type="button" id="tblCancel">Annulla</button>
+      <button type="button" class="primary" id="tblConfirm">Crea tabella</button>
+    </div>
+  </div>
+</div>
+
+<!-- Markdown export modal -->
+<div class="overlay" id="mdOverlay">
+  <div class="modal" style="width:520px;">
+    <h3>Markdown (uso interno / esportazione)</h3>
+    <textarea class="md-out" id="mdOut" readonly></textarea>
+    <div class="actions">
+      <button type="button" id="mdClose">Chiudi</button>
+      <button type="button" class="primary" id="mdCopy">Copia</button>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  "use strict";
+
+  /* =========================================================
+     1. STATO / MODELLO DATI
+     ---------------------------------------------------------
+     state.blocks è la SOLA fonte di verità persistente.
+     Ogni blocco ha un id stabile e un "type":
+       heading      { id, type:'heading', level:1|2, text:'' }
+       paragraph    { id, type:'paragraph', content:[run,...] }
+       bulletList   { id, type:'bulletList', items:[[run,...], ...] }
+       numberedList { id, type:'numberedList', items:[[run,...], ...] }
+       table        { id, type:'table', headers:[string,...], rows:[[string,...],...] }
+
+     Un "run" (usato in paragraph.content e in ogni item di lista)
+     rappresenta un frammento di testo in linea:
+       { type:'text', text:'...', bold:bool, italic:bool }
+       { type:'link', text:'...', href:'...' }
+       { type:'break' }   // interruzione di riga (Maiusc+Invio)
+     ========================================================= */
+
+  let uidCounter = 1;
+  function uid(){ return 'b' + (uidCounter++) + '_' + Math.floor(Math.random()*1e6); }
+
+  function emptyParagraph(){ return { id:uid(), type:'paragraph', content:[] }; }
+
+  let state = {
+    blocks: [ emptyParagraph() ]
+  };
+
+  let focusedBlockId = state.blocks[0].id;
+  let focusAt = 'end'; // 'start' | 'end' | {itemIndex} | {cellRow,cellCol}
+
+  /* =========================================================
+     2. UTILITÀ DI SICUREZZA: escaping e validazione URL
+     ========================================================= */
+
+  function escapeHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c];
+    });
+  }
+
+  // Rende sicuro un frammento di testo per l'export Markdown,
+  // "proteggendo" i caratteri che in Markdown hanno significato di sintassi
+  // in modo che il testo scritto dall'utente non venga MAI interpretato
+  // come markup involontario.
+  function escapeMarkdown(s){
+    return String(s == null ? '' : s).replace(/([\\`*_{}\[\]()#+\-.!>|])/g, '\\$1');
+  }
+
+  // Valida e normalizza un URL. Ritorna la stringa normalizzata se valida,
+  // oppure false. Accetta solo http, https, mailto, tel: qualsiasi altro
+  // schema (in particolare javascript:, data:, vbscript:) viene rifiutato
+  // per prevenire XSS tramite link.
+  function isValidUrl(raw){
+    if (!raw) return false;
+    var s = String(raw).trim();
+    if (!s) return false;
+    if (!/^[a-zA-Z][a-zA-Z0-9+.\-]*:/.test(s)){
+      // nessuno schema indicato: assume https se sembra un dominio
+      if (/^mailto:/i.test(s)) { /* noop */ } else { s = 'https://' + s; }
+    }
+    try{
+      var u = new URL(s);
+      var allowed = ['http:', 'https:', 'mailto:', 'tel:'];
+      if (allowed.indexOf(u.protocol) === -1) return false;
+      return u.toString();
+    }catch(e){
+      return false;
+    }
+  }
+
+  /* =========================================================
+     3. CONVERSIONE JSON -> HTML (per l'anteprima, sempre sicura:
+        ogni testo passa da escapeHtml, ogni href da isValidUrl)
+     ========================================================= */
+
+  function runToHtml(run){
+    if (run.type === 'break') return '<br>';
+    if (run.type === 'link'){
+      var safeHref = isValidUrl(run.href);
+      if (!safeHref){
+        // href non valido: non generiamo comunque un tag <a> "rotto" o pericoloso,
+        // mostriamo solo il testo.
+        return escapeHtml(run.text || '');
+      }
+      return '<a href="' + escapeHtml(safeHref) + '" target="_blank" rel="noopener noreferrer">' +
+             escapeHtml(run.text || '') + '</a>';
+    }
+    // run di tipo 'text'
+    var out = escapeHtml(run.text || '');
+    if (run.bold) out = '<strong>' + out + '</strong>';
+    if (run.italic) out = '<em>' + out + '</em>';
+    return out;
+  }
+
+  function runsToHtml(runs){
+    return (runs || []).map(runToHtml).join('');
+  }
+
+  function blocksToHtml(data){
+    return (data.blocks || []).map(function(b){
+      switch(b.type){
+        case 'heading':
+          var lvl = (b.level === 1) ? 1 : 2;
+          var hAttr = b.align === 'justify' ? ' style="text-align:justify"' : '';
+          return '<h' + lvl + hAttr + '>' + escapeHtml(b.text || '') + '</h' + lvl + '>';
+        case 'paragraph':
+          var pAttr = b.align === 'justify' ? ' style="text-align:justify"' : '';
+          return '<p' + pAttr + '>' + runsToHtml(b.content) + '</p>';
+        case 'bulletList':
+          var ulAttr = b.align === 'justify' ? ' style="text-align:justify"' : '';
+          return '<ul' + ulAttr + '>' + (b.items||[]).map(function(it){ return '<li>' + runsToHtml(it) + '</li>'; }).join('') + '</ul>';
+        case 'numberedList':
+          var olAttr = b.align === 'justify' ? ' style="text-align:justify"' : '';
+          return '<ol' + olAttr + '>' + (b.items||[]).map(function(it){ return '<li>' + runsToHtml(it) + '</li>'; }).join('') + '</ol>';
+        case 'table':
+          var thead = '<thead><tr>' + (b.headers||[]).map(function(h){ return '<th>' + escapeHtml(h) + '</th>'; }).join('') + '</tr></thead>';
+          var tbody = '<tbody>' + (b.rows||[]).map(function(r){
+            return '<tr>' + r.map(function(c){ return '<td>' + escapeHtml(c) + '</td>'; }).join('') + '</tr>';
+          }).join('') + '</tbody>';
+          return '<table>' + thead + tbody + '</table>';
+        default:
+          return '';
+      }
+    }).join('\n');
+  }
+
+  /* =========================================================
+     4. CONVERSIONE JSON -> MARKDOWN (solo per uso interno /
+        comando esplicito "Esporta Markdown")
+     ========================================================= */
+
+  function runToMarkdown(run){
+    if (run.type === 'break') return '  \n';
+    if (run.type === 'link'){
+      var safeHref = isValidUrl(run.href);
+      var label = escapeMarkdown(run.text || '');
+      return safeHref ? '[' + label + '](' + safeHref + ')' : label;
+    }
+    var t = escapeMarkdown(run.text || '');
+    if (run.bold) t = '**' + t + '**';
+    if (run.italic) t = '*' + t + '*';
+    return t;
+  }
+
+  function runsToMarkdown(runs){
+    return (runs || []).map(runToMarkdown).join('');
+  }
+
+  function blocksToMarkdown(data){
+    var out = [];
+    (data.blocks || []).forEach(function(b){
+      switch(b.type){
+        case 'heading':
+          out.push('#'.repeat(b.level === 1 ? 1 : 2) + ' ' + escapeMarkdown(b.text || '') + '\n');
+          break;
+        case 'paragraph':
+          out.push(runsToMarkdown(b.content) + '\n');
+          break;
+        case 'bulletList':
+          out.push((b.items||[]).map(function(it){ return '- ' + runsToMarkdown(it); }).join('\n') + '\n');
+          break;
+        case 'numberedList':
+          out.push((b.items||[]).map(function(it,i){ return (i+1) + '. ' + runsToMarkdown(it); }).join('\n') + '\n');
+          break;
+        case 'table':
+          var headers = b.headers || [];
+          var lines = [];
+          lines.push('| ' + headers.map(function(h){ return escapeMarkdown(h).replace(/\|/g,'\\|'); }).join(' | ') + ' |');
+          lines.push('| ' + headers.map(function(){ return '---'; }).join(' | ') + ' |');
+          (b.rows||[]).forEach(function(r){
+            lines.push('| ' + r.map(function(c){ return escapeMarkdown(c).replace(/\|/g,'\\|'); }).join(' | ') + ' |');
+          });
+          out.push(lines.join('\n') + '\n');
+          break;
+      }
+    });
+    return out.join('\n').trim() + '\n';
+  }
+
+  /* =========================================================
+     5. PARSING: DOM (contenteditable) -> runs[]
+     ---------------------------------------------------------
+     Qui avviene la "sanificazione in ingresso": qualunque markup
+     estraneo (span di stile incollati da Word, classi, id, script,
+     img, ecc.) viene IGNORATO. Vengono riconosciuti solo b/strong,
+     i/em, a[href], br: tutto il resto viene "despogliato" e se ne
+     conserva solo il testo.
+     ========================================================= */
+
+  function parseInline(node, ctx){
+    ctx = ctx || { bold:false, italic:false };
+    var runs = [];
+    node.childNodes.forEach(function(child){
+      if (child.nodeType === Node.TEXT_NODE){
+        if (child.textContent.length){
+          runs.push({ type:'text', text:child.textContent, bold:ctx.bold, italic:ctx.italic });
+        }
+      } else if (child.nodeType === Node.ELEMENT_NODE){
+        var tag = child.tagName.toLowerCase();
+        if (tag === 'br'){
+          runs.push({ type:'break' });
+        } else if (tag === 'a'){
+          var text = child.textContent || '';
+          if (text.length) runs.push({ type:'link', text:text, href: child.getAttribute('href') || '' });
+        } else if (tag === 'b' || tag === 'strong'){
+          runs = runs.concat(parseInline(child, { bold:true, italic:ctx.italic }));
+        } else if (tag === 'i' || tag === 'em'){
+          runs = runs.concat(parseInline(child, { bold:ctx.bold, italic:true }));
+        } else if (tag === 'div' || tag === 'p'){
+          // alcuni browser avvolgono gli "a capo" in <div>: trattato come interruzione di riga
+          if (runs.length) runs.push({ type:'break' });
+          runs = runs.concat(parseInline(child, ctx));
+        } else {
+          // tag non supportato: se ne conserva solo il contenuto testuale (sanificazione)
+          runs = runs.concat(parseInline(child, ctx));
+        }
+      }
+    });
+    return runs;
+  }
+
+  // Unisce run di testo adiacenti con stessi bold/italic, per JSON più pulito.
+  function normalizeRuns(runs){
+    var out = [];
+    runs.forEach(function(r){
+      var last = out[out.length-1];
+      if (r.type === 'text' && last && last.type === 'text' && last.bold === r.bold && last.italic === r.italic){
+        last.text += r.text;
+      } else {
+        out.push(Object.assign({}, r));
+      }
+    });
+    return out.filter(function(r){ return !(r.type === 'text' && r.text === ''); });
+  }
+
+  function plainTextOf(runs){
+    return (runs||[]).map(function(r){ return r.type === 'break' ? '\n' : (r.text || ''); }).join('');
+  }
+
+  /* =========================================================
+     6. HELPERS DI STATO
+     ========================================================= */
+
+  function findBlock(id){
+    for (var i=0;i<state.blocks.length;i++){ if (state.blocks[i].id === id) return state.blocks[i]; }
+    return null;
+  }
+  function findBlockIndex(id){
+    for (var i=0;i<state.blocks.length;i++){ if (state.blocks[i].id === id) return i; }
+    return -1;
+  }
+
+  function setStatus(msg){
+    document.getElementById('statusText').textContent = msg;
+  }
+
+  /* =========================================================
+     7. RENDER
+     ========================================================= */
+
+  var editorEl = document.getElementById('editor');
+
+  function render(){
+    editorEl.innerHTML = '';
+    if (!state.blocks.length){
+      state.blocks.push(emptyParagraph());
+    }
+    state.blocks.forEach(function(b, idx){
+      editorEl.appendChild(renderBlock(b, idx));
+    });
+    document.getElementById('blockCount').textContent = state.blocks.length + ' blocchi';
+    restoreFocus();
+    updateToolbarState();
+  }
+
+  function makeBlockControls(b, idx){
+    var wrap = document.createElement('div');
+    wrap.className = 'block-controls';
+
+    var up = document.createElement('button'); up.type='button'; up.textContent='↑'; up.title='Sposta su';
+    up.onclick = function(){ moveBlock(b.id, -1); };
+    var down = document.createElement('button'); down.type='button'; down.textContent='↓'; down.title='Sposta giù';
+    down.onclick = function(){ moveBlock(b.id, 1); };
+    var del = document.createElement('button'); del.type='button'; del.textContent='✕'; del.title='Elimina blocco';
+    del.onclick = function(){ deleteBlock(b.id); };
+
+    wrap.appendChild(up); wrap.appendChild(down); wrap.appendChild(del);
+    return wrap;
+  }
+
+  function renderBlock(b, idx){
+    var container = document.createElement('div');
+    container.className = 'block';
+    container.dataset.blockId = b.id;
+    container.appendChild(makeBlockControls(b, idx));
+
+    if (b.type === 'heading'){
+      var h = document.createElement('h' + (b.level===1?1:2));
+      h.className = 'field ' + (b.level===1 ? 'b-heading1' : 'b-heading2');
+      h.contentEditable = 'true';
+      h.dataset.placeholder = b.level===1 ? 'Inserisci il titolo' : 'Inserisci il sottotitolo';
+      h.textContent = b.text || '';
+      if (b.align === 'justify') h.style.textAlign = 'justify';
+      attachHeadingHandlers(h, b);
+      container.appendChild(h);
+
+    } else if (b.type === 'paragraph'){
+      var p = document.createElement('p');
+      p.className = 'field b-paragraph';
+      p.contentEditable = 'true';
+      p.dataset.placeholder = 'Scrivi il testo del paragrafo';
+      p.innerHTML = runsToEditableHtml(b.content);
+      if (b.align === 'justify') p.style.textAlign = 'justify';
+      attachParagraphHandlers(p, b);
+      container.appendChild(p);
+
+    } else if (b.type === 'bulletList' || b.type === 'numberedList'){
+      var listTag = b.type === 'bulletList' ? 'ul' : 'ol';
+      var list = document.createElement(listTag);
+      list.className = 'b-list';
+      if (b.align === 'justify') list.style.textAlign = 'justify';
+      (b.items && b.items.length ? b.items : [[]]).forEach(function(item, itemIdx){
+        var li = document.createElement('li');
+        var span = document.createElement('span');
+        span.className = 'field';
+        span.contentEditable = 'true';
+        span.dataset.placeholder = 'Aggiungi un elemento all’elenco';
+        span.innerHTML = runsToEditableHtml(item);
+        attachListItemHandlers(span, b, itemIdx);
+        li.appendChild(span);
+        list.appendChild(li);
+      });
+      if (!b.items || !b.items.length) b.items = [[]];
+      container.appendChild(list);
+
+    } else if (b.type === 'table'){
+      container.appendChild(renderTable(b));
+    }
+
+    return container;
+  }
+
+  function runsToEditableHtml(runs){
+    return (runs || []).map(function(r){
+      if (r.type === 'break') return '<br>';
+      if (r.type === 'link'){
+        return '<a class="editor-link" href="' + escapeHtml(r.href||'') + '">' + escapeHtml(r.text||'') + '</a>';
+      }
+      var t = escapeHtml(r.text || '');
+      if (r.bold) t = '<b>' + t + '</b>';
+      if (r.italic) t = '<i>' + t + '</i>';
+      return t;
+    }).join('');
+  }
+
+  function renderTable(b){
+    var wrap = document.createElement('div');
+    var table = document.createElement('table');
+    table.className = 'b-table';
+
+    var thead = document.createElement('thead');
+    var htr = document.createElement('tr');
+    b.headers.forEach(function(hText, ci){
+      var th = document.createElement('th');
+      th.contentEditable = 'true';
+      th.tabIndex = 0;
+      th.textContent = hText;
+      th.addEventListener('input', function(){ b.headers[ci] = th.textContent; });
+      th.addEventListener('keydown', function(ev){ if (ev.key === 'Enter'){ ev.preventDefault(); } });
+      htr.appendChild(th);
+    });
+    thead.appendChild(htr);
+    table.appendChild(thead);
+
+    var tbody = document.createElement('tbody');
+    b.rows.forEach(function(row, ri){
+      var tr = document.createElement('tr');
+      row.forEach(function(cellText, ci){
+        var td = document.createElement('td');
+        td.contentEditable = 'true';
+        td.tabIndex = 0;
+        td.textContent = cellText;
+        td.addEventListener('input', function(){ b.rows[ri][ci] = td.textContent; });
+        td.addEventListener('keydown', function(ev){ if (ev.key === 'Enter'){ ev.preventDefault(); } });
+        tr.appendChild(td);
+      });
+      tbody.appendChild(tr);
+    });
+    table.appendChild(tbody);
+    wrap.appendChild(table);
+
+    var controls = document.createElement('div');
+    controls.className = 'table-controls';
+    var addRow = mkBtn('+ Riga', function(){ b.rows.push(b.headers.map(function(){ return ''; })); render(); });
+    var delRow = mkBtn('− Riga', function(){ if (b.rows.length>1){ b.rows.pop(); render(); } });
+    var addCol = mkBtn('+ Colonna', function(){ b.headers.push('Intestazione'); b.rows.forEach(function(r){ r.push(''); }); render(); });
+    var delCol = mkBtn('− Colonna', function(){
+      if (b.headers.length>1){ b.headers.pop(); b.rows.forEach(function(r){ r.pop(); }); render(); }
+    });
+    [addRow, delRow, addCol, delCol].forEach(function(btn){ controls.appendChild(btn); });
+    wrap.appendChild(controls);
+
+    return wrap;
+  }
+
+  function mkBtn(label, onClick){
+    var btn = document.createElement('button');
+    btn.type = 'button'; btn.textContent = label; btn.onclick = onClick;
+    return btn;
+  }
+
+  /* =========================================================
+     8. GESTIONE FOCUS / CARET
+     ========================================================= */
+
+  function restoreFocus(){
+    if (!focusedBlockId) return;
+    var container = editorEl.querySelector('[data-block-id="'+focusedBlockId+'"]');
+    if (!container) return;
+    var target;
+    if (typeof focusAt === 'object' && focusAt.itemIndex != null){
+      var spans = container.querySelectorAll('li .field');
+      target = spans[focusAt.itemIndex] || spans[spans.length-1];
+    } else {
+      target = container.querySelector('.field');
+    }
+    if (!target) return;
+    target.focus();
+    placeCaret(target, focusAt === 'start' ? 'start' : 'end');
+  }
+
+  function placeCaret(el, where){
+    var range = document.createRange();
+    var sel = window.getSelection();
+    range.selectNodeContents(el);
+    range.collapse(where !== 'start');
+    sel.removeAllRanges();
+    sel.addRange(range);
+  }
+
+  function currentEditable(){
+    var el = document.activeElement;
+    if (el && el.classList && el.classList.contains('field')) return el;
+    return null;
+  }
+
+  function blockIdOf(el){
+    var c = el.closest('[data-block-id]');
+    return c ? c.dataset.blockId : null;
+  }
+
+  /* =========================================================
+     9. GESTIONE BLOCCHI: creazione, cancellazione, spostamento
+     ========================================================= */
+
+  function insertBlockAfter(id, newBlock){
+    var idx = findBlockIndex(id);
+    state.blocks.splice(idx+1, 0, newBlock);
+    focusedBlockId = newBlock.id;
+    focusAt = 'start';
+    render();
+  }
+
+  function deleteBlock(id){
+    var idx = findBlockIndex(id);
+    if (idx === -1) return;
+    state.blocks.splice(idx, 1);
+    if (!state.blocks.length) state.blocks.push(emptyParagraph());
+    var newIdx = Math.max(0, idx-1);
+    focusedBlockId = state.blocks[newIdx].id;
+    focusAt = 'end';
+    render();
+  }
+
+  function moveBlock(id, dir){
+    var idx = findBlockIndex(id);
+    var newIdx = idx + dir;
+    if (newIdx < 0 || newIdx >= state.blocks.length) return;
+    var tmp = state.blocks[idx];
+    state.blocks[idx] = state.blocks[newIdx];
+    state.blocks[newIdx] = tmp;
+    focusedBlockId = id;
+    focusAt = 'end';
+    render();
+  }
+
+  /* =========================================================
+     10. HANDLER: heading
+     ========================================================= */
+
+  function attachHeadingHandlers(el, b){
+    el.addEventListener('input', function(){ b.text = el.textContent; });
+    el.addEventListener('blur', function(){ b.text = el.textContent; });
+    el.addEventListener('keydown', function(ev){
+      if (ev.key === 'Enter'){
+        ev.preventDefault();
+        b.text = el.textContent;
+        insertBlockAfter(b.id, emptyParagraph());
+      } else if (ev.key === 'Backspace' && el.textContent === ''){
+        ev.preventDefault();
+        deleteBlock(b.id);
+      }
+    });
+  }
+
+  /* =========================================================
+     11. HANDLER: paragraph
+     ========================================================= */
+
+  function attachParagraphHandlers(el, b){
+    function sync(){ b.content = normalizeRuns(parseInline(el)); }
+    el.addEventListener('input', sync);
+    el.addEventListener('blur', sync);
+    el.addEventListener('paste', function(ev){ handleSmartPaste(ev, b); });
+    el.addEventListener('keydown', function(ev){
+      if (ev.key === 'Enter' && !ev.shiftKey){
+        ev.preventDefault();
+        sync();
+        insertBlockAfter(b.id, emptyParagraph());
+      } else if (ev.key === 'Enter' && ev.shiftKey){
+        ev.preventDefault();
+        document.execCommand('insertLineBreak');
+        sync();
+      } else if (ev.key === 'Backspace' && el.textContent === ''){
+        ev.preventDefault();
+        deleteBlock(b.id);
+      }
+    });
+  }
+
+  /* =========================================================
+     12. HANDLER: list item
+     ========================================================= */
+
+  function attachListItemHandlers(el, b, itemIdx){
+    function sync(){ b.items[itemIdx] = normalizeRuns(parseInline(el)); }
+    el.addEventListener('input', sync);
+    el.addEventListener('blur', sync);
+    el.addEventListener('paste', function(ev){ handleSmartPaste(ev, b); });
+    el.addEventListener('keydown', function(ev){
+      if (ev.key === 'Enter' && !ev.shiftKey){
+        ev.preventDefault();
+        sync();
+        if (el.textContent.trim() === ''){
+          // riga vuota + Invio: esce dall'elenco e crea un paragrafo dopo il blocco lista
+          b.items.splice(itemIdx, 1);
+          if (!b.items.length) b.items.push([]);
+          insertBlockAfter(b.id, emptyParagraph());
+        } else {
+          b.items.splice(itemIdx+1, 0, []);
+          focusedBlockId = b.id;
+          focusAt = { itemIndex: itemIdx+1 };
+          render();
+        }
+      } else if (ev.key === 'Enter' && ev.shiftKey){
+        ev.preventDefault();
+        document.execCommand('insertLineBreak');
+        sync();
+      } else if (ev.key === 'Backspace' && el.textContent === ''){
+        ev.preventDefault();
+        if (b.items.length > 1){
+          b.items.splice(itemIdx, 1);
+          focusedBlockId = b.id;
+          focusAt = { itemIndex: Math.max(0, itemIdx-1) };
+          render();
+        } else {
+          deleteBlock(b.id);
+        }
+      }
+    });
+  }
+
+  // Incolla solo testo semplice: evita di iniettare markup/stili esterni
+  // (es. da Word/Google Docs) nel documento. L'utente può poi riformattare
+  // con i pulsanti Grassetto/Corsivo/Link.
+  function handlePlainPaste(ev){
+    ev.preventDefault();
+    var text = (ev.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  }
+
+  // Se negli appunti c'è una tabella HTML (Word, Excel, Google Docs/Sheets,
+  // o una tabella copiata da una pagina web mettono SEMPRE un <table> nel
+  // clipboard, oltre al testo semplice), la riconosce e la converte
+  // automaticamente in un blocco tabella nel modello JSON — l'utente non
+  // deve ricrearla a mano con "Inserisci tabella". Qualsiasi altro
+  // contenuto negli appunti (stili, colori, font di Word) viene comunque
+  // ignorato: si conserva solo il testo delle celle.
+  function extractTableFromHtml(html){
+    try{
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var table = doc.querySelector('table');
+      if (!table) return null;
+      var trs = Array.prototype.slice.call(table.querySelectorAll('tr'));
+      if (!trs.length) return null;
+      var grid = trs.map(function(tr){
+        var cells = [];
+        Array.prototype.slice.call(tr.children).forEach(function(cell){
+          var text = (cell.textContent || '').replace(/\s+/g, ' ').trim();
+          var span = parseInt(cell.getAttribute('colspan') || '1', 10) || 1;
+          cells.push(text);
+          for (var i = 1; i < span; i++) cells.push('');
+        });
+        return cells;
+      }).filter(function(r){ return r.length > 0; });
+      if (!grid.length) return null;
+      var cols = Math.max.apply(null, grid.map(function(r){ return r.length; }));
+      var norm = grid.map(function(r){
+        var row = r.slice(0, cols);
+        while (row.length < cols) row.push('');
+        return row;
+      });
+      return { headers: norm[0], rows: norm.slice(1) };
+    }catch(e){
+      return null;
+    }
+  }
+
+  function handleSmartPaste(ev, b){
+    var cd = ev.clipboardData || window.clipboardData;
+    var html = cd ? cd.getData('text/html') : '';
+    if (html){
+      var tableData = extractTableFromHtml(html);
+      if (tableData){
+        ev.preventDefault();
+        var newTable = { id: uid(), type:'table', headers: tableData.headers, rows: tableData.rows.length ? tableData.rows : [tableData.headers.map(function(){ return ''; })] };
+        var idx = findBlockIndex(b.id);
+        var isEmptyParagraph = (b.type === 'paragraph') && !plainTextOf(b.content).trim() && idx !== -1;
+        if (isEmptyParagraph){
+          state.blocks[idx] = newTable;
+        } else if (idx !== -1) {
+          state.blocks.splice(idx + 1, 0, newTable);
+        } else {
+          state.blocks.push(newTable);
+        }
+        focusedBlockId = newTable.id;
+        render();
+        setStatus('Tabella incollata (rilevata negli appunti) e convertita automaticamente.');
+        return;
+      }
+    }
+    handlePlainPaste(ev);
+  }
+
+  /* =========================================================
+     13. COMANDI TOOLBAR
+     ========================================================= */
+
+  function setHeading(level){
+    var ed = currentEditable();
+    var bid = ed ? blockIdOf(ed) : focusedBlockId;
+    var b = findBlock(bid);
+    if (!b) return;
+    var text = b.type === 'heading' ? b.text : plainTextOf(b.content || (b.items && b.items[0]) || []);
+    var idx = findBlockIndex(b.id);
+    var newBlock = { id: b.id, type:'heading', level: level, text: text || '' };
+    state.blocks[idx] = newBlock;
+    focusedBlockId = b.id; focusAt = 'end';
+    render();
+  }
+
+  function toggleList(listType){
+    var ed = currentEditable();
+    var bid = ed ? blockIdOf(ed) : focusedBlockId;
+    var b = findBlock(bid);
+    if (!b) return;
+    var idx = findBlockIndex(b.id);
+    if (b.type === listType){
+      // già di questo tipo: nulla da fare (evita toggle accidentale che perde contenuto)
+      return;
+    }
+    var items;
+    if (b.type === 'bulletList' || b.type === 'numberedList'){
+      items = b.items;
+    } else if (b.type === 'paragraph'){
+      items = [ b.content || [] ];
+    } else if (b.type === 'heading'){
+      items = [ [ { type:'text', text:b.text||'', bold:false, italic:false } ] ];
+    } else {
+      items = [[]];
+    }
+    var newBlock = { id: b.id, type: listType, items: items };
+    state.blocks[idx] = newBlock;
+    focusedBlockId = b.id; focusAt = 'end';
+    render();
+  }
+
+  function toggleJustify(){
+    var ed = currentEditable();
+    var bid = ed ? blockIdOf(ed) : focusedBlockId;
+    var b = findBlock(bid);
+    if (!b || (b.type !== 'paragraph' && b.type !== 'heading' && b.type !== 'bulletList' && b.type !== 'numberedList')){
+      setStatus('Seleziona un titolo, un paragrafo o un elenco per giustificare il testo.');
+      return;
+    }
+    b.align = (b.align === 'justify') ? undefined : 'justify';
+    render();
+  }
+
+  function updateToolbarState(){
+    var bid = focusedBlockId;
+    var b = findBlock(bid);
+    var justifyBtn = document.getElementById('justifyBtn');
+    if (justifyBtn){
+      justifyBtn.classList.toggle('active', !!(b && b.align === 'justify'));
+    }
+  }
+
+  function applyInlineStyle(cmd){
+    var ed = currentEditable();
+    if (!ed) { setStatus('Seleziona del testo in un paragrafo o in un elenco.'); return; }
+    ed.focus();
+    document.execCommand(cmd);
+    var bid = blockIdOf(ed);
+    var b = findBlock(bid);
+    if (!b) return;
+    if (b.type === 'paragraph'){ b.content = normalizeRuns(parseInline(ed)); }
+    else if (b.type === 'bulletList' || b.type === 'numberedList'){
+      var li = ed.closest('li');
+      var spans = Array.prototype.slice.call(li.parentNode.children).indexOf(li);
+      b.items[spans] = normalizeRuns(parseInline(ed));
+    }
+  }
+
+  /* ---- Link modal ---- */
+  var linkOverlay = document.getElementById('linkOverlay');
+  var linkTextInput = document.getElementById('linkText');
+  var linkHrefInput = document.getElementById('linkHref');
+  var linkErr = document.getElementById('linkErr');
+  var pendingLinkTarget = null; // { el, savedRange }
+
+  function openLinkModal(){
+    var ed = currentEditable();
+    if (!ed){ setStatus('Clicca in un paragrafo o in un elenco prima di inserire un link.'); return; }
+    var sel = window.getSelection();
+    var savedRange = (sel.rangeCount) ? sel.getRangeAt(0).cloneRange() : null;
+    pendingLinkTarget = { el: ed, savedRange: savedRange };
+    linkTextInput.value = sel && !sel.isCollapsed ? sel.toString() : '';
+    linkHrefInput.value = '';
+    linkErr.textContent = '';
+    linkOverlay.classList.add('visible');
+    linkTextInput.focus();
+  }
+  function closeLinkModal(){ linkOverlay.classList.remove('visible'); pendingLinkTarget = null; }
+
+  document.getElementById('linkCancel').onclick = closeLinkModal;
+  document.getElementById('linkConfirm').onclick = function(){
+    var text = linkTextInput.value.trim();
+    var href = linkHrefInput.value.trim();
+    if (!text){ linkErr.textContent = 'Inserisci il testo da visualizzare.'; return; }
+    var safe = isValidUrl(href);
+    if (!safe){ linkErr.textContent = 'Indirizzo web non valido.'; return; }
+    if (!pendingLinkTarget) { closeLinkModal(); return; }
+
+    var el = pendingLinkTarget.el;
+    el.focus();
+    var sel = window.getSelection();
+    sel.removeAllRanges();
+    if (pendingLinkTarget.savedRange){ sel.addRange(pendingLinkTarget.savedRange); }
+
+    var a = document.createElement('a');
+    a.className = 'editor-link';
+    a.href = safe;
+    a.textContent = text;
+
+    var range = sel.rangeCount ? sel.getRangeAt(0) : null;
+    if (range){
+      range.deleteContents();
+      range.insertNode(a);
+      range.setStartAfter(a);
+      range.setEndAfter(a);
+      sel.removeAllRanges();
+      sel.addRange(range);
+    } else {
+      el.appendChild(a);
+    }
+
+    var bid = blockIdOf(el);
+    var b = findBlock(bid);
+    if (b){
+      if (b.type === 'paragraph'){ b.content = normalizeRuns(parseInline(el)); }
+      else if (b.type === 'bulletList' || b.type === 'numberedList'){
+        var li = el.closest('li');
+        var itemIdx = Array.prototype.slice.call(li.parentNode.children).indexOf(li);
+        b.items[itemIdx] = normalizeRuns(parseInline(el));
+      }
+    }
+    closeLinkModal();
+    render();
+    setStatus('Link inserito.');
+  };
+
+  /* ---- Table modal ---- */
+  var tableOverlay = document.getElementById('tableOverlay');
+  document.getElementById('tblCancel').onclick = function(){ tableOverlay.classList.remove('visible'); };
+  document.getElementById('tblConfirm').onclick = function(){
+    var cols = parseInt(document.getElementById('tblCols').value, 10);
+    var rows = parseInt(document.getElementById('tblRows').value, 10);
+    var err = document.getElementById('tblErr');
+    if (!cols || cols < 1 || cols > 12 || !rows || rows < 1 || rows > 30){
+      err.textContent = 'Inserisci valori validi (colonne 1-12, righe 1-30).';
+      return;
+    }
+    err.textContent = '';
+    var headers = []; for (var c=0;c<cols;c++) headers.push('Intestazione ' + (c+1));
+    var dataRows = []; for (var r=0;r<rows;r++){ var row=[]; for (var c2=0;c2<cols;c2++) row.push(''); dataRows.push(row); }
+    var newTable = { id: uid(), type:'table', headers: headers, rows: dataRows };
+    var afterId = focusedBlockId || state.blocks[state.blocks.length-1].id;
+    insertBlockAfter(afterId, newTable);
+    tableOverlay.classList.remove('visible');
+    setStatus('Tabella creata.');
+  };
+
+  /* ---- Markdown export modal ---- */
+  var mdOverlay = document.getElementById('mdOverlay');
+  document.getElementById('mdClose').onclick = function(){ mdOverlay.classList.remove('visible'); };
+  document.getElementById('mdCopy').onclick = function(){
+    var ta = document.getElementById('mdOut');
+    ta.select();
+    document.execCommand('copy');
+    setStatus('Markdown copiato negli appunti.');
+  };
+
+  /* =========================================================
+     14. TOOLBAR DISPATCH
+     ========================================================= */
+
+  document.getElementById('toolbar').addEventListener('click', function(ev){
+    var btn = ev.target.closest('button[data-cmd]');
+    if (!btn) return;
+    var cmd = btn.dataset.cmd;
+    switch(cmd){
+      case 'heading1': setHeading(1); break;
+      case 'heading2': setHeading(2); break;
+      case 'bold': applyInlineStyle('bold'); break;
+      case 'italic': applyInlineStyle('italic'); break;
+      case 'bulletList': toggleList('bulletList'); break;
+      case 'numberedList': toggleList('numberedList'); break;
+      case 'justify': toggleJustify(); break;
+      case 'link': openLinkModal(); break;
+      case 'table':
+        document.getElementById('tblErr').textContent = '';
+        tableOverlay.classList.add('visible');
+        break;
+      case 'exportMd':
+        document.getElementById('mdOut').value = blocksToMarkdown(state);
+        mdOverlay.classList.add('visible');
+        break;
+    }
+  });
+
+  // Traccia il blocco attualmente a fuoco (per i comandi toolbar tipo Titolo/Elenco)
+  editorEl.addEventListener('focusin', function(ev){
+    var el = ev.target.closest('[data-block-id]');
+    if (el) focusedBlockId = el.dataset.blockId;
+    updateToolbarState();
+  });
+
+  /* =========================================================
+     15. TABS Editor / Anteprima
+     ========================================================= */
+
+  document.querySelectorAll('.tab-btn').forEach(function(tabBtn){
+    tabBtn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      tabBtn.classList.add('active');
+      var tab = tabBtn.dataset.tab;
+      var editorWrap = document.getElementById('editorWrap');
+      var previewWrap = document.getElementById('previewWrap');
+      if (tab === 'preview'){
+        document.getElementById('previewContent').innerHTML = blocksToHtml(state);
+        editorWrap.classList.add('hidden');
+        previewWrap.classList.add('visible');
+      } else {
+        editorWrap.classList.remove('hidden');
+        previewWrap.classList.remove('visible');
+      }
+    });
+  });
+
+  /* =========================================================
+     16. AVVIO
+     ========================================================= */
+
+  render();
+
+  // Espone alcune funzioni per test/integrazione (usato anche dal comando
+  // "Esporta Markdown" e utile se il componente viene integrato nel pannello
+  // di pubblicazione esistente).
+  window.StructuredEditor = {
+    getState: function(){ return JSON.parse(JSON.stringify(state)); },
+    setState: function(newState){ state = newState; render(); },
+    toHtml: function(){ return blocksToHtml(state); },
+    toMarkdown: function(){ return blocksToMarkdown(state); },
+    isValidUrl: isValidUrl,
+    extractTableFromHtml: extractTableFromHtml
+  };
+
+})();
+</script>
+</body>
+</html>
