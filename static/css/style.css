@@ -225,6 +225,16 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 .year-table td a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
 .year-table td a:hover { color: var(--gold); }
 
+/* Visibilità link nel box "Vedi anche" e note varie (propagazione fix 15/08/2026 sera) */
+.stats-note a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.stats-note a:hover { color: var(--gold); }
+
+/* Visibilità link nell'indice delle 195 giurisdizioni di /legislazione-internazionale/ (propagazione fix 15/08/2026 sera) */
+.country-index a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.country-index a:hover { color: var(--gold); }
+.country-index a.ext-link { font-weight: 400; text-decoration: underline dotted; color: var(--ink-soft); }
+.country-index a.ext-link:hover { color: var(--gold); }
+
 .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; }
 
 /* Pagination controls */
