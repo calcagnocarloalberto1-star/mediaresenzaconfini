@@ -222,6 +222,8 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 .year-table th, .year-table td { padding: 6px 10px; text-align: right; border-bottom: 1px solid var(--line); }
 .year-table th:first-child, .year-table td:first-child { text-align: left; }
 .year-table thead th { color: var(--ink-soft); font-weight: 600; font-size: 0.76rem; text-transform: uppercase; }
+.year-table td a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
+.year-table td a:hover { color: var(--gold); }
 
 .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; }
 
