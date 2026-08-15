@@ -55,6 +55,7 @@
   .preview-box { border: 1px solid var(--line); border-radius: 6px; padding: 18px 20px; margin-top: 4px; background: #fff; max-height: 480px; overflow-y: auto; }
   .preview-box.is-hidden { display: none; }
   .preview-box :first-child { margin-top: 0; }
+  #editor-frame { width: 100%; height: 640px; border: 1px solid var(--line); border-radius: 6px; background: #fff; }
   .share-block { margin-top: 16px; border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; background: var(--paper-alt); }
   .share-block.is-hidden { display: none; }
   .share-title { font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; }
@@ -99,7 +100,7 @@
 
   <div class="admin-card" id="card-form" style="opacity:0.5; pointer-events:none;">
     <h2>2. Nuovo articolo</h2>
-    <p class="hint">Scrivi il testo separando i paragrafi con una riga vuota. Per un titolo di paragrafo scrivi la riga preceduta da <code>## </code> (titolo principale) o <code>### </code> (sottotitolo). Per il <strong>grassetto</strong> usa <code>**testo**</code>, per il <em>corsivo</em> <code>*testo*</code>, per un elenco puntato inizia ogni riga con <code>- </code>, per un elenco numerato con <code>1. </code>. Per un link usa <code>[testo](https://esempio.it)</code>. Per una <strong>tabella</strong>, scrivi una riga di intestazione con le colonne separate da <code>|</code>, poi una riga con <code>| --- | --- |</code> (un trattino per colonna), poi una riga per ogni riga di dati — es. <code>| Nome | Ruolo |</code> seguito da <code>| --- | --- |</code> e <code>| Mario | Mediatore |</code>.</p>
+    <p class="hint">Scrivi il testo usando i pulsanti della barra degli strumenti dell'editor qui sotto: titolo, sottotitolo, grassetto, corsivo, elenchi, link e tabelle. Non serve conoscere alcun codice o simbolo speciale. Puoi anche incollare direttamente una tabella copiata da Word, Excel o Google Docs: verrà riconosciuta e trasformata automaticamente in una tabella dell'articolo.</p>
 
     <div class="field">
       <label for="f-title">Titolo dell'articolo</label>
@@ -132,17 +133,9 @@
     <div class="preview-url" id="url-preview"></div>
 
     <div class="field">
-      <label for="f-body">Testo dell'articolo</label>
-      <textarea id="f-body" rows="16" placeholder="## Introduzione&#10;&#10;Scrivi qui il primo paragrafo dell'articolo...&#10;&#10;## Sviluppo&#10;&#10;Continua con il resto del testo..."></textarea>
-      <span class="sub">L'anteprima qui sotto mostra il testo esattamente come apparirà pubblicato — inclusi il testo giustificato e le tabelle, che nella casella sopra non si vedono perché è un semplice campo di testo.</span>
-    </div>
-
-    <div class="field">
-      <div class="preview-toggle-row">
-        <label style="margin-bottom:0;">Anteprima articolo</label>
-        <button type="button" class="btn-secondary" id="btn-toggle-preview">Nascondi anteprima</button>
-      </div>
-      <div id="body-preview" class="post-body preview-box"><p class="hint" style="margin:0;">L'anteprima si aggiorna automaticamente mentre scrivi.</p></div>
+      <label for="editor-frame">Testo dell'articolo</label>
+      <iframe id="editor-frame" src="/pubblica/editor-strutturato.html" title="Editor di contenuto strutturato"></iframe>
+      <span class="sub">Usa la scheda "Anteprima" dentro l'editor qui sopra per vedere come apparirà il testo formattato (titoli, grassetto, elenchi, tabelle, testo giustificato).</span>
     </div>
 
     <div class="field">
@@ -290,97 +283,6 @@
     return (bytes/(1024*1024)).toFixed(1) + ' MB';
   }
 
-  // ---------- lightweight markdown-ish body parser ----------
-  function inlineFormat(s) {
-    s = escapeHtml(s);
-    s = s.replace(/\[([^\]]+)\]\(([^)]+)\)/g, function (m, text, url) {
-      // s was already escaped above, so url/text here are already HTML-escaped — don't re-escape.
-      return '<a href="' + url + '">' + text + '</a>';
-    });
-    s = s.replace(/\*\*([^*]+)\*\*/g, '<strong>$1</strong>');
-    s = s.replace(/\*([^*]+)\*/g, '<em>$1</em>');
-    return s;
-  }
-
-  // Ensure table regions (header row + |---|---| separator + data rows) are always
-  // isolated as their own block, even if the user didn't leave a blank line before/after
-  // them (e.g. right after a heading, or right after a paragraph).
-  function isolateTableBlocks(text) {
-    var lines = text.split('\n');
-    var out = [];
-    var i = 0;
-    while (i < lines.length) {
-      var line = lines[i];
-      var next = i + 1 < lines.length ? lines[i + 1] : undefined;
-      var isHeaderish = line.trim() !== '' && line.trim().indexOf('|') !== -1 && !/^#{2,3}\s+/.test(line.trim());
-      var isSep = next !== undefined && next.trim() !== '' && /^\|?[\s:-]*-[\s:|-]*\|?$/.test(next.trim());
-      if (isHeaderish && isSep) {
-        if (out.length && out[out.length - 1].trim() !== '') out.push('');
-        out.push(line);
-        out.push(next);
-        i += 2;
-        while (i < lines.length && lines[i].trim() !== '' && lines[i].indexOf('|') !== -1) {
-          out.push(lines[i]);
-          i++;
-        }
-        if (i < lines.length && lines[i].trim() !== '') out.push('');
-        continue;
-      }
-      out.push(line);
-      i++;
-    }
-    return out.join('\n');
-  }
-
-  function bodyToHtml(text) {
-    text = isolateTableBlocks((text || '').replace(/\r\n/g, '\n'));
-    var blocks = text.split(/\n{2,}/).map(function (b) { return b.trim(); }).filter(Boolean);
-    var html = '';
-    blocks.forEach(function (block) {
-      if (/^###\s+/.test(block)) { html += '<h3>' + inlineFormat(block.replace(/^###\s+/, '')) + '</h3>\n'; return; }
-      if (/^##\s+/.test(block)) { html += '<h2>' + inlineFormat(block.replace(/^##\s+/, '')) + '</h2>\n'; return; }
-      var lines = block.split('\n').map(function (l) { return l.trim(); }).filter(Boolean);
-      if (lines.length >= 2 && lines[0].indexOf('|') !== -1 && /^\|?[\s:-]*-[\s:|-]*\|?$/.test(lines[1])) {
-        var tableRow = function (l) {
-          return l.trim().replace(/^\|/, '').replace(/\|$/, '').split('|').map(function (c) { return c.trim(); });
-        };
-        var headCells = tableRow(lines[0]);
-        var bodyRows = lines.slice(2).map(tableRow);
-        var thead = '<thead>\n<tr>' + headCells.map(function (c) { return '<th>' + inlineFormat(c) + '</th>'; }).join('') + '</tr>\n</thead>\n';
-        var tbody = '<tbody>\n' + bodyRows.map(function (row) {
-          return '<tr>' + row.map(function (c) { return '<td>' + inlineFormat(c) + '</td>'; }).join('') + '</tr>';
-        }).join('\n') + '\n</tbody>\n';
-        html += '<div class="table-wrap"><table>\n' + thead + tbody + '</table></div>\n';
-        return;
-      }
-      if (lines.length && lines.every(function (l) { return /^-\s+/.test(l); })) {
-        html += '<ul>\n' + lines.map(function (l) { return '<li>' + inlineFormat(l.replace(/^-\s+/, '')) + '</li>'; }).join('\n') + '\n</ul>\n';
-        return;
-      }
-      if (lines.length && lines.every(function (l) { return /^\d+\.\s+/.test(l); })) {
-        html += '<ol>\n' + lines.map(function (l) { return '<li>' + inlineFormat(l.replace(/^\d+\.\s+/, '')) + '</li>'; }).join('\n') + '\n</ol>\n';
-        return;
-      }
-      html += '<p>' + inlineFormat(lines.join(' ')) + '</p>\n';
-    });
-    return html;
-  }
-
-  function plainTextFromBody(text) {
-    var t = (text || '').replace(/\r\n/g, '\n');
-    t = t.replace(/^#{2,3}\s+/gm, '');
-    t = t.replace(/^\|?[\s:-]*-[\s:|-]*\|?$/gm, '');
-    t = t.replace(/^\|(.*)\|$/gm, '$1');
-    t = t.replace(/\|/g, ' ');
-    t = t.replace(/^[-*]\s+/gm, '');
-    t = t.replace(/^\d+\.\s+/gm, '');
-    t = t.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '$1');
-    t = t.replace(/\*\*([^*]+)\*\*/g, '$1');
-    t = t.replace(/\*([^*]+)\*/g, '$1');
-    t = t.replace(/\n+/g, ' ').replace(/\s+/g, ' ').trim();
-    return t;
-  }
-
   // ---------- GitHub API ----------
   function ghHeaders(token) {
     return { 'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json' };
@@ -500,28 +402,80 @@
   dateInput.addEventListener('input', updateUrlPreview);
   catSelect.addEventListener('change', updateUrlPreview);
 
-  // ---------- live body preview (shows real rendering: headings, bold, lists, tables, justified text) ----------
-  var bodyInput = document.getElementById('f-body');
-  var bodyPreviewEl = document.getElementById('body-preview');
-  var togglePreviewBtn = document.getElementById('btn-toggle-preview');
-  var previewTimer = null;
-  function renderBodyPreviewNow() {
-    var raw = bodyInput.value;
-    if (!raw.trim()) {
-      bodyPreviewEl.innerHTML = '<p class="hint" style="margin:0;">L\'anteprima si aggiorna automaticamente mentre scrivi.</p>';
-      return;
+  // ---------- structured editor (embedded in an iframe: /pubblica/editor-strutturato.html) ----------
+  var editorFrame = document.getElementById('editor-frame');
+  var editorReady = false;
+  editorFrame.addEventListener('load', function () { editorReady = true; });
+
+  function getEditorApi() {
+    return (editorReady && editorFrame.contentWindow && editorFrame.contentWindow.StructuredEditor)
+      ? editorFrame.contentWindow.StructuredEditor : null;
+  }
+
+  // Testo semplice estratto dal modello JSON dell'editor (per meta description / estratti).
+  function plainTextOfRuns(runs) {
+    return (runs || []).map(function (r) { return r.type === 'break' ? ' ' : (r.text || ''); }).join('');
+  }
+  function plainTextFromBlocks(state) {
+    var parts = [];
+    (state.blocks || []).forEach(function (b) {
+      switch (b.type) {
+        case 'heading': parts.push(b.text || ''); break;
+        case 'paragraph': parts.push(plainTextOfRuns(b.content)); break;
+        case 'bulletList':
+        case 'numberedList': (b.items || []).forEach(function (it) { parts.push(plainTextOfRuns(it)); }); break;
+        case 'table':
+          parts.push((b.headers || []).join(' '));
+          (b.rows || []).forEach(function (r) { parts.push(r.join(' ')); });
+          break;
+      }
+    });
+    return parts.join(' ').replace(/\s+/g, ' ').trim();
+  }
+
+  // Conversione JSON -> HTML per il corpo dell'articolo pubblicato: stessa logica sicura
+  // dell'editor (escaping di ogni testo, validazione di ogni link), ma con Titolo/Sottotitolo
+  // mappati su <h2>/<h3> (l'<h1> della pagina è già il titolo dell'articolo) e le tabelle
+  // avvolte in .table-wrap come il resto del sito si aspetta.
+  function runToArticleHtml(run, isValidUrl) {
+    if (run.type === 'break') return '<br>';
+    if (run.type === 'link') {
+      var safeHref = isValidUrl(run.href);
+      if (!safeHref) return escapeHtml(run.text || '');
+      return '<a href="' + escapeHtml(safeHref) + '" target="_blank" rel="noopener noreferrer">' + escapeHtml(run.text || '') + '</a>';
     }
-    bodyPreviewEl.innerHTML = bodyToHtml(raw);
+    var out = escapeHtml(run.text || '');
+    if (run.bold) out = '<strong>' + out + '</strong>';
+    if (run.italic) out = '<em>' + out + '</em>';
+    return out;
   }
-  function scheduleBodyPreview() {
-    clearTimeout(previewTimer);
-    previewTimer = setTimeout(renderBodyPreviewNow, 250);
+  function runsToArticleHtml(runs, isValidUrl) {
+    return (runs || []).map(function (r) { return runToArticleHtml(r, isValidUrl); }).join('');
   }
-  bodyInput.addEventListener('input', scheduleBodyPreview);
-  togglePreviewBtn.addEventListener('click', function () {
-    var hidden = bodyPreviewEl.classList.toggle('is-hidden');
-    togglePreviewBtn.textContent = hidden ? 'Mostra anteprima' : 'Nascondi anteprima';
-  });
+  function articleBodyHtmlFromBlocks(state, isValidUrl) {
+    return (state.blocks || []).map(function (b) {
+      var align = b.align === 'justify' ? ' style="text-align:justify"' : '';
+      switch (b.type) {
+        case 'heading':
+          var lvl = (b.level === 1) ? 2 : 3;
+          return '<h' + lvl + align + '>' + escapeHtml(b.text || '') + '</h' + lvl + '>';
+        case 'paragraph':
+          return '<p' + align + '>' + runsToArticleHtml(b.content, isValidUrl) + '</p>';
+        case 'bulletList':
+          return '<ul' + align + '>' + (b.items || []).map(function (it) { return '<li>' + runsToArticleHtml(it, isValidUrl) + '</li>'; }).join('') + '</ul>';
+        case 'numberedList':
+          return '<ol' + align + '>' + (b.items || []).map(function (it) { return '<li>' + runsToArticleHtml(it, isValidUrl) + '</li>'; }).join('') + '</ol>';
+        case 'table':
+          var thead = '<thead><tr>' + (b.headers || []).map(function (h) { return '<th>' + escapeHtml(h) + '</th>'; }).join('') + '</tr></thead>';
+          var tbody = '<tbody>' + (b.rows || []).map(function (r) {
+            return '<tr>' + r.map(function (c) { return '<td>' + escapeHtml(c) + '</td>'; }).join('') + '</tr>';
+          }).join('') + '</tbody>';
+          return '<div class="table-wrap"><table>' + thead + tbody + '</table></div>';
+        default:
+          return '';
+      }
+    }).join('\n');
+  }
 
   // ---------- attachments ----------
   var filesInput = document.getElementById('f-files');
@@ -831,13 +785,17 @@
     var token = getToken();
     if (!token) { log('Devi prima verificare il token di accesso.', 'err'); return; }
 
+    var editorApi = getEditorApi();
+    if (!editorApi) { log('L\'editor del testo non è ancora pronto: attendi un istante e riprova.', 'err'); return; }
+
     var title = titleInput.value.trim();
-    var bodyRaw = document.getElementById('f-body').value;
+    var articleState = editorApi.getState();
+    var plainText = plainTextFromBlocks(articleState);
     var iso = dateInput.value;
     var cat = currentCategory();
 
     if (!title) { log('Inserisci il titolo dell\'articolo.', 'err'); return; }
-    if (!bodyRaw.trim()) { log('Inserisci il testo dell\'articolo.', 'err'); return; }
+    if (!plainText) { log('Inserisci il testo dell\'articolo.', 'err'); return; }
     if (!iso) { log('Seleziona una data.', 'err'); return; }
     if (!cat.slug) { log('Specifica una categoria valida.', 'err'); return; }
 
@@ -860,10 +818,9 @@
         return;
       }
 
-      var plainText = plainTextFromBody(bodyRaw);
       var metaDesc = truncate(plainText, 155);
       var excerpt = truncate(plainText, 140);
-      var bodyHtml = bodyToHtml(bodyRaw);
+      var bodyHtml = articleBodyHtmlFromBlocks(articleState, editorApi.isValidUrl);
 
       // 1. upload attachments
       var uploaded = [];
