@@ -77,10 +77,10 @@ nav.main-nav form.search-box input:focus { outline: none; border-color: var(--go
 nav.main-nav form.search-box input::placeholder { color: #9aa2ac; }
 
 /* Hero */
-.hero { background: linear-gradient(180deg, var(--paper) 0%, var(--paper-alt) 100%); color: var(--ink); padding: 56px 0 64px; border-bottom: 1px solid var(--line); }
-.hero h1 { font-family: var(--serif); font-size: 2.4rem; margin: 0 0 12px; max-width: 760px; color: var(--navy); }
-.hero p.lede { font-size: 1.05rem; color: var(--ink-soft); max-width: 640px; margin: 0 0 20px; }
-.hero .stats { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 20px; }
+.hero { background: linear-gradient(180deg, var(--paper) 0%, var(--paper-alt) 100%); color: var(--ink); padding: 56px 0 64px; border-bottom: 1px solid var(--line); text-align: center; }
+.hero h1 { font-family: var(--serif); font-size: 2.4rem; margin: 0 auto 12px; max-width: 760px; color: var(--navy); }
+.hero p.lede { font-size: 1.05rem; color: var(--ink-soft); max-width: 640px; margin: 0 auto 20px; }
+.hero .stats { display: flex; gap: 28px; flex-wrap: wrap; margin-top: 20px; justify-content: center; }
 .hero .stat b { font-family: var(--serif); font-size: 1.5rem; display: block; color: var(--navy); }
 .hero .stat span { font-size: 0.8rem; color: var(--ink-soft); text-transform: uppercase; letter-spacing: 0.06em; }
 
