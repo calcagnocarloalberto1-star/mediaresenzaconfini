@@ -146,6 +146,13 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .post-attachments .label { font-size: 0.78rem; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin-bottom: 8px; }
 .attachment-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 8px; }
 .attachment-list li { font-size: 0.92rem; }
+
+.post-update { max-width: 760px; margin-top: 32px; padding: 18px 22px; background: var(--paper-alt); border: 1px solid var(--line); border-left: 4px solid var(--gold); border-radius: 4px; }
+.post-update h2 { font-family: var(--serif); font-size: 1.05rem; margin: 0 0 10px; color: var(--navy); }
+.post-update p { margin: 0 0 0.8em; font-size: 0.95rem; }
+.post-update p:last-child { margin-bottom: 0; }
+.post-update .update-source { font-size: 0.85rem; color: var(--ink-soft); }
+.post-update .update-source a { color: var(--ink-soft); text-decoration: underline; }
 .attachment-list a { font-weight: 600; }
 .attachment-size { color: var(--ink-soft); font-size: 0.82rem; margin-left: 4px; }
 .post-subscribe { max-width: 560px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
