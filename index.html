@@ -170,7 +170,7 @@
 
 <script>
 (function () {
-var GH_API = 'https://api.github.com/repos/calcagnocarloalberto1-star/mediaresenzaconfini/git/trees/main?recursive=1';
+var ARTICLE_COUNT_URL = '/static/article-count.json';
 var GC_TOTAL = 'https://mediaresenzaconfini.goatcounter.com/counter/TOTAL.json';
 var BASELINE_VIEWS = 185649; // storico Jetpack Stats (WordPress) rilevato il 12/08/2026, prima del passaggio a GoatCounter
 
@@ -178,16 +178,13 @@ function fmtIt(n) {
 return Number(n).toLocaleString('it-IT');
 }
 
-// Numero di articoli pubblicati: contati dal repository, cresce automaticamente a ogni nuovo articolo pubblicato
-fetch(GH_API).then(function (r) {
+// Numero di articoli pubblicati: precalcolato da una GitHub Action (.github/workflows/update-article-count.yml)
+// a ogni nuova pubblicazione, invece di interrogare l'API di GitHub lato client a ogni caricamento pagina
+fetch(ARTICLE_COUNT_URL).then(function (r) {
 return r.ok ? r.json() : Promise.reject(r.status);
 }).then(function (data) {
-var re = /^\d{4}\/\d{2}\/\d{2}\/[^\/]+\/index\.html$/;
-var count = (data.tree || []).filter(function (item) {
-return item.type === 'blob' && re.test(item.path);
-}).length;
 var el = document.getElementById('stat-articles');
-if (el && count > 0) el.textContent = fmtIt(count);
+if (el && data && data.count > 0) el.textContent = fmtIt(data.count);
 }).catch(function () { /* resta il valore statico dell'ultima build */ });
 
 // Visualizzazioni totali dal 2011: storico WordPress + conteggio live GoatCounter (senza cookie)
