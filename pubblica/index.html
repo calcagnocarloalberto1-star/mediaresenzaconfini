@@ -489,7 +489,15 @@
           var lvl = (b.level === 1) ? 2 : 3;
           return '<h' + lvl + align + '>' + escapeHtml(b.text || '') + '</h' + lvl + '>';
         case 'paragraph':
-          return '<p' + align + '>' + runsToArticleHtml(b.content, isValidUrl) + '</p>';
+          // Un paragrafo senza alcun testo (un "a capo vuoto" lasciato apposta da Carlo per
+          // distanziare due blocchi) va reso con un contenuto minimo (&nbsp;) invece che vuoto:
+          // un <p></p> del tutto privo di contenuto non ha una riga di testo propria, quindi il
+          // suo margine si "collassa" con quello dei paragrafi adiacenti (regola standard CSS sul
+          // collasso dei margini) e sparisce visivamente, dando l'impressione che la riga vuota
+          // non sia stata "riconosciuta". Con &nbsp; il paragrafo ha un'altezza di riga reale e lo
+          // spazio vuoto resta visibile.
+          var pContent = runsToArticleHtml(b.content, isValidUrl);
+          return '<p' + align + '>' + (pContent.trim() ? pContent : '&nbsp;') + '</p>';
         case 'bulletList':
           return '<ul' + align + '>' + (b.items || []).map(function (it) { return '<li>' + runsToArticleHtml(it, isValidUrl) + '</li>'; }).join('') + '</ul>';
         case 'numberedList':
