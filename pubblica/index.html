@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="robots" content="noindex, nofollow">
-<title>Pubblica un nuovo articolo — mediaresenzaconfini</title>
+<title>Pannello di pubblicazione — mediaresenzaconfini</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="/static/css/style.css">
@@ -62,6 +62,12 @@
   .share-links { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
   .share-btn { display: inline-block; background: var(--navy); color: #fff; border-radius: 5px; padding: 7px 16px; font-size: 0.85rem; font-weight: 600; text-decoration: none; }
   .share-btn:hover { background: var(--gold); color: #fff; text-decoration: none; }
+  .mode-tabs { display: flex; gap: 8px; margin: 14px 0 18px; border-bottom: 1px solid var(--line); }
+  .mode-tab { background: none; border: none; border-bottom: 3px solid transparent; padding: 8px 4px 10px; margin-right: 14px; font-family: var(--sans); font-size: 0.92rem; font-weight: 600; color: var(--ink-soft); cursor: pointer; }
+  .mode-tab.active { color: var(--navy); border-bottom-color: var(--gold); }
+  .edit-picker { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 6px; padding: 16px 18px; margin-bottom: 18px; }
+  .edit-picker select { font-family: var(--sans); font-size: 0.88rem; }
+  .attach-list li span { color: var(--ink-soft); }
 </style>
 </head>
 <body>
@@ -74,7 +80,7 @@
 
 <div class="admin-wrap">
   <h1 class="admin-title">Pannello di pubblicazione</h1>
-  <p class="hint">Da qui puoi pubblicare un nuovo articolo su mediaresenzaconfini.it e allegare file di qualsiasi tipo (PDF, immagini, documenti, ecc.). Questa pagina non è collegata dal menu del sito e non è indicizzata dai motori di ricerca: solo chi conosce l'indirizzo e possiede un token di accesso valido può pubblicare.</p>
+  <p class="hint">Da qui puoi pubblicare un nuovo articolo su mediaresenzaconfini.it, allegare file di qualsiasi tipo (PDF, immagini, documenti, ecc.), oppure modificare un articolo che hai già pubblicato scegliendolo da un elenco. Questa pagina non è indicizzata dai motori di ricerca: solo chi possiede un token di accesso valido può pubblicare o modificare.</p>
 
   <div class="admin-card" id="card-token">
     <h2>1. Accesso</h2>
@@ -99,8 +105,25 @@
   </div>
 
   <div class="admin-card" id="card-form" style="opacity:0.5; pointer-events:none;">
-    <h2>2. Nuovo articolo</h2>
+    <h2>2. Contenuto</h2>
     <p class="hint">Scrivi il testo usando i pulsanti della barra degli strumenti dell'editor qui sotto: titolo, sottotitolo, grassetto, corsivo, elenchi, link e tabelle. Non serve conoscere alcun codice o simbolo speciale. Puoi anche incollare direttamente una tabella copiata da Word, Excel o Google Docs: verrà riconosciuta e trasformata automaticamente in una tabella dell'articolo.</p>
+
+    <div class="mode-tabs">
+      <button type="button" class="mode-tab active" id="mode-tab-new">Nuovo articolo</button>
+      <button type="button" class="mode-tab" id="mode-tab-edit">Modifica un articolo pubblicato</button>
+    </div>
+
+    <div id="edit-picker" class="edit-picker" style="display:none;">
+      <div class="field">
+        <label for="edit-filter">Cerca tra gli articoli pubblicati</label>
+        <input type="text" id="edit-filter" placeholder="Filtra per titolo…">
+      </div>
+      <div class="field">
+        <label for="edit-select">Seleziona l'articolo da modificare</label>
+        <select id="edit-select" size="8"><option value="">Clicca qui sopra per caricare l'elenco…</option></select>
+      </div>
+    </div>
+    <div id="edit-warning" class="warn-box" style="display:none;"></div>
 
     <div class="field">
       <label for="f-title">Titolo dell'articolo</label>
@@ -128,6 +151,7 @@
       <div class="field">
         <label for="f-date">Data di pubblicazione</label>
         <input type="date" id="f-date">
+        <span class="sub" id="edit-date-note" style="display:none;"></span>
       </div>
     </div>
     <div class="preview-url" id="url-preview"></div>
@@ -140,9 +164,14 @@
 
     <div class="field">
       <label for="f-files">Allegati (facoltativi, qualsiasi tipo di file)</label>
+      <ul class="attach-list" id="existing-attach-list"></ul>
       <input type="file" id="f-files" multiple>
-      <span class="sub">Ogni allegato compare automaticamente in un elenco "Allegati" in fondo all'articolo, con link diretto al download. Limite consigliato: 25&nbsp;MB per file — per file più grandi (es. video) è meglio caricarli altrove (YouTube, Google Drive) e inserire il link nel testo.</span>
+      <span class="sub">Ogni allegato compare automaticamente in un elenco "Allegati" in fondo all'articolo, con link diretto al download. Limite consigliato: 25&nbsp;MB per file — per file più grandi (es. video) è meglio caricarli altrove (YouTube, Google Drive) e inserire il link nel testo. In modifica, i nuovi allegati si aggiungono a quelli già presenti (che restano invariati).</span>
       <ul class="attach-list" id="attach-list"></ul>
+    </div>
+
+    <div id="edit-confirm-wrap" class="field" style="display:none;">
+      <label style="font-weight:400;"><input type="checkbox" id="edit-confirm-safe" style="width:auto;"> Ho controllato la scheda "Anteprima" e confermo che il contenuto è completo</label>
     </div>
 
     <button class="btn-primary" id="btn-publish">Pubblica articolo</button>
@@ -190,12 +219,11 @@
   var WEBSITE_JSONLD = {"@context":"https://schema.org","@type":"WebSite","name":"mediaresenzaconfini","url":SITE + "/","publisher":{"@type":"Person","name":"Carlo Alberto Calcagno"},"potentialAction":{"@type":"SearchAction","target":SITE + "/cerca/?q={search_term_string}","query-input":"required name=search_term_string"}};
   var PERSON_JSONLD = {"@context":"https://schema.org","@type":"Person","name":"Carlo Alberto Calcagno","url":SITE + "/about/","jobTitle":"Avvocato, mediatore civile e commerciale, mediatore familiare, formatore ADR","worksFor":{"@type":"Organization","name":"mediaresenzaconfini","url":SITE + "/"}};
 
-  var NAV_BLOCK = '<nav class="main-nav">\n<div class="wrap">\n<input type="checkbox" id="nav-toggle" class="nav-toggle-input">\n<label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">&#9776;</label>\n<div class="nav-links">\n<a href="/">Home</a>\n<a href="/categoria/mediazione/">Mediazione</a>\n<a href="/categoria/arbitrato/">Arbitrato</a>\n<a href="/categoria/conciliazione/">Conciliazione</a>\n<a href="/legislazione-internazionale/">Legislazione internazionale</a>
-<a href="/paesi-ue-in-numeri/">Paesi UE in numeri</a>\n<a href="/categoria/saggi/">Saggi</a>\n<a href="/about/">Chi sono</a>\n</div>\n<form class="search-box" action="/cerca/" method="get" role="search">\n<input type="search" name="q" placeholder="Cerca…" aria-label="Cerca nel sito">\n</form>\n</div>\n</nav>';
+  var NAV_BLOCK = '<nav class="main-nav">\n<div class="wrap">\n<input type="checkbox" id="nav-toggle" class="nav-toggle-input">\n<label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">&#9776;</label>\n<div class="nav-links">\n<a href="/">Home</a>\n<a href="/categoria/mediazione/">Mediazione</a>\n<a href="/categoria/arbitrato/">Arbitrato</a>\n<a href="/categoria/conciliazione/">Conciliazione</a>\n<a href="/legislazione-internazionale/">Legislazione internazionale</a>\n<a href="/paesi-ue-in-numeri/">Paesi UE in numeri</a>\n<a href="/categoria/saggi/">Saggi</a>\n<a href="/about/">Chi sono</a>\n</div>\n<form class="search-box" action="/cerca/" method="get" role="search">\n<input type="search" name="q" placeholder="Cerca…" aria-label="Cerca nel sito">\n</form>\n</div>\n</nav>';
 
   var HEADER_BLOCK = '<header class="site-header">\n<div class="site-header-photo" style="background-image: url(\'' + IMG + '\');">\n<div class="site-header-overlay">\n<div class="wrap site-header-brand">\n<a href="/"><span class="brand-name">mediaresenzaconfini</span></a>\n</div>\n</div>\n</div>\n' + NAV_BLOCK + '\n</header>';
 
-  var FOOTER_BLOCK = '<footer class="site-footer">\n<div class="wrap">\n<div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>\n<div><a href="/about/">Chi sono</a> &middot; <a href="/link-utili/">Link utili</a> &middot; <a href="/statistiche/">Statistiche</a> &middot; <a href="/contatti/">Contatti</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a></div>\n</div>\n</footer>';
+  var FOOTER_BLOCK = '<footer class="site-footer">\n<div class="wrap">\n<div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>\n<div><a href="/about/">Chi sono</a> &middot; <a href="/link-utili/">Link utili</a> &middot; <a href="/statistiche/">Statistiche</a> &middot; <a href="/contatti/">Contatti</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a> &middot; <a href="/pubblica/">Pubblica</a></div>\n</div>\n</footer>';
 
   var GC_SCRIPT = '<script data-goatcounter="https://mediaresenzaconfini.goatcounter.com/count" async src="//gc.zgo.at/count.js"><\/script>';
 
@@ -478,6 +506,133 @@
     }).join('\n');
   }
 
+  // ---------- HTML -> blocks parser (inverse of articleBodyHtmlFromBlocks, used to load
+  // an already-published article back into the structured editor for the "Modifica" flow).
+  // Only recognizes the tags this same panel ever generates (h2/h3, p, ul/ol, a/b/strong/i/em/br,
+  // table.table-wrap) -- anything else is stripped, same safety posture as the editor's own parser.
+  var uidCounterParent = 1;
+  function uidParent() { return 'e' + (uidCounterParent++) + '_' + Math.floor(Math.random() * 1e6); }
+
+  function domRunsFromNode(node, ctx) {
+    ctx = ctx || { bold: false, italic: false };
+    var runs = [];
+    Array.prototype.forEach.call(node.childNodes, function (child) {
+      if (child.nodeType === 3) {
+        if (child.textContent.length) runs.push({ type: 'text', text: child.textContent, bold: ctx.bold, italic: ctx.italic });
+      } else if (child.nodeType === 1) {
+        var tag = child.tagName.toLowerCase();
+        if (tag === 'br') {
+          runs.push({ type: 'break' });
+        } else if (tag === 'a') {
+          var text = child.textContent || '';
+          if (text.length) runs.push({ type: 'link', text: text, href: child.getAttribute('href') || '' });
+        } else if (tag === 'strong' || tag === 'b') {
+          runs = runs.concat(domRunsFromNode(child, { bold: true, italic: ctx.italic }));
+        } else if (tag === 'em' || tag === 'i') {
+          runs = runs.concat(domRunsFromNode(child, { bold: ctx.bold, italic: true }));
+        } else {
+          runs = runs.concat(domRunsFromNode(child, ctx));
+        }
+      }
+    });
+    return runs;
+  }
+
+  function normalizeRunsParent(runs) {
+    var out = [];
+    runs.forEach(function (r) {
+      var last = out[out.length - 1];
+      if (r.type === 'text' && last && last.type === 'text' && last.bold === r.bold && last.italic === r.italic) {
+        last.text += r.text;
+      } else {
+        out.push(Object.assign({}, r));
+      }
+    });
+    return out.filter(function (r) { return !(r.type === 'text' && r.text === ''); });
+  }
+
+  function blocksFromArticleBodyHtml(bodyHtml) {
+    var doc = new DOMParser().parseFromString('<div id="root">' + bodyHtml + '</div>', 'text/html');
+    var root = doc.getElementById('root');
+    var blocks = [];
+    if (root) {
+      Array.prototype.forEach.call(root.children, function (el) {
+        var tag = el.tagName.toLowerCase();
+        var align = (el.getAttribute('style') || '').indexOf('text-align:justify') !== -1 ? 'justify' : undefined;
+        if (tag === 'h2' || tag === 'h3') {
+          var bH = { id: uidParent(), type: 'heading', level: tag === 'h2' ? 1 : 2, text: el.textContent || '' };
+          if (align) bH.align = align;
+          blocks.push(bH);
+        } else if (tag === 'p') {
+          var bP = { id: uidParent(), type: 'paragraph', content: normalizeRunsParent(domRunsFromNode(el)) };
+          if (align) bP.align = align;
+          blocks.push(bP);
+        } else if (tag === 'ul' || tag === 'ol') {
+          var items = Array.prototype.map.call(el.querySelectorAll(':scope > li'), function (li) {
+            return normalizeRunsParent(domRunsFromNode(li));
+          });
+          var bL = { id: uidParent(), type: tag === 'ul' ? 'bulletList' : 'numberedList', items: items.length ? items : [[]] };
+          if (align) bL.align = align;
+          blocks.push(bL);
+        } else if (tag === 'div' && el.classList.contains('table-wrap')) {
+          var table = el.querySelector('table');
+          if (table) {
+            var headers = Array.prototype.map.call(table.querySelectorAll('thead th'), function (th) { return th.textContent || ''; });
+            var rows = Array.prototype.map.call(table.querySelectorAll('tbody tr'), function (tr) {
+              return Array.prototype.map.call(tr.querySelectorAll('td'), function (td) { return td.textContent || ''; });
+            });
+            blocks.push({ id: uidParent(), type: 'table', headers: headers, rows: rows });
+          }
+        }
+        // altri tag (es. img, blockquote, div generici) non sono riconosciuti da questo editor:
+        // il loro contenuto testuale va perso -- per questo estimateContentLoss() segnala il caso.
+      });
+    }
+    if (!blocks.length) blocks.push({ id: uidParent(), type: 'paragraph', content: [] });
+    return { blocks: blocks };
+  }
+
+  // Stima approssimativa: se il testo ricostruito dai blocchi riconosciuti è molto più corto
+  // del testo semplice dell'HTML originale, è probabile che l'editor abbia perso del contenuto
+  // (immagini con didascalie, blockquote, markup non supportato) -- usato per avvisare Carlo
+  // prima che salvi una modifica potenzialmente distruttiva.
+  function estimateContentLoss(originalBodyHtml, blocksState) {
+    var tmp = document.createElement('div');
+    tmp.innerHTML = originalBodyHtml;
+    var originalText = (tmp.textContent || '').replace(/\s+/g, ' ').trim();
+    var parsedText = plainTextFromBlocks(blocksState).replace(/\s+/g, ' ').trim();
+    if (!originalText.length) return false;
+    return parsedText.length < originalText.length * 0.85;
+  }
+
+  // Estrae titolo/categoria/data/corpo/allegati da un file di articolo già pubblicato
+  // (stesso formato generato da buildArticleHtml). Se la struttura non corrisponde
+  // (articolo non pubblicato con questo pannello), hasPostBody è false e la modifica
+  // guidata non viene proposta per quell'articolo.
+  function parseArticleForEdit(html) {
+    var doc = new DOMParser().parseFromString(html, 'text/html');
+    var h1 = doc.querySelector('article.post h1, .post-header h1, h1');
+    var title = h1 ? h1.textContent.trim() : '';
+    var tagPill = doc.querySelector('.tag-pill');
+    var catLabelFound = tagPill ? tagPill.textContent.trim() : '';
+    var breadcrumbCatLink = doc.querySelector('.breadcrumb a[href^="/categoria/"]');
+    var catSlugFound = '';
+    if (breadcrumbCatLink) {
+      var href = breadcrumbCatLink.getAttribute('href') || '';
+      var mm = href.match(/^\/categoria\/([^\/]+)\/?$/);
+      if (mm) catSlugFound = mm[1];
+    }
+    var publishedMeta = doc.querySelector('meta[property="article:published_time"]');
+    var iso = publishedMeta ? (publishedMeta.getAttribute('content') || '').slice(0, 10) : '';
+    var bodyEl = doc.querySelector('.post-body');
+    var bodyHtml = bodyEl ? bodyEl.innerHTML : '';
+    var attachEls = doc.querySelectorAll('.post-attachments .attachment-list li a');
+    var attachments = Array.prototype.map.call(attachEls, function (a) {
+      return { url: a.getAttribute('href'), displayName: a.textContent.trim() };
+    });
+    return { title: title, catLabelFound: catLabelFound, catSlugFound: catSlugFound, iso: iso, bodyHtml: bodyHtml, attachments: attachments, hasPostBody: !!bodyEl };
+  }
+
   // ---------- attachments ----------
   var filesInput = document.getElementById('f-files');
   var attachListEl = document.getElementById('attach-list');
@@ -629,7 +784,8 @@
   function buildAttachmentsBlock(uploaded) {
     if (!uploaded.length) return '';
     var items = uploaded.map(function (f) {
-      return '<li><a href="' + escapeHtml(f.url) + '" download>' + escapeHtml(f.displayName) + '</a> <span class="attachment-size">(' + humanSize(f.size) + ')</span></li>';
+      var sizeStr = (typeof f.size === 'number') ? ' <span class="attachment-size">(' + humanSize(f.size) + ')</span>' : '';
+      return '<li><a href="' + escapeHtml(f.url) + '" download>' + escapeHtml(f.displayName) + '</a>' + sizeStr + '</li>';
     }).join('\n');
     return '\n\n<div class="post-attachments">\n<div class="label">Allegati</div>\n<ul class="attachment-list">\n' + items + '\n</ul>\n</div>';
   }
@@ -658,11 +814,11 @@
     var fullTitle = title + ' — mediaresenzaconfini';
     var desc = a.metaDesc;
     var canonicalUrl = a.canonicalUrl;
-    var ogBlock = '<meta property="og:type" content="article">\n<meta property="og:site_name" content="mediaresenzaconfini">\n<meta property="og:title" content="' + escapeHtml(fullTitle) + '">\n<meta property="og:description" content="' + escapeHtml(desc) + '">\n<meta property="og:url" content="' + canonicalUrl + '">\n<meta property="og:image" content="' + IMG + '">\n<meta property="og:locale" content="it_IT">\n<meta property="article:published_time" content="' + a.iso + '">\n<meta property="article:modified_time" content="' + a.iso + '">\n<meta property="article:author" content="Carlo Alberto Calcagno">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + escapeHtml(fullTitle) + '">\n<meta name="twitter:description" content="' + escapeHtml(desc) + '">\n<meta name="twitter:image" content="' + IMG + '">';
+    var ogBlock = '<meta property="og:type" content="article">\n<meta property="og:site_name" content="mediaresenzaconfini">\n<meta property="og:title" content="' + escapeHtml(fullTitle) + '">\n<meta property="og:description" content="' + escapeHtml(desc) + '">\n<meta property="og:url" content="' + canonicalUrl + '">\n<meta property="og:image" content="' + IMG + '">\n<meta property="og:locale" content="it_IT">\n<meta property="article:published_time" content="' + a.iso + '">\n<meta property="article:modified_time" content="' + (a.modifiedIso || a.iso) + '">\n<meta property="article:author" content="Carlo Alberto Calcagno">\n<meta name="twitter:card" content="summary_large_image">\n<meta name="twitter:title" content="' + escapeHtml(fullTitle) + '">\n<meta name="twitter:description" content="' + escapeHtml(desc) + '">\n<meta name="twitter:image" content="' + IMG + '">';
     var articleJsonld = {
       "@context": "https://schema.org", "@type": "Article",
       "headline": title, "description": desc,
-      "datePublished": a.iso, "dateModified": a.iso,
+      "datePublished": a.iso, "dateModified": (a.modifiedIso || a.iso),
       "author": { "@type": "Person", "name": "Carlo Alberto Calcagno", "url": SITE + '/about/' },
       "publisher": { "@type": "Organization", "name": "mediaresenzaconfini", "url": SITE + '/' },
       "mainEntityOfPage": { "@type": "WebPage", "@id": canonicalUrl }, "url": canonicalUrl
@@ -770,6 +926,96 @@
     await ghPutFile('sitemap.xml', utf8ToB64(newText), 'Aggiungi articolo alla sitemap', token, f.sha);
   }
 
+  // ---------- edit-mode listing updaters (best-effort, in-place: total counts don't change) ----------
+  async function updateSearchIndexEntry(articleUrlPath, entry, token) {
+    var f = await ghGetFile('static/search-index.json', token);
+    if (!f) throw new Error('Indice di ricerca non trovato.');
+    var data = JSON.parse(f.text);
+    var idx = -1;
+    for (var i = 0; i < data.length; i++) { if (data[i].u === articleUrlPath) { idx = i; break; } }
+    if (idx === -1) { data.unshift({ t: entry.title, u: articleUrlPath, e: entry.excerpt, c: entry.catLabel, d: entry.iso }); }
+    else { data[idx].t = entry.title; data[idx].e = entry.excerpt; data[idx].c = entry.catLabel; data[idx].d = entry.iso; }
+    await ghPutFile('static/search-index.json', utf8ToB64(JSON.stringify(data)), 'Aggiorna indice di ricerca per articolo modificato', token, f.sha);
+  }
+
+  async function updateHomeCardIfPresent(articleUrlPath, newHomeCardHtml, token) {
+    var home = await ghGetFile('index.html', token);
+    if (!home) { log('Homepage non trovata: card non aggiornata lì.', 'err'); return; }
+    var h2Marker = '<h2>Ultimi articoli</h2>';
+    var h2Idx = home.text.indexOf(h2Marker);
+    if (h2Idx === -1) { log('Sezione "Ultimi articoli" non trovata in homepage.', 'err'); return; }
+    var region = locateCardGrid(home.text.slice(h2Idx));
+    var absStart = h2Idx + region.start, absEnd = h2Idx + region.end;
+    var cards = extractCards(home.text, absStart, absEnd);
+    var found = false;
+    var newCards = cards.map(function (c) {
+      if (c.indexOf('href="' + articleUrlPath + '"') !== -1) { found = true; return newHomeCardHtml; }
+      return c;
+    });
+    if (!found) { log('Articolo non tra gli ultimi 6 in homepage: nessun aggiornamento necessario lì.', 'info'); return; }
+    var newInner = '\n' + newCards.join('\n\n') + '\n';
+    var newHtml = home.text.slice(0, absStart) + newInner + home.text.slice(absEnd);
+    await ghPutFile('index.html', utf8ToB64(newHtml), 'Aggiorna card articolo modificato in homepage', token, home.sha);
+    log('Card aggiornata in homepage.', 'ok');
+  }
+
+  async function updateCardEverywhere(catSlug, catLabel, articleUrlPath, newCardHtml, token) {
+    var isPaginated = PAGINATED_CATS.indexOf(catSlug) !== -1;
+    var basePath = 'categoria/' + catSlug + '/index.html';
+    var page1 = await ghGetFile(basePath, token);
+    if (!page1) { log('Categoria "' + catLabel + '" non trovata: card non aggiornata lì.', 'err'); return; }
+
+    if (!isPaginated) {
+      var region = locateCardGrid(page1.text);
+      var cards = extractCards(page1.text, region.start, region.end);
+      var matched = false;
+      var newCards = cards.map(function (c) {
+        if (c.indexOf('href="' + articleUrlPath + '"') !== -1) { matched = true; return newCardHtml; }
+        return c;
+      });
+      if (!matched) { log('Card dell\'articolo non trovata nella categoria "' + catLabel + '" — non aggiornata lì automaticamente.', 'err'); return; }
+      var html = buildCategoryPageHtml(catSlug, catLabel, 1, 1, newCards.length, newCards);
+      await ghPutFile(basePath, utf8ToB64(html), 'Aggiorna card articolo modificato nella categoria ' + catLabel, token, page1.sha);
+      log('Card aggiornata nella categoria "' + catLabel + '".', 'ok');
+      return;
+    }
+
+    var pageLinkRe = new RegExp('/categoria/' + catSlug + '/pagina/(\\d+)/', 'g');
+    var maxPage = 1, m;
+    while ((m = pageLinkRe.exec(page1.text)) !== null) { maxPage = Math.max(maxPage, parseInt(m[1], 10)); }
+
+    var pagesData = { 1: page1 };
+    for (var p = 2; p <= maxPage; p++) { pagesData[p] = await ghGetFile('categoria/' + catSlug + '/pagina/' + p + '/index.html', token); }
+
+    for (var pp = 1; pp <= maxPage; pp++) {
+      var f = pagesData[pp];
+      if (!f) continue;
+      var r = locateCardGrid(f.text);
+      var pageCards = extractCards(f.text, r.start, r.end);
+      var found = false;
+      var newPageCards = pageCards.map(function (c) {
+        if (c.indexOf('href="' + articleUrlPath + '"') !== -1) { found = true; return newCardHtml; }
+        return c;
+      });
+      if (found) {
+        var total = 0;
+        for (var k = 1; k <= maxPage; k++) {
+          if (k === pp) { total += newPageCards.length; continue; }
+          var fk = pagesData[k];
+          if (!fk) continue;
+          var rk = locateCardGrid(fk.text);
+          total += extractCards(fk.text, rk.start, rk.end).length;
+        }
+        var pHtml = buildCategoryPageHtml(catSlug, catLabel, pp, maxPage, total, newPageCards);
+        var pPath = pp === 1 ? basePath : 'categoria/' + catSlug + '/pagina/' + pp + '/index.html';
+        await ghPutFile(pPath, utf8ToB64(pHtml), 'Aggiorna card articolo modificato nella categoria ' + catLabel + ' (pagina ' + pp + ')', token, f.sha);
+        log('Card aggiornata nella categoria "' + catLabel + '" (pagina ' + pp + '/' + maxPage + ').', 'ok');
+        return;
+      }
+    }
+    log('Card dell\'articolo non trovata in nessuna pagina della categoria "' + catLabel + '" — non aggiornata lì automaticamente.', 'err');
+  }
+
   var shareBlock = document.getElementById('share-block');
   function showShareLinks(articleTitle, articleUrl) {
     var text = articleTitle + ' — mediaresenzaconfini';
@@ -782,7 +1028,281 @@
     shareBlock.classList.remove('is-hidden');
   }
 
+  // ---------- mode switch: "Nuovo articolo" <-> "Modifica un articolo pubblicato" ----------
+  var currentMode = 'new';
+  var editContext = null;
+  var articleIndexCache = null;
+
+  document.getElementById('mode-tab-new').addEventListener('click', function () { switchMode('new'); });
+  document.getElementById('mode-tab-edit').addEventListener('click', function () { switchMode('edit'); });
+
+  function resetFormForNewArticle() {
+    editContext = null;
+    document.getElementById('edit-warning').style.display = 'none';
+    document.getElementById('edit-confirm-wrap').style.display = 'none';
+    titleInput.value = ''; updateTitleLenHint();
+    catSelect.value = 'mediazione'; catCustomWrap.style.display = 'none';
+    (function () {
+      var d = new Date();
+      dateInput.value = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    })();
+    updateUrlPreview();
+    var api = getEditorApi();
+    if (api) api.setState({ blocks: [{ id: uidParent(), type: 'paragraph', content: [] }] });
+    document.getElementById('existing-attach-list').innerHTML = '';
+    pendingFiles = []; renderAttachList();
+    publishBtn.textContent = 'Pubblica articolo';
+    publishBtn.disabled = false;
+    logEl.style.display = 'none'; logEl.innerHTML = '';
+  }
+
+  function switchMode(mode) {
+    currentMode = mode;
+    document.getElementById('mode-tab-new').classList.toggle('active', mode === 'new');
+    document.getElementById('mode-tab-edit').classList.toggle('active', mode === 'edit');
+    document.getElementById('edit-picker').style.display = mode === 'edit' ? 'block' : 'none';
+    dateInput.style.display = mode === 'edit' ? 'none' : '';
+    document.getElementById('edit-date-note').style.display = mode === 'edit' ? 'block' : 'none';
+    if (mode === 'new') {
+      resetFormForNewArticle();
+    } else {
+      publishBtn.textContent = editContext ? 'Salva modifiche' : 'Pubblica articolo';
+      publishBtn.disabled = !editContext;
+      ensureArticleIndexLoaded();
+    }
+  }
+
+  async function ensureArticleIndexLoaded() {
+    var selectEl = document.getElementById('edit-select');
+    if (articleIndexCache) { renderPickerOptions(''); return; }
+    var token = getToken();
+    selectEl.innerHTML = '<option value="">Caricamento elenco articoli…</option>';
+    try {
+      var f = await ghGetFile('static/search-index.json', token);
+      if (!f) throw new Error('indice non trovato');
+      var data = JSON.parse(f.text);
+      var articleRe = /^\/\d{4}\/\d{2}\/\d{2}\/[^\/]+\/$/;
+      articleIndexCache = data.filter(function (e) { return articleRe.test(e.u); })
+        .sort(function (a, b) { return (b.d || '').localeCompare(a.d || ''); });
+      renderPickerOptions('');
+    } catch (e) {
+      selectEl.innerHTML = '<option value="">Errore nel caricare l\'elenco: ' + escapeHtml(e.message) + '</option>';
+    }
+  }
+
+  function renderPickerOptions(filterText) {
+    var selectEl = document.getElementById('edit-select');
+    var ft = (filterText || '').toLowerCase();
+    selectEl.innerHTML = '';
+    if (!articleIndexCache) return;
+    var shown = 0;
+    articleIndexCache.forEach(function (e, idx) {
+      if (ft && (e.t || '').toLowerCase().indexOf(ft) === -1) return;
+      if (shown >= 300) return;
+      shown++;
+      var opt = document.createElement('option');
+      opt.value = String(idx);
+      opt.textContent = (e.d || '') + ' — ' + (e.c || '') + ' — ' + e.t;
+      selectEl.appendChild(opt);
+    });
+    if (!shown) selectEl.innerHTML = '<option value="">Nessun articolo trovato.</option>';
+  }
+
+  document.getElementById('edit-filter').addEventListener('input', function () {
+    if (articleIndexCache) renderPickerOptions(this.value);
+  });
+
+  document.getElementById('edit-select').addEventListener('change', function () {
+    var idx = parseInt(this.value, 10);
+    if (isNaN(idx) || !articleIndexCache || !articleIndexCache[idx]) return;
+    loadArticleForEdit(articleIndexCache[idx]);
+  });
+
+  function renderExistingAttachList(list) {
+    var el = document.getElementById('existing-attach-list');
+    el.innerHTML = '';
+    (list || []).forEach(function (f) {
+      var li = document.createElement('li');
+      var span = document.createElement('span');
+      span.textContent = f.displayName + ' (già presente)';
+      li.appendChild(span);
+      el.appendChild(li);
+    });
+  }
+
+  async function loadArticleForEdit(entry) {
+    var token = getToken();
+    var repoPath = entry.u.replace(/^\//, '') + 'index.html';
+    log('Carico "' + entry.t + '"…', 'info');
+    logEl.style.display = 'block';
+    var f;
+    try { f = await ghGetFile(repoPath, token); }
+    catch (e) { log('Errore nel caricare l\'articolo: ' + e.message, 'err'); return; }
+    if (!f) { log('Articolo non trovato all\'indirizzo atteso (' + repoPath + ').', 'err'); return; }
+
+    var parsed = parseArticleForEdit(f.text);
+    var warnEl = document.getElementById('edit-warning');
+    var confirmWrap = document.getElementById('edit-confirm-wrap');
+
+    if (!parsed.hasPostBody) {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML = 'Questo articolo non è stato pubblicato con questo pannello (struttura diversa): la modifica guidata non è disponibile per il testo. Puoi comunque modificarlo direttamente con l\'editor di file di GitHub.';
+      confirmWrap.style.display = 'none';
+      editContext = null;
+      publishBtn.disabled = true;
+      log('Modifica guidata non disponibile per questo articolo.', 'err');
+      return;
+    }
+
+    var pathParts = entry.u.replace(/^\//, '').replace(/\/$/, '').split('/');
+    var slug = pathParts[3] || '';
+
+    editContext = {
+      path: repoPath, sha: f.sha,
+      canonicalUrl: SITE + entry.u, urlPath: entry.u,
+      publishedIso: parsed.iso || entry.d || '',
+      originalCatSlug: parsed.catSlugFound || '',
+      existingAttachments: parsed.attachments || [],
+      slug: slug
+    };
+
+    titleInput.value = parsed.title || entry.t;
+    updateTitleLenHint();
+
+    if (parsed.catSlugFound && CAT_LABELS[parsed.catSlugFound]) {
+      catSelect.value = parsed.catSlugFound;
+      catCustomWrap.style.display = 'none';
+    } else {
+      catSelect.value = '__custom__';
+      catCustomWrap.style.display = 'block';
+      document.getElementById('f-cat-custom').value = parsed.catLabelFound || '';
+    }
+
+    dateInput.value = editContext.publishedIso || '';
+    var dateNote = document.getElementById('edit-date-note');
+    dateNote.textContent = editContext.publishedIso
+      ? ('Data di pubblicazione originale (non modificabile qui): ' + editContext.publishedIso)
+      : 'Data di pubblicazione originale non determinata.';
+
+    renderExistingAttachList(editContext.existingAttachments);
+    pendingFiles = []; renderAttachList();
+
+    var newState = blocksFromArticleBodyHtml(parsed.bodyHtml);
+    editContext.needsConfirm = estimateContentLoss(parsed.bodyHtml, newState);
+
+    function applyState() { getEditorApi().setState(newState); }
+    if (getEditorApi()) { applyState(); }
+    else { editorFrame.addEventListener('load', function onceLoad() { editorFrame.removeEventListener('load', onceLoad); applyState(); }); }
+
+    if (editContext.needsConfirm) {
+      warnEl.style.display = 'block';
+      warnEl.innerHTML = 'Attenzione: il testo originale di questo articolo sembra contenere elementi che l\'editor potrebbe non aver caricato per intero (es. immagini nel testo, formattazione avanzata). Controlla con attenzione la scheda "Anteprima" prima di salvare.';
+      confirmWrap.style.display = 'block';
+      document.getElementById('edit-confirm-safe').checked = false;
+    } else {
+      warnEl.style.display = 'none';
+      confirmWrap.style.display = 'none';
+    }
+
+    log('Articolo caricato nell\'editor. Modifica i campi/il testo e premi "Salva modifiche".', 'ok');
+    publishBtn.disabled = false;
+    publishBtn.textContent = 'Salva modifiche';
+  }
+
+  async function handleSaveEdit() {
+    var token = getToken();
+    if (!token) { log('Devi prima verificare il token di accesso.', 'err'); return; }
+    if (!editContext) { log('Seleziona prima un articolo da modificare.', 'err'); return; }
+    var editorApi = getEditorApi();
+    if (!editorApi) { log('L\'editor del testo non è ancora pronto: attendi un istante e riprova.', 'err'); return; }
+
+    var title = titleInput.value.trim();
+    var articleState = editorApi.getState();
+    var plainText = plainTextFromBlocks(articleState);
+    var cat = currentCategory();
+
+    if (!title) { log('Inserisci il titolo dell\'articolo.', 'err'); return; }
+    if (!plainText) { log('Inserisci il testo dell\'articolo.', 'err'); return; }
+    if (!cat.slug) { log('Specifica una categoria valida.', 'err'); return; }
+    if (editContext.needsConfirm && !document.getElementById('edit-confirm-safe').checked) {
+      log('Conferma la casella di sicurezza sopra prima di salvare (contenuto originale complesso).', 'err');
+      return;
+    }
+
+    publishBtn.disabled = true;
+    logEl.innerHTML = ''; logEl.style.display = 'block';
+
+    try {
+      var metaDesc = truncate(plainText, 155);
+      var excerpt = truncate(plainText, 140);
+      var bodyHtml = articleBodyHtmlFromBlocks(articleState, editorApi.isValidUrl);
+
+      var newUploaded = [];
+      for (var i = 0; i < pendingFiles.length; i++) {
+        var file = pendingFiles[i];
+        log('Carico allegato: ' + file.name + ' (' + humanSize(file.size) + ')…', 'info');
+        var bytes = await fileToBytes(file);
+        var b64 = bytesToB64(bytes);
+        var fname = sanitizeFilename(file.name);
+        var usedNames = editContext.existingAttachments.map(function (u) { return u.filename || ''; }).concat(newUploaded.map(function (u) { return u.filename; }));
+        var candidate = fname, n = 2;
+        while (usedNames.indexOf(candidate) !== -1) {
+          var dot = fname.lastIndexOf('.');
+          candidate = dot > 0 ? (fname.slice(0, dot) + '-' + n + fname.slice(dot)) : (fname + '-' + n);
+          n++;
+        }
+        var attachPath = 'static/uploads/' + editContext.slug + '/' + candidate;
+        await ghPutFile(attachPath, b64, 'Carica allegato ' + candidate + ' per articolo modificato "' + title + '"', token, null);
+        newUploaded.push({ filename: candidate, displayName: file.name, url: '/' + attachPath, size: file.size });
+        log('Allegato caricato: ' + candidate, 'ok');
+      }
+      var allAttachments = editContext.existingAttachments.concat(newUploaded.map(function (u) { return { url: u.url, displayName: u.displayName, size: u.size }; }));
+      var attachmentsBlock = buildAttachmentsBlock(allAttachments);
+
+      var today = new Date();
+      var todayIso = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+      log('Salvo le modifiche…', 'info');
+      var articleHtml = buildArticleHtml({
+        title: title, iso: editContext.publishedIso, modifiedIso: todayIso, catSlug: cat.slug, catLabel: cat.label,
+        metaDesc: metaDesc, canonicalUrl: editContext.canonicalUrl, bodyHtml: bodyHtml, attachmentsBlock: attachmentsBlock
+      });
+      await ghPutFile(editContext.path, utf8ToB64(articleHtml), 'Modifica articolo: ' + title, token, editContext.sha);
+      log('Articolo aggiornato: ' + editContext.canonicalUrl, 'ok');
+      editContext.sha = null; // il file è cambiato: forziamo una rilettura se si modifica di nuovo senza ricaricare la pagina
+
+      try {
+        await updateSearchIndexEntry(editContext.urlPath, { title: title, excerpt: excerpt, catLabel: cat.label, iso: editContext.publishedIso }, token);
+        log('Indice di ricerca aggiornato.', 'ok');
+      } catch (e) { log('Indice di ricerca: ' + e.message, 'err'); }
+
+      try {
+        var homeCard = buildHomeCardHtml({ title: title, url: editContext.urlPath, excerpt: excerpt, catLabel: cat.label, date: editContext.publishedIso });
+        await updateHomeCardIfPresent(editContext.urlPath, homeCard, token);
+      } catch (e) { log('Homepage: ' + e.message, 'err'); }
+
+      if (cat.slug === editContext.originalCatSlug) {
+        try {
+          var catCard = buildCategoryCardHtml({ title: title, url: editContext.urlPath, excerpt: excerpt, date: editContext.publishedIso });
+          await updateCardEverywhere(cat.slug, cat.label, editContext.urlPath, catCard, token);
+        } catch (e) { log('Categoria "' + cat.label + '": ' + e.message, 'err'); }
+      } else {
+        log('Categoria cambiata (' + (editContext.originalCatSlug || '—') + ' → ' + cat.slug + '): l\'aggiornamento automatico delle pagine categoria non è supportato in questo caso — verifica manualmente la categoria vecchia e quella nuova.', 'err');
+      }
+
+      log('', 'info');
+      log('Fatto. Le modifiche saranno visibili su ' + editContext.canonicalUrl + ' entro circa un minuto.', 'ok');
+      showShareLinks(title, editContext.canonicalUrl);
+    } catch (err) {
+      log('Errore: ' + err.message, 'err');
+    } finally {
+      publishBtn.disabled = false;
+    }
+  }
+
   publishBtn.addEventListener('click', async function () {
+    if (currentMode === 'edit') { await handleSaveEdit(); return; }
+
     var token = getToken();
     if (!token) { log('Devi prima verificare il token di accesso.', 'err'); return; }
 
