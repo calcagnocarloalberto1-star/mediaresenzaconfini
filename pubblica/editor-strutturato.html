@@ -835,6 +835,53 @@
       .filter(function (p) { return p.length; });
   }
 
+  // Alcune fonti (in particolare Word per Mac, Word Online e alcuni flussi di copia da
+  // browser) generano un testo semplice ("text/plain") negli appunti SENZA a-capo affidabili
+  // tra un paragrafo e l'altro, anche quando i paragrafi erano ben distinti nel documento
+  // originale: il testo risulta un'unica riga lunghissima. In questi casi splitPastedParagraphs
+  // (basata solo sul testo semplice) non ha nulla da spezzare. Il testo HTML incollato insieme
+  // ("text/html"), però, quasi sempre conserva la struttura reale a blocchi (un <p>, <div> o
+  // <li> per ogni paragrafo, oppure <br> doppi), che i programmi di scrittura includono sempre
+  // accanto al testo semplice. Questa funzione prova quindi a ricostruire i paragrafi leggendo
+  // la struttura HTML incollata, cosa che il solo testo semplice non permette.
+  function splitPastedParagraphsFromHtml(html){
+    try{
+      var doc = new DOMParser().parseFromString(html, 'text/html');
+      var root = doc.body || doc;
+      var out = [];
+      var BLOCK_TAGS = { P:1, DIV:1, LI:1, H1:1, H2:1, H3:1, H4:1, H5:1, H6:1, TR:1, BLOCKQUOTE:1 };
+      function pushText(t){
+        t = (t || '').replace(/[ \t]+/g, ' ').trim();
+        if (t) out.push(t);
+      }
+      function walk(node, insideBlock){
+        var children = Array.prototype.slice.call(node.childNodes);
+        var buf = '';
+        children.forEach(function(child){
+          if (child.nodeType === 3){ // text node
+            buf += child.textContent;
+          } else if (child.nodeType === 1){
+            var tag = child.tagName;
+            if (tag === 'BR'){
+              pushText(buf); buf = '';
+            } else if (BLOCK_TAGS[tag]){
+              pushText(buf); buf = '';
+              walk(child, true);
+            } else {
+              // inline element (span, b, i, a, ...): treat its text as part of current run
+              buf += child.textContent;
+            }
+          }
+        });
+        pushText(buf);
+      }
+      walk(root, false);
+      return out;
+    }catch(e){
+      return [];
+    }
+  }
+
   function handleSmartPaste(ev, b){
     var cd = ev.clipboardData || window.clipboardData;
     var html = cd ? cd.getData('text/html') : '';
@@ -862,6 +909,17 @@
     if (b.type === 'paragraph'){
       var plainText = cd ? cd.getData('text/plain') : '';
       var paragraphs = splitPastedParagraphs(plainText);
+      // Se il testo semplice non ha prodotto più di un paragrafo (nessun a-capo
+      // affidabile negli appunti) ma il testo HTML incollato insieme ha una struttura
+      // a blocchi più ricca, usa quella: evita che il testo finisca in un unico blocco
+      // compatto quando la fonte (Word, Google Docs, ecc.) non mette a-capo veri nel
+      // testo semplice pur avendo paragrafi ben distinti nell'HTML.
+      if (paragraphs.length <= 1 && html){
+        var htmlParagraphs = splitPastedParagraphsFromHtml(html);
+        if (htmlParagraphs.length > paragraphs.length){
+          paragraphs = htmlParagraphs;
+        }
+      }
       if (paragraphs.length > 1){
         ev.preventDefault();
         var pIdx = findBlockIndex(b.id);
