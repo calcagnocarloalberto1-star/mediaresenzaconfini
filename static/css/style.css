@@ -119,6 +119,11 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .update-flag a:hover { opacity: 0.85; text-decoration: none; }
 .post-body { max-width: 760px; font-size: 1.05rem; color: #232b3a; }
 .post-body p { margin: 0 0 1.1em; text-align: justify; }
+/* Un <p></p> del tutto vuoto (riga vuota lasciata per distanziare due paragrafi) non ha una
+   riga di testo propria: il suo margine si collassa con quello dei paragrafi adiacenti (regola
+   standard CSS) e sparisce alla vista. Questa regola gli dà una riga reale, così la spaziatura
+   voluta resta visibile anche sugli articoli già pubblicati. */
+.post-body p:empty::before { content: "\00a0"; }
 .post-body h2, .post-body h3 { font-family: var(--serif); margin-top: 1.6em; }
 .post-body .table-wrap { overflow-x: auto; margin: 1.4em 0; }
 .post-body table { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
