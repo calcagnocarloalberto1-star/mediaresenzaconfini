@@ -160,6 +160,9 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .post-update p:last-child { margin-bottom: 0; }
 .post-update .update-source { font-size: 0.85rem; color: var(--ink-soft); }
 .post-update .update-source a { color: var(--ink-soft); text-decoration: underline; }
+.post-update table { width: 100%; border-collapse: collapse; font-size: 0.9rem; margin: 0 0 1em; background: var(--paper); }
+.post-update th, .post-update td { padding: 6px 10px; border: 1px solid var(--line); text-align: left; vertical-align: top; }
+.post-update thead th { background: var(--paper-alt); font-weight: 600; }
 .attachment-list a { font-weight: 600; }
 .attachment-size { color: var(--ink-soft); font-size: 0.82rem; margin-left: 4px; }
 .post-subscribe { max-width: 560px; margin-top: 32px; padding-top: 20px; border-top: 1px solid var(--line); }
