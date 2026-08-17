@@ -815,6 +815,19 @@
     }
   }
 
+  // Se il testo incollato in un paragrafo contiene una o più righe vuote (cioè l'utente
+  // ha copiato più paragrafi separati, es. da Word o da un altro editor), li spezza in
+  // blocchi-paragrafo separati invece di incollare tutto come un unico blocco di testo.
+  // Senza questo, le interruzioni di paragrafo del testo incollato andrebbero perse (in
+  // HTML gli "a capo" semplici vengono visualizzati come uno spazio, non come una riga
+  // vuota), risultando in un unico blocco di testo compatto e difficile da leggere, senza
+  // alcun modo per l'utente di "distanziare" i paragrafi dopo l'incolla.
+  function splitPastedParagraphs(text){
+    return (text || '').split(/\r?\n\s*\r?\n+/)
+      .map(function (p) { return p.replace(/\r?\n+/g, ' ').replace(/[ \t]+/g, ' ').trim(); })
+      .filter(function (p) { return p.length; });
+  }
+
   function handleSmartPaste(ev, b){
     var cd = ev.clipboardData || window.clipboardData;
     var html = cd ? cd.getData('text/html') : '';
@@ -838,6 +851,30 @@
         return;
       }
     }
+
+    if (b.type === 'paragraph'){
+      var plainText = cd ? cd.getData('text/plain') : '';
+      var paragraphs = splitPastedParagraphs(plainText);
+      if (paragraphs.length > 1){
+        ev.preventDefault();
+        var pIdx = findBlockIndex(b.id);
+        var newBlocks = paragraphs.map(function (p) {
+          return { id: uid(), type: 'paragraph', content: [{ type: 'text', text: p, bold: false, italic: false }] };
+        });
+        var currentIsEmpty = !plainTextOf(b.content).trim();
+        if (currentIsEmpty){
+          state.blocks.splice.apply(state.blocks, [pIdx, 1].concat(newBlocks));
+        } else {
+          state.blocks.splice.apply(state.blocks, [pIdx + 1, 0].concat(newBlocks));
+        }
+        focusedBlockId = newBlocks[newBlocks.length - 1].id;
+        focusAt = 'end';
+        render();
+        setStatus('Testo incollato e diviso in ' + paragraphs.length + ' paragrafi separati.');
+        return;
+      }
+    }
+
     handlePlainPaste(ev);
   }
 
