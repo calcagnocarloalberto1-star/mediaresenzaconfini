@@ -819,16 +819,19 @@
     }
   }
 
-  // Se il testo incollato in un paragrafo contiene una o più righe vuote (cioè l'utente
-  // ha copiato più paragrafi separati, es. da Word o da un altro editor), li spezza in
-  // blocchi-paragrafo separati invece di incollare tutto come un unico blocco di testo.
-  // Senza questo, le interruzioni di paragrafo del testo incollato andrebbero perse (in
-  // HTML gli "a capo" semplici vengono visualizzati come uno spazio, non come una riga
-  // vuota), risultando in un unico blocco di testo compatto e difficile da leggere, senza
-  // alcun modo per l'utente di "distanziare" i paragrafi dopo l'incolla.
+  // Se il testo incollato in un paragrafo contiene una o più interruzioni di riga (cioè
+  // l'utente ha copiato più paragrafi separati, es. da Word o da un altro editor), li
+  // spezza in blocchi-paragrafo separati invece di incollare tutto come un unico blocco di
+  // testo. Tratta OGNI "a capo" come confine di paragrafo, non solo le righe completamente
+  // vuote: molte fonti (in particolare Word) separano i paragrafi con un singolo "a capo",
+  // senza una riga vuota in mezzo, quindi richiedere una riga vuota lasciava questi casi
+  // (i più comuni) non riconosciuti. Senza questa funzione, le interruzioni di paragrafo del
+  // testo incollato andrebbero perse (in HTML un "a capo" semplice si vede come uno spazio,
+  // non come una riga vuota), risultando in un unico blocco di testo compatto e difficile da
+  // leggere, senza alcun modo per l'utente di "distanziare" i paragrafi dopo l'incolla.
   function splitPastedParagraphs(text){
-    return (text || '').split(/\r?\n\s*\r?\n+/)
-      .map(function (p) { return p.replace(/\r?\n+/g, ' ').replace(/[ \t]+/g, ' ').trim(); })
+    return (text || '').split(/\r?\n+/)
+      .map(function (p) { return p.replace(/[ \t]+/g, ' ').trim(); })
       .filter(function (p) { return p.length; });
   }
 
