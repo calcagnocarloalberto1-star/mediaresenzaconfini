@@ -1,0 +1,205 @@
+name: Modernizza le pagine categoria
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  categorie:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Porta le pagine categoria al template moderno
+        run: |
+          python3 - <<'PYEOF'
+          import os, re, html, json
+
+          ROOT = "categoria"
+
+          TEMPLATE = '''<!doctype html>
+          <html lang="it">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>{title_html} — Categoria — mediaresenzaconfini</title>
+          <meta name="description" content="{desc_html}">
+          <link rel="canonical" href="https://mediaresenzaconfini.it/categoria/{slug}/">
+          <meta property="og:type" content="website">
+          <meta property="og:site_name" content="mediaresenzaconfini">
+          <meta property="og:title" content="{title_html} — Categoria — mediaresenzaconfini">
+          <meta property="og:description" content="{desc_html}">
+          <meta property="og:url" content="https://mediaresenzaconfini.it/categoria/{slug}/">
+          <meta property="og:image" content="https://mediaresenzaconfini.it/static/img/header-mediazione.jpg">
+          <meta property="og:locale" content="it_IT">
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:title" content="{title_html} — Categoria — mediaresenzaconfini">
+          <meta name="twitter:description" content="{desc_html}">
+          <meta name="twitter:image" content="https://mediaresenzaconfini.it/static/img/header-mediazione.jpg">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <link rel="stylesheet" href="/static/css/style.css">
+          <script data-goatcounter="https://mediaresenzaconfini.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+          <script type="application/ld+json">{website_ld}</script>
+          <script type="application/ld+json">{person_ld}</script>
+          <script type="application/ld+json">{breadcrumb_ld}</script>
+          </head>
+          <body>
+          <header class="site-header">
+          <div class="site-header-photo" style="background-image: url('https://mediaresenzaconfini.it/static/img/header-mediazione.jpg');">
+          <div class="site-header-overlay">
+          <div class="wrap site-header-brand">
+          <a href="/"><span class="brand-name">mediaresenzaconfini</span></a>
+          </div>
+          </div>
+          </div>
+          <nav class="main-nav">
+          <div class="wrap">
+          <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+          <label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">&#9776;</label>
+          <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/categoria/mediazione/">Mediazione</a>
+          <a href="/categoria/arbitrato/">Arbitrato</a>
+          <a href="/categoria/conciliazione/">Conciliazione</a>
+          <a href="/legislazione-internazionale/">Legislazione internazionale</a>
+          <a href="/paesi-ue-in-numeri/">Paesi UE in numeri</a>
+          <a href="/categoria/saggi/">Saggi</a>
+          <a href="/about/">Chi sono</a>
+          </div>
+          <form class="search-box" action="/cerca/" method="get" role="search">
+          <input type="search" name="q" placeholder="Cerca…" aria-label="Cerca nel sito">
+          </form>
+          </div>
+          </nav>
+          </header>
+
+          <main class="wrap">
+          <div class="breadcrumb"><a href="/">Home</a> &rsaquo; Categoria</div>
+          <section class="section">
+          <h1>{title_html}</h1>
+          <p class="section-intro">{intro_html}</p>
+          <div class="card-grid">
+          {cards}
+          </div>
+          </section>
+
+          </main>
+          <footer class="site-footer">
+          <div class="wrap">
+          <div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>
+          <div><a href="/about/">Chi sono</a> &middot; <a href="/link-utili/">Link utili</a> &middot; <a href="/statistiche/">Statistiche</a> &middot; <a href="/contatti/">Contatti</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a> &middot; <a href="/pubblica/">Pubblica</a></div>
+          </div>
+          </footer>
+          </body>
+          </html>'''
+
+
+          def process(slug):
+              path = os.path.join(ROOT, slug, "index.html")
+              src = open(path, encoding="utf-8").read()
+
+              # le pagine gia moderne non si toccano
+              if "canonical" in src and "goatcounter" in src:
+                  return None, "gia moderna"
+
+              m_title = re.search(r"<h2>(.*?)</h2>", src, re.S)
+              if not m_title:
+                  return None, "nessun titolo h2"
+              title_text = html.unescape(m_title.group(1).strip())
+
+              m_intro = re.search(r'<p class="section-intro">(.*?)</p>', src, re.S)
+              if not m_intro:
+                  return None, "nessuna section-intro"
+              intro_raw = m_intro.group(1).strip()
+
+              m_desc = re.search(r'<meta name="description" content="(.*?)">', src, re.S)
+              desc_text = html.unescape(m_desc.group(1).strip()) if m_desc else html.unescape(intro_raw)
+
+              m_cards = re.search(r'<div class="card-grid">(.*?)</div>\s*</section>', src, re.S)
+              if not m_cards:
+                  return None, "nessuna card-grid"
+              cards_html = m_cards.group(1).strip()
+
+              orig_cards = src.count('<div class="card">')
+
+              title_html = html.escape(title_text, quote=True)
+              desc_html = html.escape(desc_text, quote=True)
+              intro_html = intro_raw
+
+              website_ld = json.dumps({
+                  "@context": "https://schema.org", "@type": "WebSite", "name": "mediaresenzaconfini",
+                  "url": "https://mediaresenzaconfini.it/",
+                  "publisher": {"@type": "Person", "name": "Carlo Alberto Calcagno"},
+                  "potentialAction": {"@type": "SearchAction", "target": "https://mediaresenzaconfini.it/cerca/?q={search_term_string}", "query-input": "required name=search_term_string"}
+              }, ensure_ascii=False, separators=(",", ":"))
+
+              person_ld = json.dumps({
+                  "@context": "https://schema.org", "@type": "Person", "name": "Carlo Alberto Calcagno",
+                  "url": "https://mediaresenzaconfini.it/about/",
+                  "jobTitle": "Avvocato, mediatore civile e commerciale, mediatore familiare, formatore ADR",
+                  "worksFor": {"@type": "Organization", "name": "mediaresenzaconfini", "url": "https://mediaresenzaconfini.it/"}
+              }, ensure_ascii=False, separators=(",", ":"))
+
+              breadcrumb_ld = json.dumps({
+                  "@context": "https://schema.org", "@type": "BreadcrumbList",
+                  "itemListElement": [
+                      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://mediaresenzaconfini.it/"},
+                      {"@type": "ListItem", "position": 2, "name": title_text, "item": f"https://mediaresenzaconfini.it/categoria/{slug}/"}
+                  ]
+              }, ensure_ascii=False, separators=(",", ":"))
+
+              out = TEMPLATE.format(
+                  title_html=title_html, desc_html=desc_html, intro_html=intro_html, slug=slug,
+                  website_ld=website_ld, person_ld=person_ld, breadcrumb_ld=breadcrumb_ld,
+                  cards=cards_html,
+              )
+
+              if out.count('<div class="card">') != orig_cards:
+                  return None, "numero di card diverso"
+              if out.count("<div") != out.count("</div>"):
+                  return None, "div non bilanciati"
+
+              src_links = re.findall(r'<h3><a href="([^"]+)"', src)
+              out_links = re.findall(r'<h3><a href="([^"]+)"', out)
+              if src_links != out_links:
+                  return None, "link degli articoli non preservati"
+
+              return out, None
+
+
+          ok = 0
+          saltate = []
+          errori = []
+          for slug in sorted(os.listdir(ROOT)):
+              if not os.path.isfile(os.path.join(ROOT, slug, "index.html")):
+                  continue
+              out, err = process(slug)
+              if err == "gia moderna":
+                  saltate.append(slug)
+                  continue
+              if err:
+                  errori.append((slug, err))
+                  continue
+              open(os.path.join(ROOT, slug, "index.html"), "w", encoding="utf-8").write(out)
+              ok += 1
+
+          print(json.dumps({
+              "pagine_modernizzate": ok,
+              "gia_moderne_non_toccate": saltate,
+              "errori": errori,
+          }, ensure_ascii=False, indent=2))
+          if errori:
+              raise SystemExit("ci sono errori, non procedo")
+          PYEOF
+
+      - name: Commit e push
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Modernizza le 83 pagine categoria (canonical, Open Graph, JSON-LD, menu hamburger, ricerca, GoatCounter, footer completo)"
+          git push
