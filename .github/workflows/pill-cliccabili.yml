@@ -1,0 +1,118 @@
+name: Rendi cliccabili le pill degli argomenti
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  pill:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Trasforma le pill span in link a categoria o tag
+        run: |
+          python3 - <<'PYEOF'
+          import os, re, html, sys, json
+
+          def title_of(path):
+              c = open(path, encoding="utf-8").read()
+              for pat in (r"<h1>(.*?)</h1>", r"<h2>(.*?)</h2>"):
+                  m = re.search(pat, c, re.S)
+                  if m:
+                      return html.unescape(m.group(1).strip())
+              return None
+
+          def build_map(root):
+              out = {}
+              if not os.path.isdir(root):
+                  return out
+              for slug in sorted(os.listdir(root)):
+                  p = os.path.join(root, slug, "index.html")
+                  if os.path.isfile(p):
+                      t = title_of(p)
+                      if t:
+                          out.setdefault(t, slug)
+              return out
+
+          cats = build_map("categoria")
+          tags = build_map("tag")
+
+          PILL = re.compile(r'<span class="tag-pill">(.*?)</span>')
+
+          changed_files = 0
+          changed_pills = 0
+          skipped = {}
+
+          for root, dirs, files in os.walk("."):
+              dirs[:] = [d for d in dirs if d != ".git"]
+              for f in files:
+                  if f != "index.html":
+                      continue
+                  path = os.path.join(root, f)
+                  src = open(path, encoding="utf-8").read()
+                  if 'class="tag-pill"' not in src:
+                      continue
+
+                  n = [0]
+
+                  def repl(m):
+                      raw = m.group(1)
+                      label = html.unescape(raw)
+                      slug = cats.get(label)
+                      base = "/categoria/"
+                      if slug is None:
+                          slug = tags.get(label)
+                          base = "/tag/"
+                      if slug is None:
+                          skipped[label] = skipped.get(label, 0) + 1
+                          return m.group(0)
+                      n[0] += 1
+                      return f'<a class="tag-pill" href="{base}{slug}/">{raw}</a>'
+
+                  out = PILL.sub(repl, src)
+                  if n[0]:
+                      # controllo di sicurezza: nulla deve cambiare oltre alle pill
+                      ANY_PILL = re.compile(r'<span class="tag-pill">.*?</span>|<a class="tag-pill" href="[^"]*">.*?</a>')
+                      if ANY_PILL.sub("", src) != ANY_PILL.sub("", out):
+                          print(f"ATTENZIONE, salto {path}: differenze oltre le pill")
+                          continue
+                      open(path, "w", encoding="utf-8").write(out)
+                      changed_files += 1
+                      changed_pills += n[0]
+
+          # regole CSS per lo stato link/hover della pill
+          CSS_MARK = "a.tag-pill"
+          css_path = os.path.join("static", "css", "style.css")
+          css_added = False
+          if os.path.isfile(css_path):
+              css = open(css_path, encoding="utf-8").read()
+              if CSS_MARK not in css:
+                  css += (
+                      "\n/* Pill degli argomenti nell'intestazione dell'articolo: ora sono link alla"
+                      " pagina della categoria (o del tag). */\n"
+                      "article.post .post-meta a.tag-pill { color: var(--navy); text-decoration: none; }\n"
+                      "article.post .post-meta a.tag-pill:hover { background: var(--navy); border-color: var(--navy);"
+                      " color: #fff; text-decoration: none; }\n"
+                  )
+                  open(css_path, "w", encoding="utf-8").write(css)
+                  css_added = True
+
+          print(json.dumps({
+              "file_modificati": changed_files,
+              "pill_rese_cliccabili": changed_pills,
+              "pill_lasciate_span": skipped,
+              "css_aggiornato": css_added,
+          }, ensure_ascii=False, indent=2))
+          PYEOF
+
+      - name: Commit e push
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Rendi cliccabili le pill degli argomenti negli articoli (link a categoria o tag)"
+          git push
