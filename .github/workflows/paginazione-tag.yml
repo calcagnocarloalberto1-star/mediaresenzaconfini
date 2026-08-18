@@ -1,0 +1,263 @@
+name: Pagina i tag piu popolosi
+
+on:
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  paginazione:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Spezza in pagine i tag con piu di 100 articoli
+        run: |
+          python3 - <<'PYEOF'
+          import os, re, html, json, shutil
+
+          PER_PAGE = 50
+          SOGLIA = 100
+          ROOT = "tag"
+
+          HEAD = '''<!doctype html>
+          <html lang="it">
+          <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <title>{title_tag}</title>
+          <meta name="description" content="{desc_html}">
+          <link rel="canonical" href="{canonical}">
+          {relnav}<meta property="og:type" content="website">
+          <meta property="og:site_name" content="mediaresenzaconfini">
+          <meta property="og:title" content="{title_tag}">
+          <meta property="og:description" content="{desc_html}">
+          <meta property="og:url" content="{canonical}">
+          <meta property="og:image" content="https://mediaresenzaconfini.it/static/img/header-mediazione.jpg">
+          <meta property="og:locale" content="it_IT">
+          <meta name="twitter:card" content="summary_large_image">
+          <meta name="twitter:title" content="{title_tag}">
+          <meta name="twitter:description" content="{desc_html}">
+          <meta name="twitter:image" content="https://mediaresenzaconfini.it/static/img/header-mediazione.jpg">
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:wght@400;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+          <link rel="stylesheet" href="/static/css/style.css">
+          <script data-goatcounter="https://mediaresenzaconfini.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+          <script type="application/ld+json">{website_ld}</script>
+          <script type="application/ld+json">{person_ld}</script>
+          <script type="application/ld+json">{breadcrumb_ld}</script>
+          </head>
+          <body>
+          <header class="site-header">
+          <div class="site-header-photo" style="background-image: url('https://mediaresenzaconfini.it/static/img/header-mediazione.jpg');">
+          <div class="site-header-overlay">
+          <div class="wrap site-header-brand">
+          <a href="/"><span class="brand-name">mediaresenzaconfini</span></a>
+          </div>
+          </div>
+          </div>
+          <nav class="main-nav">
+          <div class="wrap">
+          <input type="checkbox" id="nav-toggle" class="nav-toggle-input">
+          <label for="nav-toggle" class="nav-toggle-label" aria-label="Apri il menu">&#9776;</label>
+          <div class="nav-links">
+          <a href="/">Home</a>
+          <a href="/categoria/mediazione/">Mediazione</a>
+          <a href="/categoria/arbitrato/">Arbitrato</a>
+          <a href="/categoria/conciliazione/">Conciliazione</a>
+          <a href="/legislazione-internazionale/">Legislazione internazionale</a>
+          <a href="/paesi-ue-in-numeri/">Paesi UE in numeri</a>
+          <a href="/categoria/saggi/">Saggi</a>
+          <a href="/about/">Chi sono</a>
+          </div>
+          <form class="search-box" action="/cerca/" method="get" role="search">
+          <input type="search" name="q" placeholder="Cerca…" aria-label="Cerca nel sito">
+          </form>
+          </div>
+          </nav>
+          </header>
+
+          <main class="wrap">
+          <div class="breadcrumb"><a href="/">Home</a> &rsaquo; Tag</div>
+          <section class="section">
+          <h1>{title_html}</h1>
+          <p class="section-intro">{intro}</p>
+          <div class="card-grid">
+          {cards}
+          </div>
+          {pagination}</section>
+
+          </main>
+          <footer class="site-footer">
+          <div class="wrap">
+          <div>&copy; 2026 mediaresenzaconfini &mdash; Carlo Alberto Calcagno. Tutti i diritti riservati.</div>
+          <div><a href="/about/">Chi sono</a> &middot; <a href="/link-utili/">Link utili</a> &middot; <a href="/statistiche/">Statistiche</a> &middot; <a href="/contatti/">Contatti</a> &middot; <a href="/privacy-policy/">Privacy</a> &middot; <a href="/cookie-policy/">Cookie</a> &middot; <a href="/pubblica/">Pubblica</a></div>
+          </div>
+          </footer>
+          </body>
+          </html>'''
+
+          BASE = "https://mediaresenzaconfini.it"
+
+
+          def url_pagina(slug, n):
+              return f"{BASE}/tag/{slug}/" if n == 1 else f"{BASE}/tag/{slug}/pagina/{n}/"
+
+
+          def path_pagina(slug, n):
+              return os.path.join(ROOT, slug, "index.html") if n == 1 else os.path.join(ROOT, slug, "pagina", str(n), "index.html")
+
+
+          def nav_paginazione(slug, n, tot):
+              parti = ['<nav class="pagination" aria-label="Navigazione pagine">']
+              if n == 1:
+                  parti.append('<span class="pagination-prev pagination-disabled">&laquo; Precedente</span>')
+              else:
+                  prev = f"/tag/{slug}/" if n - 1 == 1 else f"/tag/{slug}/pagina/{n-1}/"
+                  parti.append(f'<a href="{prev}" class="pagination-prev">&laquo; Precedente</a>')
+              parti.append('<span class="pagination-pages">')
+              for i in range(1, tot + 1):
+                  if i == n:
+                      parti.append(f'<span class="pagination-current" aria-current="page">{i}</span>')
+                  else:
+                      href = f"/tag/{slug}/" if i == 1 else f"/tag/{slug}/pagina/{i}/"
+                      parti.append(f'<a href="{href}">{i}</a>')
+              parti.append("</span>")
+              if n == tot:
+                  parti.append('<span class="pagination-next pagination-disabled">Successivo &raquo;</span>')
+              else:
+                  nxt = f"/tag/{slug}/pagina/{n+1}/"
+                  parti.append(f'<a href="{nxt}" class="pagination-next">Successivo &raquo;</a>')
+              parti.append("</nav>")
+              return "\n".join(parti) + "\n"
+
+
+          def estrai_card(blocco):
+              # ogni card e' un <div class="card"> ... </div> di primo livello
+              pezzi = re.split(r'(?=<div class="card">)', blocco)
+              return [p.strip() for p in pezzi if p.strip().startswith('<div class="card">')]
+
+
+          WEBSITE_LD = json.dumps({
+              "@context": "https://schema.org", "@type": "WebSite", "name": "mediaresenzaconfini",
+              "url": "https://mediaresenzaconfini.it/",
+              "publisher": {"@type": "Person", "name": "Carlo Alberto Calcagno"},
+              "potentialAction": {"@type": "SearchAction", "target": "https://mediaresenzaconfini.it/cerca/?q={search_term_string}", "query-input": "required name=search_term_string"}
+          }, ensure_ascii=False, separators=(",", ":"))
+
+          PERSON_LD = json.dumps({
+              "@context": "https://schema.org", "@type": "Person", "name": "Carlo Alberto Calcagno",
+              "url": "https://mediaresenzaconfini.it/about/",
+              "jobTitle": "Avvocato, mediatore civile e commerciale, mediatore familiare, formatore ADR",
+              "worksFor": {"@type": "Organization", "name": "mediaresenzaconfini", "url": "https://mediaresenzaconfini.it/"}
+          }, ensure_ascii=False, separators=(",", ":"))
+
+
+          risultati = []
+          errori = []
+
+          for slug in sorted(os.listdir(ROOT)):
+              p1 = os.path.join(ROOT, slug, "index.html")
+              if not os.path.isfile(p1):
+                  continue
+              src = open(p1, encoding="utf-8").read()
+              n_card = src.count('<div class="card">')
+              if n_card <= SOGLIA:
+                  continue
+
+              m_title = re.search(r"<h1>(.*?)</h1>", src, re.S)
+              m_grid = re.search(r'<div class="card-grid">(.*?)</div>\s*</section>', src, re.S)
+              if not m_title or not m_grid:
+                  errori.append((slug, "struttura non riconosciuta"))
+                  continue
+              title_text = html.unescape(m_title.group(1).strip())
+              title_html = html.escape(title_text, quote=True)
+
+              cards = estrai_card(m_grid.group(1))
+              if len(cards) != n_card:
+                  errori.append((slug, f"card estratte {len(cards)} contro {n_card}"))
+                  continue
+
+              tot = (len(cards) + PER_PAGE - 1) // PER_PAGE
+
+              # la cartella pagina/ viene ricostruita da zero
+              dir_pag = os.path.join(ROOT, slug, "pagina")
+              if os.path.isdir(dir_pag):
+                  shutil.rmtree(dir_pag)
+
+              for n in range(1, tot + 1):
+                  blocco = cards[(n - 1) * PER_PAGE: n * PER_PAGE]
+                  primo = (n - 1) * PER_PAGE + 1
+                  ultimo = primo + len(blocco) - 1
+
+                  if n == 1:
+                      title_tag = f"{title_html} — Tag — mediaresenzaconfini"
+                  else:
+                      title_tag = f"{title_html} — pagina {n} — mediaresenzaconfini"
+                  desc_html = html.escape(f"{title_text}: articoli {primo}–{ultimo} di {len(cards)}.", quote=True)
+                  intro = f"{len(cards)} articoli su questo argomento &mdash; pagina {n} di {tot} (articoli {primo}–{ultimo})"
+
+                  rel = ""
+                  if n > 1:
+                      rel += f'<link rel="prev" href="{url_pagina(slug, n-1)}">\n'
+                  if n < tot:
+                      rel += f'<link rel="next" href="{url_pagina(slug, n+1)}">\n'
+
+                  breadcrumb_ld = json.dumps({
+                      "@context": "https://schema.org", "@type": "BreadcrumbList",
+                      "itemListElement": [
+                          {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://mediaresenzaconfini.it/"},
+                          {"@type": "ListItem", "position": 2, "name": title_text, "item": url_pagina(slug, n)}
+                      ]
+                  }, ensure_ascii=False, separators=(",", ":"))
+
+                  out = HEAD.format(
+                      title_tag=title_tag, desc_html=desc_html, canonical=url_pagina(slug, n),
+                      relnav=rel, website_ld=WEBSITE_LD, person_ld=PERSON_LD, breadcrumb_ld=breadcrumb_ld,
+                      title_html=title_html, intro=intro, cards="\n".join(blocco),
+                      pagination=nav_paginazione(slug, n, tot),
+                  )
+
+                  if out.count('<div class="card">') != len(blocco):
+                      errori.append((slug, f"pagina {n}: card sbagliate"))
+                      break
+                  if out.count("<div") != out.count("</div>"):
+                      errori.append((slug, f"pagina {n}: div sbilanciati"))
+                      break
+
+                  dest = path_pagina(slug, n)
+                  os.makedirs(os.path.dirname(dest), exist_ok=True)
+                  open(dest, "w", encoding="utf-8").write(out)
+
+              risultati.append({"tag": slug, "articoli": len(cards), "pagine": tot})
+
+          print(json.dumps({"tag_paginati": risultati, "errori": errori}, ensure_ascii=False, indent=2))
+          if errori:
+              raise SystemExit("errori rilevati, non procedo")
+
+          # aggiornamento della sitemap con le pagine di paginazione appena create
+          sm = "sitemap.xml"
+          if os.path.isfile(sm):
+              testo = open(sm, encoding="utf-8").read()
+              nuove = []
+              for r in risultati:
+                  for n in range(2, r["pagine"] + 1):
+                      u = f'{BASE}/tag/{r["tag"]}/pagina/{n}/'
+                      if f"<loc>{u}</loc>" not in testo:
+                          nuove.append(u)
+              if nuove:
+                  blocco = "".join(f"  <url><loc>{u}</loc></url>\n" for u in nuove)
+                  testo = testo.replace("</urlset>", blocco + "</urlset>")
+                  open(sm, "w", encoding="utf-8").write(testo)
+              print(json.dumps({"url_aggiunti_alla_sitemap": len(nuove)}, ensure_ascii=False))
+          PYEOF
+
+      - name: Commit e push
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A
+          git diff --cached --quiet || git commit -m "Pagina i 13 tag piu popolosi (50 articoli per pagina) e aggiorna la sitemap"
+          git push
