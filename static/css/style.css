@@ -320,3 +320,7 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
 .bill-none { color: var(--ink-soft); font-style: italic; margin: 1.2em 0 0.4em; }
 .bill-none-detail { color: var(--ink-soft); font-size: 0.88rem; text-align: justify; max-width: 780px; }
 .bill-count-none { color: var(--ink-soft); font-weight: 400; font-size: 0.85rem; }
+
+/* Pill degli argomenti nell'intestazione dell'articolo: ora sono link alla pagina della categoria (o del tag). */
+article.post .post-meta a.tag-pill { color: var(--navy); text-decoration: none; }
+article.post .post-meta a.tag-pill:hover { background: var(--navy); border-color: var(--navy); color: #fff; text-decoration: none; }
