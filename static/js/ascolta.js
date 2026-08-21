@@ -25,8 +25,12 @@
   if (!mp3 && !hasTTS) return; // nessun motore disponibile: non mostriamo nulla
 
   var PAROLE_AL_MINUTO = 155;      // ritmo medio di lettura in italiano
-  var MAX_CHUNK = 300;             // caratteri per singola pronuncia
+  var MAX_CHUNK = 420;             // si spezza solo dentro le frasi molto lunghe
+  var PAUSA_FRASE = 300;           // ms di silenzio fra una frase e l'altra
+  var PAUSA_PARAGRAFO = 750;       // ms fra due paragrafi
+  var PAUSA_TITOLO = 950;          // ms dopo un titolo di paragrafo
   var CHIAVE_VELOCITA = "mrc-ascolto-velocita";
+  var CHIAVE_VOCE = "mrc-ascolto-voce";
 
   /* ---------------------------------------------------------------- stile */
   var css = document.createElement("style");
@@ -43,15 +47,15 @@
     ".ascolto button[disabled]:hover{background:var(--navy,#1e2c3d);border-color:var(--navy,#1e2c3d)}",
     ".ascolto .secondario{background:transparent;color:var(--navy,#1e2c3d)}",
     ".ascolto .secondario:hover{background:var(--navy,#1e2c3d);color:#fff}",
-    ".ascolto-velocita{display:flex;align-items:center;gap:6px;margin-left:auto;font-size:.8rem;color:var(--ink-soft,#5b6470)}",
-    ".ascolto-velocita select{font:inherit;font-size:.8rem;padding:4px 6px;border:1px solid var(--line,#e0dcd2);border-radius:4px;background:#fff;color:var(--ink,#22282f)}",
+    ".ascolto-scelte{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}",
+    ".ascolto-scelte label{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink-soft,#5b6470)}",
+    ".ascolto-scelte select{font:inherit;font-size:.8rem;padding:4px 6px;border:1px solid var(--line,#e0dcd2);border-radius:4px;background:#fff;color:var(--ink,#22282f);max-width:220px}",
     ".ascolto-barra{margin-top:12px;height:6px;border-radius:3px;background:#fff;border:1px solid var(--line,#e0dcd2);overflow:hidden}",
     ".ascolto-barra i{display:block;height:100%;width:0;background:var(--gold,#8f7a55);transition:width .25s linear}",
     ".ascolto-stato{margin-top:7px;font-size:.78rem;color:var(--ink-soft,#5b6470);min-height:1.2em}",
     ".ascolto-nota{margin-top:8px;font-size:.76rem;color:var(--ink-soft,#5b6470);line-height:1.45}",
     ".mrc-in-lettura{background:rgba(143,122,85,.16);box-shadow:0 0 0 4px rgba(143,122,85,.16);border-radius:3px}",
-    "@media(prefers-reduced-motion:reduce){.ascolto-barra i{transition:none}}",
-    "@media(max-width:520px){.ascolto-velocita{margin-left:0;width:100%}}"
+    "@media(prefers-reduced-motion:reduce){.ascolto-barra i{transition:none}}"
   ].join("\n");
   document.head.appendChild(css);
 
@@ -71,14 +75,19 @@
     '<div class="ascolto-comandi">' +
       '<button type="button" data-play>Ascolta</button>' +
       '<button type="button" class="secondario" data-stop disabled>Interrompi</button>' +
-      '<label class="ascolto-velocita">Velocit&agrave;' +
+    "</div>" +
+    '<div class="ascolto-scelte">' +
+      '<label>Voce <select data-voce aria-label="Voce di lettura"></select></label>' +
+      '<label>Velocit&agrave; ' +
         '<select data-velocita aria-label="Velocit&agrave; di lettura">' +
+          '<option value="0.5">molto lenta</option>' +
+          '<option value="0.6">0,6&times;</option>' +
+          '<option value="0.7">0,7&times;</option>' +
           '<option value="0.8">0,8&times;</option>' +
           '<option value="0.9">0,9&times;</option>' +
-          '<option value="1" selected>1&times;</option>' +
+          '<option value="1">normale</option>' +
           '<option value="1.15">1,15&times;</option>' +
           '<option value="1.3">1,3&times;</option>' +
-          '<option value="1.5">1,5&times;</option>' +
         "</select>" +
       "</label>" +
     "</div>" +
@@ -89,23 +98,26 @@
   var bPlay = box.querySelector("[data-play]");
   var bStop = box.querySelector("[data-stop]");
   var selVel = box.querySelector("[data-velocita]");
+  var selVoce = box.querySelector("[data-voce]");
   var barra = box.querySelector("[data-barra]");
   var stato = box.querySelector("[data-stato]");
   var durata = box.querySelector("[data-durata]");
 
-  var velocita = parseFloat(localStorage.getItem(CHIAVE_VELOCITA) || "1") || 1;
+  var velocita = parseFloat(localStorage.getItem(CHIAVE_VELOCITA) || "0.8") || 0.8;
   selVel.value = String(velocita);
+  if (!selVel.value) { selVel.value = "0.8"; velocita = 0.8; }
 
   function dì(t) { stato.textContent = t; }
   function avanzamento(f) { barra.style.width = Math.max(0, Math.min(1, f)) * 100 + "%"; }
 
   /* ============================== MOTORE 1: file audio (voce ElevenLabs) === */
   if (mp3) {
+    box.querySelector("[data-voce]").parentNode.remove();
     var au = new Audio(mp3);
     au.preload = "metadata";
     var nota = document.createElement("p");
     nota.className = "ascolto-nota";
-    nota.textContent = "Lettura con voce naturale. È possibile scaricare il file audio.";
+    nota.textContent = "Lettura con voce naturale.";
     box.appendChild(nota);
 
     au.addEventListener("loadedmetadata", function () {
@@ -133,6 +145,62 @@
   /* ================== MOTORE 2: sintesi vocale del browser (Web Speech) === */
   var synth = window.speechSynthesis;
 
+  /* --- 0. dizionario di pronuncia -----------------------------------------
+     Una voce di sintesi legge «d.lgs. 28/2010» come una sequenza di lettere e
+     punti: incomprensibile. Qui le abbreviazioni giuridiche ricorrenti sul sito
+     vengono sciolte prima della pronuncia. L'ordine conta: le forme più lunghe
+     devono essere sostituite per prime.                                      */
+  var DIZIONARIO = [
+    // gli indirizzi web letti per esteso sono rumore: si tolgono
+    [/https?:\/\/\S+/gi, " "],
+    [/\bwww\.\S+/gi, " "],
+    [/\bd\.\s*p\.\s*r\.\s*/gi, "decreto del Presidente della Repubblica "],
+    [/\bd\.\s*lgs\.?\s*/gi, "decreto legislativo "],
+    [/\bd\.\s*l\.\s*(?=\d)/gi, "decreto legge "],
+    [/\bd\.\s*m\.\s*(?=\d)/gi, "decreto ministeriale "],
+    [/\bc\.\s*p\.\s*c\.\s*/gi, "codice di procedura civile "],
+    [/\bc\.\s*p\.\s*p\.\s*/gi, "codice di procedura penale "],
+    [/\bc\.\s*c\.\s*(?=\d|\s|$)/gi, "codice civile "],
+    [/\bartt\.\s*/gi, "articoli "],
+    [/\bart\.\s*/gi, "articolo "],
+    [/\bcomma\s+(\d)/gi, "comma $1"],
+    [/\bco\.\s*(?=\d)/gi, "comma "],
+    [/\blett\.\s*/gi, "lettera "],
+    [/\bnn\.\s*(?=\d)/gi, "numeri "],
+    [/\bn\.\s*(?=\d)/gi, "numero "],
+    [/\bpp\.\s*(?=\d)/gi, "pagine "],
+    [/\bp\.\s*(?=\d)/gi, "pagina "],
+    [/\bsegg?\.\s*/gi, "seguenti "],
+    [/\bss\.\s*/gi, "seguenti "],
+    [/\bcfr\.\s*/gi, "confronta "],
+    [/\bcit\.\s*/gi, "citato "],
+    [/\becc\.\s*/gi, "eccetera "],
+    [/\bad\s+es\.\s*/gi, "ad esempio "],
+    [/\bp\.\s*es\.\s*/gi, "per esempio "],
+    [/\bca\.\s*(?=\d)/gi, "circa "],
+    [/\bCass\.\s*/g, "Cassazione "],
+    [/\bTrib\.\s*/g, "Tribunale "],
+    [/\bsent\.\s*/gi, "sentenza "],
+    [/\bord\.\s*/gi, "ordinanza "],
+    [/\bGU\b/g, "Gazzetta Ufficiale"],
+    [/\bUE\b/g, "Unione europea"],
+    [/§\s*/g, "paragrafo "],
+    [/%/g, " per cento"],
+    [/€/g, " euro"],
+    // suffissi numerici delle norme: «12-bis» non deve suonare «dodici meno bis»
+    [/-(bis|ter|quater|quinquies|sexies|septies|octies)\b/gi, " $1"],
+    // intervalli di anni: il trattino verrebbe letto «meno»
+    [/(\d)\s*[–—-]\s*(?=\d)/g, "$1 "],
+    // ordinali femminili all'italiana: «2ª» -> «seconda»
+    [/\b1ª/g, "prima"], [/\b2ª/g, "seconda"], [/\b3ª/g, "terza"],
+    [/\b1º/g, "primo"], [/\b2º/g, "secondo"], [/\b3º/g, "terzo"]
+  ];
+
+  function pronuncia(t) {
+    for (var i = 0; i < DIZIONARIO.length; i++) t = t.replace(DIZIONARIO[i][0], DIZIONARIO[i][1]);
+    return t.replace(/\s{2,}/g, " ").trim();
+  }
+
   // --- 1. estrazione del testo leggibile -----------------------------------
   // Si legge il titolo e poi i blocchi del corpo, nell'ordine.
   // Si escludono: i richiami di nota <sup>, le tabelle (annunciate a voce),
@@ -141,11 +209,11 @@
   var tabelleAnnunciate = 0, stop = false;
 
   var h1 = art.querySelector(".post-header h1");
-  if (h1) segmenti.push({ el: h1, testo: pulisci(h1), lang: null });
+  if (h1) segmenti.push({ el: h1, testo: pulisci(h1), lang: null, titolo: true });
 
   percorri(body);
 
-  if (stop) segmenti.push({ el: null, testo: "L'articolo prosegue con le note, che non vengono lette.", lang: null });
+  if (stop) segmenti.push({ el: null, testo: "L'articolo prosegue con le note, che non vengono lette.", lang: null, titolo: false });
   if (!segmenti.length) { box.remove(); return; }
 
   // Percorre i blocchi nell'ordine in cui compaiono nella pagina.
@@ -158,11 +226,13 @@
       if (tag === "SCRIPT" || tag === "STYLE" || tag === "NOSCRIPT") continue;
 
       // tabelle: il contenuto non si legge, si annuncia soltanto
-      if (tag === "TABLE" || el.querySelector && el.querySelector("table") && (tag === "DIV" || tag === "FIGURE")) {
+      if (tag === "TABLE" || (el.querySelector && el.querySelector("table") && (tag === "DIV" || tag === "FIGURE"))) {
         var tab = tag === "TABLE" ? el : el.querySelector("table");
         var did = tab.querySelector("caption");
         tabelleAnnunciate++;
-        segmenti.push({ el: el, testo: did ? "Segue una tabella: " + pulisci(did) + ". Il contenuto non viene letto." : "Segue una tabella, che non viene letta.", lang: null });
+        segmenti.push({ el: el, titolo: false, lang: null,
+          testo: did ? "Segue una tabella: " + pulisci(did) + ". Il contenuto non viene letto."
+                     : "Segue una tabella, che non viene letta." });
         continue;
       }
 
@@ -172,72 +242,139 @@
         var t = pulisci(el);
         if (!t) continue;
         if (/^H[2345]$/.test(tag) && /^note$/i.test(t)) { stop = true; return; }   // stop all'apparato di note
-        segmenti.push({ el: el, testo: t, lang: el.getAttribute("lang") || null });
+        segmenti.push({ el: el, testo: t, lang: el.getAttribute("lang") || null, titolo: /^H[2345]$/.test(tag) });
         continue;
       }
 
       // contenitori generici: si scende dentro
       if (el.children.length) { percorri(el); continue; }
       var tt = pulisci(el);
-      if (tt) segmenti.push({ el: el, testo: tt, lang: el.getAttribute("lang") || null });
+      if (tt) segmenti.push({ el: el, testo: tt, lang: el.getAttribute("lang") || null, titolo: false });
     }
   }
 
   function pulisci(el) {
     var c = el.cloneNode(true);
     Array.prototype.forEach.call(c.querySelectorAll("sup, .footnote-ref, script, style"), function (n) { n.remove(); });
-    var t = (c.textContent || "").replace(/ /g, " ").replace(/\s+/g, " ").trim();
+    var t = (c.textContent || "").replace(/ /g, " ").replace(/\s+/g, " ").trim();
     return t;
   }
 
-  // durata stimata
+  // durata stimata (alla velocità corrente, pause comprese)
   var caratteri = segmenti.reduce(function (n, s) { return n + s.testo.length; }, 0);
-  var minuti = Math.max(1, Math.round((caratteri / 6.2) / PAROLE_AL_MINUTO));
-  durata.textContent = "· circa " + minuti + " min";
+  function stimaMinuti() {
+    var lettura = (caratteri / 6.2) / (PAROLE_AL_MINUTO * velocita);
+    return Math.max(1, Math.round(lettura + (coda.length * PAUSA_FRASE) / 60000));
+  }
+  function aggiornaDurata() { durata.textContent = "· circa " + stimaMinuti() + " min"; }
 
   var nota2 = document.createElement("p");
   nota2.className = "ascolto-nota";
-  nota2.textContent = "Lettura con la voce del dispositivo. Si può mettere in pausa, cambiare velocità e riprendere."
+  nota2.textContent = "Voce di sintesi del dispositivo: legge correttamente, ma non interpreta. "
+    + "Se la resa non convince, provare un'altra voce dall'elenco e rallentare."
     + (tabelleAnnunciate ? " Le tabelle e le note non vengono lette." : "");
   box.appendChild(nota2);
 
-  // --- 2. suddivisione in pronunce brevi -----------------------------------
-  function spezza(testo) {
-    var frasi = testo.match(/[^.!?;:]+[.!?;:]*\s*/g) || [testo];
-    var out = [], buf = "";
-    frasi.forEach(function (f) {
-      if ((buf + f).length > MAX_CHUNK && buf) { out.push(buf.trim()); buf = f; }
-      else buf += f;
+  // --- 2. suddivisione: una frase = una pronuncia --------------------------
+  // Frasi intere, così il motore può applicare la propria curva d'intonazione;
+  // si spezza solo dentro le frasi che superano MAX_CHUNK.
+  var SEGNA = String.fromCharCode(1);   // segnaposto: nessun testo lo contiene
+  function proteggi(t) {
+    // «U.N.A.M.», «C.d.A.», «Avv.»: i punti interni non sono fine di frase
+    t = t.replace(/\b([A-Za-zÀ-ÖØ-öø-ÿ])\./g, "$1" + SEGNA);
+    t = t.replace(/\b(Avv|Dott|Dr|Prof|Sig|On|Ing|Rag|Sez|Vol|Fasc|Ed|Op|Spa|Srl)\./gi, "$1" + SEGNA);
+    // nomi di dominio: «mediareinformati.it» non è la fine di una frase
+    t = t.replace(/\.(it|com|org|net|eu|gov|edu|info|io)\b/gi, SEGNA + "$1");
+    return t;
+  }
+  function ripristina(t) { return t.split(SEGNA).join("."); }
+
+  function frasi(testo) {
+    testo = proteggi(testo);
+    var pezzi = testo.match(/[^.!?…]+[.!?…]+["»')\]]*\s*|[^.!?…]+$/g) || [testo];
+    var out = [];
+    pezzi.forEach(function (f) {
+      f = f.trim();
+      if (!f) return;
+      if (f.length <= MAX_CHUNK) { out.push(f); return; }
+      // Ripiego per le frasi lunghissime: si accumula parola per parola e si
+      // stacca preferibilmente dopo una punteggiatura debole. Niente lookbehind:
+      // i browser più vecchi non lo compilano e l'intero file fallirebbe.
+      var parole = f.split(/\s+/), buf = "";
+      parole.forEach(function (w) {
+        var cand = buf ? buf + " " + w : w;
+        if (cand.length > MAX_CHUNK && buf) { out.push(buf); buf = w; }
+        else if (cand.length > MAX_CHUNK * 0.6 && /[;:,]$/.test(w)) { out.push(cand); buf = ""; }
+        else buf = cand;
+      });
+      if (buf.trim()) out.push(buf.trim());
     });
-    if (buf.trim()) out.push(buf.trim());
-    return out.filter(Boolean);
+    // Gli elenchi numerati dentro un paragrafo («1. Titolo. 2. Titolo.») fanno
+    // scattare il punto fermo su un numero solo: si ricuciono a quel che segue.
+    var fuse = [];
+    for (var k = 0; k < out.length; k++) {
+      if (/^(\d{1,3}|[ivxlcdm]{1,6}|[a-z])[.)]$/i.test(out[k]) && k + 1 < out.length) {
+        out[k + 1] = out[k] + " " + out[k + 1];
+      } else fuse.push(out[k]);
+    }
+    return fuse.map(ripristina);
   }
   var coda = [];
   segmenti.forEach(function (s, idx) {
-    spezza(s.testo).forEach(function (p) { coda.push({ testo: p, seg: idx, lang: s.lang }); });
+    var fr = frasi(pronuncia(s.testo));
+    fr.forEach(function (p, j) {
+      coda.push({
+        testo: p,
+        seg: idx,
+        lang: s.lang,
+        // pausa DOPO questa pronuncia
+        pausa: (j === fr.length - 1) ? (s.titolo ? PAUSA_TITOLO : PAUSA_PARAGRAFO) : PAUSA_FRASE
+      });
+    });
   });
+  aggiornaDurata();
 
   // --- 3. scelta della voce italiana ---------------------------------------
-  var voce = null;
-  function scegliVoce() {
+  // Le voci «neurali» del sistema (Google, Microsoft Natural) hanno una
+  // prosodia molto migliore delle vecchie voci SAPI: si mettono per prime.
+  var voce = null, vociIt = [];
+  var PREFERITE = ["Google italiano", "Natural", "Alice", "Federica", "Elsa", "Cosimo", "Luca", "Paolina", "Isabella"];
+
+  function elencaVoci() {
     var vs = synth.getVoices() || [];
-    if (!vs.length) return null;
-    var it = vs.filter(function (v) { return /^it(-|_|$)/i.test(v.lang || ""); });
-    if (!it.length) return null;
-    var preferite = ["Alice", "Elsa", "Federica", "Google italiano", "Luca", "Cosimo", "Paolina", "Isabella", "Emma"];
-    for (var p = 0; p < preferite.length; p++) {
-      for (var k = 0; k < it.length; k++) if ((it[k].name || "").indexOf(preferite[p]) !== -1) return it[k];
-    }
-    var loc = it.filter(function (v) { return v.localService; });
-    return loc[0] || it[0];
+    vociIt = vs.filter(function (v) { return /^it(-|_|$)/i.test(v.lang || ""); });
+    if (!vociIt.length) return;
+    vociIt.sort(function (a, b) { return punteggio(b) - punteggio(a); });
+    var salvata = null;
+    try { salvata = localStorage.getItem(CHIAVE_VOCE); } catch (e) {}
+    selVoce.innerHTML = "";
+    vociIt.forEach(function (v, i) {
+      var o = document.createElement("option");
+      o.value = v.name;
+      o.textContent = etichetta(v.name);
+      selVoce.appendChild(o);
+      if (salvata ? v.name === salvata : i === 0) { selVoce.value = v.name; voce = v; }
+    });
+    if (!voce) { voce = vociIt[0]; selVoce.value = voce.name; }
   }
-  voce = scegliVoce();
+  function punteggio(v) {
+    var n = v.name || "", p = 0;
+    for (var i = 0; i < PREFERITE.length; i++) if (n.indexOf(PREFERITE[i]) !== -1) { p = PREFERITE.length - i; break; }
+    if (/Natural|Online|Neural/i.test(n)) p += 20;   // voci neurali: nettamente migliori
+    return p;
+  }
+  function etichetta(n) {
+    return n.replace(/^Microsoft\s+/, "").replace(/\s*-\s*Italian.*$/i, "")
+            .replace(/\s*\(.*\)$/, "").trim() || n;
+  }
+  elencaVoci();
   if (synth.onvoiceschanged !== undefined) {
-    synth.addEventListener("voiceschanged", function () { if (!voce) voce = scegliVoce(); });
+    synth.addEventListener("voiceschanged", function () { if (!vociIt.length) elencaVoci(); });
   }
+  if (!vociIt.length) selVoce.parentNode.style.display = "none";
 
   // --- 4. riproduzione ------------------------------------------------------
-  var pos = 0, inLettura = false, inPausa = false, segCorrente = -1, keepAlive = null;
+  var pos = 0, inLettura = false, inPausa = false, segCorrente = -1, keepAlive = null, attesa = null;
 
   function evidenzia(idx) {
     if (idx === segCorrente) return;
@@ -257,6 +394,13 @@
     segCorrente = -1;
   }
 
+  function prossima(pausa) {
+    if (attesa) { clearTimeout(attesa); attesa = null; }
+    // la pausa si allunga quando si legge piano: il respiro deve restare in scala
+    var ms = Math.round(pausa / Math.max(0.4, velocita));
+    attesa = setTimeout(function () { attesa = null; if (inLettura && !inPausa) parla(); }, ms);
+  }
+
   function parla() {
     if (pos >= coda.length) return fine();
     var pezzo = coda[pos];
@@ -266,11 +410,12 @@
     if (voce) u.voice = voce;
     u.lang = pezzo.lang || (voce && voce.lang) || "it-IT";
     u.rate = velocita;
-    u.pitch = 1;
-    u.onend = function () { if (inLettura && !inPausa) { pos++; parla(); } };
+    u.pitch = 0.95;      // un filo più grave: meno cantilena, più tono di lettura
+    u.volume = 1;
+    u.onend = function () { if (inLettura && !inPausa) { pos++; prossima(pezzo.pausa); } };
     u.onerror = function (e) {
       if (e && (e.error === "interrupted" || e.error === "canceled")) return;
-      pos++; if (inLettura && !inPausa) parla();
+      pos++; if (inLettura && !inPausa) prossima(120);
     };
     synth.speak(u);
   }
@@ -289,25 +434,28 @@
   function fermaKeepAlive() { if (keepAlive) { clearInterval(keepAlive); keepAlive = null; } }
 
   function avvia() {
-    if (!voce) voce = scegliVoce();
+    if (!voce) elencaVoci();
     synth.cancel();
     inLettura = true; inPausa = false;
     bPlay.textContent = "Pausa"; bStop.disabled = false;
-    dì(voce ? "In lettura con la voce «" + voce.name + "»." : "In lettura con la voce predefinita del dispositivo.");
+    dì(voce ? "In lettura con la voce «" + etichetta(voce.name) + "»." : "In lettura con la voce predefinita del dispositivo.");
     avviaKeepAlive();
     parla();
   }
   function pausa() {
-    inPausa = true; synth.pause();
+    inPausa = true;
+    if (attesa) { clearTimeout(attesa); attesa = null; }
+    synth.pause();
     bPlay.textContent = "Riprendi"; dì("In pausa.");
   }
   function riprendi() {
     inPausa = false; bPlay.textContent = "Pausa"; dì("In lettura.");
     if (synth.paused) synth.resume();
-    else { synth.cancel(); parla(); }   // alcuni browser non sospendono davvero: si riparte dal pezzo corrente
+    else { synth.cancel(); parla(); }   // alcuni browser non sospendono davvero
   }
   function ferma() {
     inLettura = false; inPausa = false; pos = 0;
+    if (attesa) { clearTimeout(attesa); attesa = null; }
     synth.cancel(); fermaKeepAlive(); ripulisci(); avanzamento(0);
     bPlay.textContent = "Ascolta"; bStop.disabled = true; dì("Lettura interrotta.");
   }
@@ -316,6 +464,11 @@
     fermaKeepAlive(); ripulisci(); avanzamento(1);
     bPlay.textContent = "Ascolta di nuovo"; bStop.disabled = true; dì("Lettura terminata.");
     setTimeout(function () { avanzamento(0); }, 1500);
+  }
+  function riparti() {   // riprende dalla pronuncia corrente con le nuove impostazioni
+    if (!inLettura || inPausa) return;
+    if (attesa) { clearTimeout(attesa); attesa = null; }
+    synth.cancel(); parla();
   }
 
   bPlay.addEventListener("click", function () {
@@ -328,7 +481,14 @@
   selVel.addEventListener("change", function () {
     velocita = parseFloat(selVel.value) || 1;
     try { localStorage.setItem(CHIAVE_VELOCITA, String(velocita)); } catch (e) {}
-    if (inLettura && !inPausa) { synth.cancel(); parla(); }   // riparte dal pezzo corrente
+    aggiornaDurata();
+    riparti();
+  });
+  selVoce.addEventListener("change", function () {
+    for (var i = 0; i < vociIt.length; i++) if (vociIt[i].name === selVoce.value) voce = vociIt[i];
+    try { localStorage.setItem(CHIAVE_VOCE, selVoce.value); } catch (e) {}
+    if (inLettura && !inPausa) dì("Voce «" + etichetta(voce.name) + "».");
+    riparti();
   });
 
   // se l'utente lascia la pagina, si tace (altrimenti la voce prosegue altrove)
