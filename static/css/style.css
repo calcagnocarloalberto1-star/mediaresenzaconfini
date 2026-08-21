@@ -3,7 +3,8 @@
   --ink-soft: #5b6470;
   --navy: #1e2c3d;
   --navy-deep: #131d29;
-  --gold: #8f7a55;
+  --gold: #8f7a55;          /* solo decorazione: bordi, filetti */
+  --gold-testo: #846f4c;    /* oro leggibile: testo e sfondi con testo bianco (4,6:1) */
   --gold-soft: #b9a67e;
   --paper: #faf9f6;
   --paper-alt: #f1efe9;
@@ -24,7 +25,7 @@ body {
 }
 img { max-width: 100%; height: auto; }
 a { color: var(--navy); text-decoration: none; }
-a:hover { color: var(--gold); text-decoration: underline; }
+a:hover { color: var(--gold-testo); text-decoration: underline; }
 
 .wrap { max-width: var(--maxw); margin: 0 auto; padding: 0 24px; }
 
@@ -73,7 +74,7 @@ nav.main-nav a { color: var(--ink-soft); font-size: 0.92rem; font-weight: 500; p
 nav.main-nav a:hover { color: var(--navy); text-decoration: none; border-bottom-color: var(--gold); }
 nav.main-nav form.search-box { margin: 0; display: flex; align-items: center; }
 nav.main-nav form.search-box input { width: 150px; padding: 5px 14px; font-size: 0.82rem; border: 1px solid var(--line); border-radius: 20px; font-family: var(--sans); background: #fff; color: var(--ink); }
-nav.main-nav form.search-box input:focus { outline: none; border-color: var(--gold); width: 190px; transition: width .2s ease; }
+nav.main-nav form.search-box input:focus { border-color: var(--gold-testo); width: 190px; transition: width .2s ease; }
 nav.main-nav form.search-box input::placeholder { color: #9aa2ac; }
 
 /* Hero */
@@ -87,15 +88,15 @@ nav.main-nav form.search-box input::placeholder { color: #9aa2ac; }
 /* Sections */
 .section { padding: 48px 0; }
 .section h2 { font-family: var(--serif); font-size: 1.6rem; border-bottom: 2px solid var(--line); padding-bottom: 10px; margin-bottom: 24px; }
-.section-intro { color: var(--ink-soft); max-width: 700px; margin-bottom: 28px; text-align: justify; }
+.section-intro { color: var(--ink-soft); max-width: 700px; margin-bottom: 28px; }
 
 .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 22px; }
 .card { background: #fff; border: 1px solid var(--line); border-radius: 6px; padding: 20px; transition: box-shadow .15s, transform .15s; }
 .card:hover { box-shadow: 0 6px 18px rgba(18,35,61,0.08); transform: translateY(-2px); }
-.card .eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold); font-weight: 600; }
+.card .eyebrow { font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--gold-testo); font-weight: 600; }
 .card h3 { font-family: var(--serif); font-size: 1.15rem; margin: 8px 0; line-height: 1.3; }
 .card h3 a { color: var(--ink); }
-.card .meta { font-size: 0.78rem; color: #8a94a6; margin-bottom: 8px; }
+.card .meta { font-size: 0.78rem; color: #68707f; margin-bottom: 8px; }
 .card p { font-size: 0.9rem; color: var(--ink-soft); margin: 0; }
 
 .world-feature { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 8px; padding: 32px; display: flex; gap: 32px; flex-wrap: wrap; align-items: center; }
@@ -105,7 +106,7 @@ nav.main-nav form.search-box input::placeholder { color: #9aa2ac; }
 .world-feature .count-wrap { text-align: center; }
 .world-feature .count-label { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-soft); }
 .btn { display: inline-block; background: var(--navy); color: #fff !important; padding: 10px 20px; border-radius: 4px; font-weight: 600; font-size: 0.9rem; text-decoration: none !important; margin-top: 14px; }
-.btn:hover { background: var(--gold); }
+.btn:hover { background: var(--gold-testo); }
 
 /* Article */
 .breadcrumb { font-size: 0.82rem; color: var(--ink-soft); margin: 18px 0; }
@@ -115,10 +116,10 @@ article.post .post-header { max-width: 760px; margin-bottom: 28px; }
 article.post h1 { font-family: var(--serif); font-size: 2.1rem; line-height: 1.25; margin: 6px 0 14px; }
 article.post .post-meta { font-size: 0.85rem; color: var(--ink-soft); display: flex; gap: 14px; flex-wrap: wrap; }
 article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px solid var(--line); border-radius: 20px; padding: 2px 10px; font-size: 0.76rem; }
-.update-flag a { background: var(--gold); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 0.76rem; font-weight: 600; text-decoration: none; }
+.update-flag a { background: var(--gold-testo); color: #fff; border-radius: 20px; padding: 2px 10px; font-size: 0.76rem; font-weight: 600; text-decoration: none; }
 .update-flag a:hover { opacity: 0.85; text-decoration: none; }
 .post-body { max-width: 760px; font-size: 1.05rem; color: #232b3a; }
-.post-body p { margin: 0 0 1.1em; text-align: justify; }
+.post-body p { margin: 0 0 1.1em; }
 /* Un <p></p> del tutto vuoto (riga vuota lasciata per distanziare due paragrafi) non ha una
    riga di testo propria: il suo margine si collassa con quello dei paragrafi adiacenti (regola
    standard CSS) e sparisce alla vista. Questa regola gli dà una riga reale, così la spaziatura
@@ -132,17 +133,17 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .law-list { max-width: 760px; margin: 1.4em 0; padding: 0; list-style: none; }
 .law-item { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; padding: 12px 0; border-bottom: 1px solid var(--line); }
 .law-item:first-child { border-top: 1px solid var(--line); }
-.law-num { color: var(--gold); font-weight: 700; font-family: var(--serif); flex: 0 0 auto; }
+.law-num { color: var(--gold-testo); font-weight: 700; font-family: var(--serif); flex: 0 0 auto; }
 .law-body { flex: 1 1 320px; min-width: 0; }
 .law-title { font-weight: 600; line-height: 1.4; }
 .law-title a { text-decoration: underline; text-underline-offset: 2px; }
-.law-desc { margin: 4px 0 0; color: var(--ink-soft); font-size: 0.92rem; text-align: justify; line-height: 1.5; }
+.law-desc { margin: 4px 0 0; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.5; }
 .law-desc + .law-desc { margin-top: 2px; }
 .post-share { margin: 2em 0; padding: 16px 20px; border: 1px solid var(--line); border-radius: 6px; background: var(--paper-alt); }
 .post-share-label { font-weight: 600; font-size: 0.9rem; margin-bottom: 10px; }
 .post-share-links { display: flex; flex-wrap: wrap; gap: 8px; }
 .post-share-links a { display: inline-block; background: var(--navy); color: #fff; border-radius: 5px; padding: 7px 16px; font-size: 0.85rem; font-weight: 600; text-decoration: none; }
-.post-share-links a:hover { background: var(--gold); color: #fff; text-decoration: none; }
+.post-share-links a:hover { background: var(--gold-testo); color: #fff; text-decoration: none; }
 .post-taxonomy { max-width: 760px; margin-top: 40px; padding-top: 20px; border-top: 1px solid var(--line); }
 .post-taxonomy .label { font-size: 0.78rem; text-transform: uppercase; color: var(--ink-soft); letter-spacing: 0.05em; margin-bottom: 8px; }
 .tag-list { display: flex; flex-wrap: wrap; gap: 8px; }
@@ -175,7 +176,7 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 @media (max-width: 720px) { .country-index { columns: 2; } }
 @media (max-width: 480px) { .country-index { columns: 1; } }
 .country-group { break-inside: avoid; margin-bottom: 22px; }
-.country-group h3 { font-family: var(--serif); font-size: 1rem; color: var(--gold); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 8px; }
+.country-group h3 { font-family: var(--serif); font-size: 1rem; color: var(--gold-testo); border-bottom: 1px solid var(--line); padding-bottom: 4px; margin-bottom: 8px; }
 .country-group ul { list-style: none; margin: 0; padding: 0; }
 .country-group li { margin-bottom: 5px; font-size: 0.9rem; }
 .country-group a.ext-link { color: var(--ink-soft); border-bottom: 1px dashed var(--line); }
@@ -184,7 +185,7 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 /* Page (static) */
 .static-page { max-width: 760px; padding: 8px 0 56px; }
 .static-page h1 { font-family: var(--serif); font-size: 2rem; margin-bottom: 20px; }
-.static-page .post-body .law-desc { text-align: justify; }
+.static-page .post-body .law-desc { text-align: left; }
 
 /* Footer */
 footer.site-footer { background: var(--paper-alt); color: var(--ink-soft); padding: 36px 0; margin-top: 40px; font-size: 0.85rem; border-top: 1px solid var(--line); }
@@ -207,7 +208,7 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 .subscribe-form { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 16px; max-width: 440px; }
 .subscribe-form input[type="email"] { flex: 1; min-width: 220px; padding: 10px 14px; border: 1px solid var(--line); border-radius: 4px; font-size: 0.95rem; font-family: var(--sans); }
 .subscribe-form input[type="submit"] { background: var(--navy); color: #fff; border: none; padding: 10px 22px; border-radius: 4px; font-weight: 600; font-size: 0.9rem; cursor: pointer; font-family: var(--sans); }
-.subscribe-form input[type="submit"]:hover { background: var(--gold); }
+.subscribe-form input[type="submit"]:hover { background: var(--gold-testo); }
 .visually-hidden { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0; }
 
 /* Statistiche page */
@@ -218,7 +219,7 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 
 .rank-list { list-style: none; margin: 0; padding: 0; counter-reset: rank; }
 .rank-list li { counter-increment: rank; display: flex; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); }
-.rank-list li::before { content: counter(rank); font-family: var(--serif); font-size: 1rem; color: var(--gold); min-width: 1.6em; text-align: right; }
+.rank-list li::before { content: counter(rank); font-family: var(--serif); font-size: 1rem; color: var(--gold-testo); min-width: 1.6em; text-align: right; }
 .rank-list .rank-title { flex: 1; font-size: 0.95rem; }
 .rank-list .rank-title a { color: var(--ink); }
 .rank-list .rank-value { font-size: 0.85rem; color: var(--ink-soft); white-space: nowrap; }
@@ -239,17 +240,17 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 .year-table th:first-child, .year-table td:first-child { text-align: left; }
 .year-table thead th { color: var(--ink-soft); font-weight: 600; font-size: 0.76rem; text-transform: uppercase; }
 .year-table td a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-.year-table td a:hover { color: var(--gold); }
+.year-table td a:hover { color: var(--gold-testo); }
 
 /* Visibilità link nel box "Vedi anche" e note varie (propagazione fix 15/08/2026 sera) */
 .stats-note a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-.stats-note a:hover { color: var(--gold); }
+.stats-note a:hover { color: var(--gold-testo); }
 
 /* Visibilità link nell'indice delle 195 giurisdizioni di /legislazione-internazionale/ (propagazione fix 15/08/2026 sera) */
 .country-index a { font-weight: 600; text-decoration: underline; text-underline-offset: 2px; }
-.country-index a:hover { color: var(--gold); }
+.country-index a:hover { color: var(--gold-testo); }
 .country-index a.ext-link { font-weight: 400; text-decoration: underline dotted; color: var(--ink-soft); }
-.country-index a.ext-link:hover { color: var(--gold); }
+.country-index a.ext-link:hover { color: var(--gold-testo); }
 
 .two-col { display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 40px; }
 
@@ -270,12 +271,17 @@ footer.site-footer .wrap { display: flex; justify-content: space-between; flex-w
 nav.main-nav { position: sticky; top: 0; z-index: 20; }
 
 /* Mobile nav toggle (pure CSS, no JS) */
-.nav-toggle-input { display: none; }
+/* Su schermo largo il menu non serve: la casella e' fuori dal flusso e non focalizzabile. */
+.nav-toggle-input { position: absolute; opacity: 0; pointer-events: none; width: 1px; height: 1px; }
 .nav-toggle-label { display: none; cursor: pointer; font-size: 1.5rem; line-height: 1; color: var(--ink-soft); padding: 2px 6px; user-select: none; }
 .nav-links { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 18px; }
 @media (max-width: 720px) {
   nav.main-nav .wrap { justify-content: space-between; padding-top: 10px; padding-bottom: 10px; }
-  .nav-toggle-label { display: block; }
+  /* Sotto i 720px la casella resta invisibile ma RAGGIUNGIBILE da tastiera:
+     con display:none il menu non si sarebbe potuto aprire senza mouse. */
+  .nav-toggle-input { pointer-events: auto; }
+  .nav-toggle-label { display: block; border-radius: 4px; }
+  .nav-toggle-input:focus-visible + .nav-toggle-label { outline: 3px solid var(--gold-testo); outline-offset: 2px; }
   .nav-links { display: none; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 10px; }
   .nav-toggle-input:checked ~ .nav-links { display: flex; }
   nav.main-nav form.search-box { flex-basis: 100%; order: 3; margin: 8px 0 2px; }
@@ -293,7 +299,7 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
 .law-source { font-size: 0.85rem; color: var(--ink-soft); margin: 0 0 20px; word-break: break-word; }
 .law-source a { text-decoration: underline; text-underline-offset: 2px; }
 .law-fulltext { font-size: 0.98rem; }
-.law-fulltext p { margin: 0 0 1em; text-align: justify; }
+.law-fulltext p { margin: 0 0 1em; }
 .law-fulltext p.law-subhead { font-weight: 700; margin: 1.6em 0 0.4em; font-family: var(--serif); }
 .country-index-simple { columns: 3; column-gap: 32px; list-style: none; padding: 0; margin: 1.4em 0; }
 .country-index-simple li { margin: 4px 0; break-inside: avoid; }
@@ -307,20 +313,83 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
 .bill-item { display: flex; gap: 16px; align-items: flex-start; flex-wrap: wrap; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .bill-item:first-child { border-top: 1px solid var(--line); }
 .bill-status { flex: 0 0 auto; display: inline-block; padding: 4px 11px; border-radius: 999px; font-family: var(--sans); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
-.bill-status-pending { background: #f4ecd8; color: var(--gold); border: 1px solid var(--gold-soft); }
+.bill-status-pending { background: #f4ecd8; color: var(--gold-testo); border: 1px solid var(--gold-soft); }
 .bill-status-approved { background: #e4ece3; color: #3d6b4a; border: 1px solid #a9c7ae; }
 .bill-status-small { font-size: 0.66rem; padding: 3px 9px; margin-left: 6px; }
 .bill-body { flex: 1 1 320px; min-width: 0; }
 .bill-title { font-weight: 600; line-height: 1.4; margin: 0 0 6px; }
 .bill-title a { text-decoration: underline; text-underline-offset: 2px; }
-.bill-stage, .bill-desc { margin: 4px 0; color: var(--ink-soft); font-size: 0.92rem; text-align: justify; line-height: 1.5; }
+.bill-stage, .bill-desc { margin: 4px 0; color: var(--ink-soft); font-size: 0.92rem; line-height: 1.5; }
 .bill-stage strong { color: var(--ink); }
 .bill-meta { margin: 8px 0 0; font-size: 0.8rem; color: var(--ink-soft); }
 .bill-source-note { font-style: italic; }
 .bill-none { color: var(--ink-soft); font-style: italic; margin: 1.2em 0 0.4em; }
-.bill-none-detail { color: var(--ink-soft); font-size: 0.88rem; text-align: justify; max-width: 780px; }
+.bill-none-detail { color: var(--ink-soft); font-size: 0.88rem; max-width: 780px; }
 .bill-count-none { color: var(--ink-soft); font-weight: 400; font-size: 0.85rem; }
 
 /* Pill degli argomenti nell'intestazione dell'articolo: ora sono link alla pagina della categoria (o del tag). */
 article.post .post-meta a.tag-pill { color: var(--navy); text-decoration: none; }
 article.post .post-meta a.tag-pill:hover { background: var(--navy); border-color: var(--navy); color: #fff; text-decoration: none; }
+
+/* ==========================================================================
+   Accessibilità — 21 agosto 2026
+   Aggiunte in coda perché prevalgano sulle regole precedenti a parità di peso.
+   ========================================================================== */
+
+/* --- Focus visibile ------------------------------------------------------
+   Prima di questo blocco il sito non mostrava alcun indicatore di focus: chi
+   naviga da tastiera non poteva sapere dove si trovava. :focus-visible non
+   scatta con il mouse, quindi per chi punta e clicca nulla cambia. */
+:where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 3px solid var(--gold-testo);
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+/* Sulla sola fascia fotografica scura l'oro non si staccherebbe: lì il
+   contorno è chiaro. La barra di navigazione, che ha fondo chiaro, resta
+   con il contorno dorato. */
+.site-header-photo :where(a, button, input):focus-visible {
+  outline-color: #f4e9d2;
+}
+
+/* --- Link nel corpo del testo --------------------------------------------
+   Nel testo corrente il colore da solo non basta a segnalare un link
+   (WCAG 1.4.1): dentro gli articoli vanno sottolineati. Restano esclusi i
+   menu, le schede, le pillole dei tag e la barra di condivisione, dove la
+   forma stessa dell'elemento dice già che è cliccabile. */
+.post-body a:not(.tag-pill):not(.btn) {
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  text-decoration-thickness: 1px;
+}
+.post-body a:not(.tag-pill):not(.btn):hover {
+  text-decoration-thickness: 2px;
+}
+
+/* --- Giustificazione ereditata da WordPress -------------------------------
+   400 pagine portano `style="text-align:justify;"` scritto dentro il tag,
+   28.812 volte in tutto: retaggio dell'esportazione da WordPress. Toglierlo
+   dal foglio di stile non basta, perche' lo stile in linea vince sempre.
+   Qui lo si neutralizza in un colpo solo, senza toccare le pagine.
+   La giustificazione allarga gli spazi fra le parole in modo irregolare e
+   forma i cosiddetti «fiumi» di bianco: e' una delle cause note di
+   affaticamento nella lettura, in particolare per chi ha dislessia. */
+.post-body [style*="text-align:justify"],
+.law-fulltext [style*="text-align:justify"],
+main [style*="text-align:justify"] {
+  text-align: left !important;
+}
+
+/* --- Movimento ridotto ---------------------------------------------------
+   Lo scorrimento animato può provocare nausea a chi soffre di disturbi
+   vestibolari. Chi ha chiesto meno movimento al proprio sistema operativo
+   ottiene lo scorrimento immediato. */
+@media (prefers-reduced-motion: reduce) {
+  html { scroll-behavior: auto; }
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
