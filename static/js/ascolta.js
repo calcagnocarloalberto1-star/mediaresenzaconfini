@@ -56,6 +56,10 @@
     ".ascolto-scelte label{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink-soft,#5b6470)}",
     ".ascolto-scelte select{font:inherit;font-size:.8rem;padding:4px 6px;border:1px solid var(--line,#e0dcd2);border-radius:4px;background:#fff;color:var(--ink,#22282f);max-width:220px}",
     ".ascolto-salti{display:inline-flex;gap:6px}",
+    ".ascolto-scarica{margin-top:10px;font-size:.8rem;color:var(--ink-soft,#5b6470);display:flex;align-items:center;gap:8px;flex-wrap:wrap}",
+    ".ascolto-scarica a{display:inline-flex;align-items:center;gap:5px;color:var(--navy,#1e2c3d);text-decoration:underline;text-underline-offset:2px;border:1px solid var(--line,#e0dcd2);border-radius:4px;padding:3px 9px;background:#fff}",
+    ".ascolto-scarica a::before{content:\"\\2193\";font-weight:700;text-decoration:none}",
+    ".ascolto-scarica a:hover{background:var(--navy,#1e2c3d);color:#fff;border-color:var(--navy,#1e2c3d)}",
     ".ascolto-salti button{padding:7px 10px;font-size:.8rem}",
     ".ascolto-barra{margin-top:12px;height:6px;border-radius:3px;background:#fff;border:1px solid var(--line,#e0dcd2);overflow:hidden}",
     ".ascolto-barra i{display:block;height:100%;width:0;background:var(--gold,#8f7a55);transition:width .25s linear}",
@@ -148,6 +152,34 @@
       ? "Lettura con voce naturale, in " + piste.length + " parti che si succedono da sole."
       : "Lettura con voce naturale.";
     box.appendChild(nota);
+
+    // --- scaricamento -------------------------------------------------------
+    // Utile a chi vuole ascoltare senza connessione, in auto o sul lettore MP3.
+    // Sono veri collegamenti <a download>, non pulsanti: si aprono nella nuova
+    // scheda anche con il tasto destro, e il lettore di schermo li annuncia
+    // come collegamenti. Con più parti si elencano tutte, numerate.
+    var scarica = document.createElement("p");
+    scarica.className = "ascolto-scarica";
+    var etichettaFile = function (n) {
+      return piste.length > 1 ? "Parte " + (n + 1) : "Scarica l\u2019audio";
+    };
+    var intro = document.createElement("span");
+    intro.className = "ascolto-scarica-testo";
+    intro.textContent = piste.length > 1 ? "Scarica l\u2019audio: " : "";
+    scarica.appendChild(intro);
+    piste.forEach(function (pista, n) {
+      var a = document.createElement("a");
+      a.href = pista.src;
+      a.setAttribute("download", "");
+      a.textContent = etichettaFile(n);
+      var min = pista.dur > 0 ? Math.round(pista.dur / 60) : 0;
+      a.setAttribute("aria-label",
+        (piste.length > 1 ? "Scarica la parte " + (n + 1) + " di " + piste.length : "Scarica l\u2019audio dell\u2019articolo")
+        + (min ? ", " + min + " minuti" : "") + ", file MP3");
+      scarica.appendChild(a);
+      if (n < piste.length - 1) scarica.appendChild(document.createTextNode(" "));
+    });
+    box.appendChild(scarica);
 
     if (totale > 0) durata.textContent = "\u00b7 " + Math.round(totale / 60) + " min";
 
