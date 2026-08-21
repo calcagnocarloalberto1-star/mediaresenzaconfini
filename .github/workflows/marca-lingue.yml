@@ -1,0 +1,53 @@
+name: Marca la lingua dei passaggi stranieri
+
+# Solo manuale: non deve mai partire da sola.
+# Actions -> "Marca la lingua dei passaggi stranieri" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (conta senza modificare nulla)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  marca-lingue:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Installa le dipendenze
+        run: pip install --quiet lingua-language-detector beautifulsoup4
+
+      - name: Marca i passaggi in lingua straniera
+        run: |
+          if [ "${{ inputs.solo_prova }}" = "true" ]; then
+            python3 .github/scripts/marca_lingue.py --prova
+          else
+            python3 .github/scripts/marca_lingue.py
+          fi
+
+      - name: Mostra un riepilogo delle modifiche
+        run: |
+          echo "### File toccati" >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tail -40 >> $GITHUB_STEP_SUMMARY
+          echo '' >> $GITHUB_STEP_SUMMARY
+          echo "Attributi lang aggiunti: $(git diff -U0 | grep -c 'lang=')" >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -u
+          git diff --cached --quiet || git commit -m "Accessibilita: attributo lang sui passaggi in lingua straniera"
+          git push
