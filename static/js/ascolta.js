@@ -369,7 +369,7 @@
   }
   elencaVoci();
   if (synth.onvoiceschanged !== undefined) {
-    synth.addEventListener("voiceschanged", function () { if (!vociIt.length) elencaVoci(); });
+        synth.addEventListener("voiceschanged", function () { elencaVoci(); selVoce.parentNode.style.display = vociIt.length ? "" : "none"; });
   }
   if (!vociIt.length) selVoce.parentNode.style.display = "none";
 
