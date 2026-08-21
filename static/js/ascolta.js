@@ -20,8 +20,13 @@
   if (!art || !header || !body) return;
 
   var hasTTS = "speechSynthesis" in window && typeof window.SpeechSynthesisUtterance === "function";
-  var mp3link = document.querySelector('link[rel="alternate"][type="audio/mpeg"]');
-  var mp3 = mp3link ? mp3link.getAttribute("href") : null;
+  var piste = [];
+  var _l = document.querySelectorAll('link[rel="alternate"][type="audio/mpeg"]');
+  for (var _i = 0; _i < _l.length; _i++) {
+    var _h = _l[_i].getAttribute("href");
+    if (_h) piste.push({ src: _h, dur: parseFloat(_l[_i].getAttribute("data-durata")) || 0 });
+  }
+  var mp3 = piste.length ? piste[0].src : null;
   if (!mp3 && !hasTTS) return; // nessun motore disponibile: non mostriamo nulla
 
   var PAROLE_AL_MINUTO = 155;      // ritmo medio di lettura in italiano
@@ -50,6 +55,8 @@
     ".ascolto-scelte{display:flex;align-items:center;gap:16px;flex-wrap:wrap;margin-top:12px}",
     ".ascolto-scelte label{display:flex;align-items:center;gap:6px;font-size:.8rem;color:var(--ink-soft,#5b6470)}",
     ".ascolto-scelte select{font:inherit;font-size:.8rem;padding:4px 6px;border:1px solid var(--line,#e0dcd2);border-radius:4px;background:#fff;color:var(--ink,#22282f);max-width:220px}",
+    ".ascolto-salti{display:inline-flex;gap:6px}",
+    ".ascolto-salti button{padding:7px 10px;font-size:.8rem}",
     ".ascolto-barra{margin-top:12px;height:6px;border-radius:3px;background:#fff;border:1px solid var(--line,#e0dcd2);overflow:hidden}",
     ".ascolto-barra i{display:block;height:100%;width:0;background:var(--gold,#8f7a55);transition:width .25s linear}",
     ".ascolto-stato{margin-top:7px;font-size:.78rem;color:var(--ink-soft,#5b6470);min-height:1.2em}",
@@ -110,30 +117,163 @@
   function dì(t) { stato.textContent = t; }
   function avanzamento(f) { barra.style.width = Math.max(0, Math.min(1, f)) * 100 + "%"; }
 
-  /* ============================== MOTORE 1: file audio (voce ElevenLabs) === */
+  /* ============================== MOTORE 1: file audio (voce ElevenLabs) ===
+     La pagina puo' dichiarare piu' file, che vengono riprodotti di seguito
+     come un unico ascolto continuo:
+       <link rel="alternate" type="audio/mpeg" href="..." data-durata="1600">
+     L'attributo data-durata (secondi) e' facoltativo: serve solo a mostrare
+     subito la durata complessiva e a rendere esatta la barra di avanzamento.
+     -------------------------------------------------------------------- */
   if (mp3) {
     box.querySelector("[data-voce]").parentNode.remove();
-    var au = new Audio(mp3);
+
+    var CHIAVE_POS = "mrc-ascolto-pos:" + location.pathname;
+    var au = new Audio();
     au.preload = "metadata";
+
+    /* durate note e offset cumulativi */
+    var totale = 0, noto = true, k;
+    for (k = 0; k < piste.length; k++) {
+      piste[k].inizio = totale;
+      if (piste[k].dur > 0) totale += piste[k].dur; else noto = false;
+    }
+    if (!noto) totale = 0;
+
+    var indice = 0, caricato = -1, ripresa = 0, salvato = 0;
+    try { salvato = parseFloat(localStorage.getItem(CHIAVE_POS)) || 0; } catch (e) {}
+
     var nota = document.createElement("p");
     nota.className = "ascolto-nota";
-    nota.textContent = "Lettura con voce naturale.";
+    nota.textContent = piste.length > 1
+      ? "Lettura con voce naturale, in " + piste.length + " parti che si succedono da sole."
+      : "Lettura con voce naturale.";
     box.appendChild(nota);
 
+    if (totale > 0) durata.textContent = "\u00b7 " + Math.round(totale / 60) + " min";
+
+    function trascorso() {
+      var base = piste[indice].inizio || 0;
+      return base + (isFinite(au.currentTime) ? au.currentTime : 0);
+    }
+    function etichettaParte() {
+      return piste.length > 1 ? " (parte " + (indice + 1) + " di " + piste.length + ")" : "";
+    }
+    function carica(n, secondi, subito) {
+      indice = n;
+      ripresa = Math.max(0, secondi || 0);
+      if (caricato !== n) {
+        au.src = piste[n].src; au.load(); caricato = n;
+      } else if (au.readyState >= 1) {
+        var lim = isFinite(au.duration) && au.duration > 0.4 ? au.duration - 0.3 : ripresa;
+        try { au.currentTime = Math.min(ripresa, lim); } catch (e) {}
+        ripresa = 0;
+      }
+      au.playbackRate = velocita;
+      if (subito) { var pr = au.play(); if (pr && pr["catch"]) pr["catch"](function () {}); }
+    }
+    function vaiA(assoluti) {
+      var n = 0;
+      if (totale > 0) {
+        for (var q = piste.length - 1; q >= 0; q--) {
+          if (assoluti >= piste[q].inizio) { n = q; break; }
+        }
+      }
+      carica(n, assoluti - (piste[n].inizio || 0), !au.paused);
+    }
+
     au.addEventListener("loadedmetadata", function () {
-      if (isFinite(au.duration)) durata.textContent = "· " + Math.round(au.duration / 60) + " min";
+      if (ripresa > 0 && isFinite(au.duration)) {
+        try { au.currentTime = Math.min(ripresa, au.duration - 0.5); } catch (e) {}
+        ripresa = 0;
+      }
+      if (totale <= 0 && piste.length === 1 && isFinite(au.duration)) {
+        totale = au.duration;
+        durata.textContent = "\u00b7 " + Math.round(totale / 60) + " min";
+      }
     });
+
+    var ultimoSalvataggio = 0;
     au.addEventListener("timeupdate", function () {
-      if (isFinite(au.duration) && au.duration > 0) avanzamento(au.currentTime / au.duration);
+      var t = trascorso();
+      if (totale > 0) avanzamento(t / totale);
+      else if (isFinite(au.duration) && au.duration > 0) avanzamento(au.currentTime / au.duration);
+      if (t - ultimoSalvataggio > 5 || t < ultimoSalvataggio) {
+        ultimoSalvataggio = t;
+        try { localStorage.setItem(CHIAVE_POS, String(Math.round(t))); } catch (e) {}
+      }
     });
-    au.addEventListener("ended", function () { bPlay.textContent = "Ascolta"; bStop.disabled = true; avanzamento(0); dì("Lettura terminata."); });
+
+    au.addEventListener("ended", function () {
+      if (indice + 1 < piste.length) {
+        carica(indice + 1, 0, true);
+        dì("In riproduzione" + etichettaParte() + ".");
+      } else {
+        bPlay.textContent = "Ascolta"; bStop.disabled = true; avanzamento(0);
+        try { localStorage.removeItem(CHIAVE_POS); } catch (e) {}
+        dì("Lettura terminata.");
+      }
+    });
+
+    au.addEventListener("error", function () {
+      dì("Non riesco a caricare l\u2019audio" + etichettaParte() + ".");
+    });
+
+    /* barra cliccabile: salto rapido dentro l'intera lettura */
+    var salti = document.createElement("span");
+    salti.className = "ascolto-salti";
+    salti.innerHTML =
+      '<button type="button" class="secondario" data-indietro aria-label="Torna indietro di 15 secondi">&minus;15 s</button>' +
+      '<button type="button" class="secondario" data-avanti aria-label="Vai avanti di 30 secondi">+30 s</button>';
+    bStop.parentNode.insertBefore(salti, bStop.nextSibling);
+    salti.querySelector("[data-indietro]").addEventListener("click", function () {
+      vaiA(Math.max(0, trascorso() - 15)); bStop.disabled = false;
+      dì((au.paused ? "Indietro di 15 secondi" : "In riproduzione") + etichettaParte() + ".");
+    });
+    salti.querySelector("[data-avanti]").addEventListener("click", function () {
+      vaiA(trascorso() + 30); bStop.disabled = false;
+      dì((au.paused ? "Avanti di 30 secondi" : "In riproduzione") + etichettaParte() + ".");
+    });
+
+    var pista = barra.parentNode;
+    if (totale > 0) {
+      pista.style.cursor = "pointer";
+      pista.setAttribute("title", "Clicca per spostarti nella lettura");
+      pista.addEventListener("click", function (ev) {
+        var r = pista.getBoundingClientRect();
+        if (!r.width) return;
+        var f = Math.max(0, Math.min(1, (ev.clientX - r.left) / r.width));
+        vaiA(f * totale);
+        bStop.disabled = false;
+        dì((au.paused ? "Posizione impostata" : "In riproduzione") + etichettaParte() + ".");
+      });
+    }
+
+    if (salvato > 30 && (totale <= 0 || salvato < totale - 30)) {
+      var m = Math.floor(salvato / 60);
+      dì("Ripartir\u00e0 da " + (m >= 1 ? m + " min" : Math.round(salvato) + " s") + ". Il tasto Interrompi riporta all\u2019inizio.");
+      carica(0, 0, false);
+      vaiA(salvato);
+    } else {
+      carica(0, 0, false);
+    }
 
     bPlay.addEventListener("click", function () {
-      if (au.paused) { au.playbackRate = velocita; au.play(); bPlay.textContent = "Pausa"; bStop.disabled = false; dì("In riproduzione."); }
-      else { au.pause(); bPlay.textContent = "Riprendi"; dì("In pausa."); }
+      if (au.paused) {
+        au.playbackRate = velocita; au.play();
+        bPlay.textContent = "Pausa"; bStop.disabled = false;
+        dì("In riproduzione" + etichettaParte() + ".");
+      } else {
+        au.pause(); bPlay.textContent = "Riprendi"; dì("In pausa.");
+      }
     });
     bStop.addEventListener("click", function () {
-      au.pause(); au.currentTime = 0; bPlay.textContent = "Ascolta"; bStop.disabled = true; avanzamento(0); dì("Lettura interrotta.");
+      au.pause();
+      try { localStorage.removeItem(CHIAVE_POS); } catch (e) {}
+      ultimoSalvataggio = 0;
+      carica(0, 0, false);
+      try { au.currentTime = 0; } catch (e) {}
+      bPlay.textContent = "Ascolta"; bStop.disabled = true; avanzamento(0);
+      dì("Lettura interrotta.");
     });
     selVel.addEventListener("change", function () {
       velocita = parseFloat(selVel.value) || 1; au.playbackRate = velocita;
