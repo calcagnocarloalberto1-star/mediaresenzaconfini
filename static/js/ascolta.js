@@ -382,15 +382,30 @@
         var t = pulisci(el);
         if (!t) continue;
         if (/^H[2345]$/.test(tag) && /^note$/i.test(t)) { stop = true; return; }   // stop all'apparato di note
-        segmenti.push({ el: el, testo: t, lang: el.getAttribute("lang") || null, titolo: /^H[2345]$/.test(tag) });
+        segmenti.push({ el: el, testo: t, lang: lingua(el), titolo: /^H[2345]$/.test(tag) });
         continue;
       }
 
       // contenitori generici: si scende dentro
       if (el.children.length) { percorri(el); continue; }
       var tt = pulisci(el);
-      if (tt) segmenti.push({ el: el, testo: tt, lang: el.getAttribute("lang") || null, titolo: false });
+      if (tt) segmenti.push({ el: el, testo: tt, lang: lingua(el), titolo: false });
     }
+  }
+
+  // La lingua del blocco: l'attributo sull'elemento oppure quello
+  // dell'antenato più vicino, senza però uscire dall'articolo (<html lang="it">
+  // è antenato di tutto e vorrebbe dire «italiano» sempre).
+  function lingua(el) {
+    var n = el;
+    while (n && n !== art) {
+      if (n.getAttribute) {
+        var l = n.getAttribute("lang");
+        if (l) return l;
+      }
+      n = n.parentNode;
+    }
+    return null;
   }
 
   function pulisci(el) {
@@ -415,6 +430,37 @@
     + (tabelleAnnunciate ? " Le tabelle e le note non vengono lette." : "");
   box.appendChild(nota2);
 
+  // Riga aggiuntiva sulle lingue straniere presenti nell'articolo: dice quali
+  // verranno lette con la loro voce e quali no, così chi ascolta sa perché un
+  // passaggio suona con la pronuncia sbagliata e può installare la voce.
+  var notaLingue = document.createElement("p");
+  notaLingue.className = "ascolto-nota";
+  box.appendChild(notaLingue);
+
+  function elencoUmano(v) {
+    if (v.length === 1) return v[0];
+    return v.slice(0, -1).join(", ") + " e " + v[v.length - 1];
+  }
+
+  function aggiornaNotaLingue() {
+    var presenti = {};
+    segmenti.forEach(function (s) { if (!èItaliano(s.lang)) presenti[codice(s.lang)] = true; });
+    var lingue = Object.keys(presenti);
+    if (!lingue.length) { notaLingue.textContent = ""; return; }
+    var con = [], senza = [];
+    lingue.forEach(function (c) { (vociPerLingua[c] ? con : senza).push(NOMI_LINGUA[c] || c); });
+    con.sort(); senza.sort();
+    var t = "";
+    if (con.length) t += "I passaggi in " + elencoUmano(con) + " vengono letti con una voce apposita. ";
+    if (senza.length) {
+      // Costruzione senza articoli: regge sia con una lingua sia con molte.
+      t += (senza.length > 1 ? "Non ci sono voci installate per: " : "Non c\u2019è una voce installata per: ")
+        + senza.join(", ") + ". Quei passaggi restano alla voce italiana; "
+        + "si aggiungono dalle impostazioni di sistema, alla voce lingua.";
+    }
+    notaLingue.textContent = t.trim();
+  }
+
   // --- 2. suddivisione: una frase = una pronuncia --------------------------
   // Frasi intere, così il motore può applicare la propria curva d'intonazione;
   // si spezza solo dentro le frasi che superano MAX_CHUNK.
@@ -423,6 +469,11 @@
     // «U.N.A.M.», «C.d.A.», «Avv.»: i punti interni non sono fine di frase
     t = t.replace(/\b([A-Za-zÀ-ÖØ-öø-ÿ])\./g, "$1" + SEGNA);
     t = t.replace(/\b(Avv|Dott|Dr|Prof|Sig|On|Ing|Rag|Sez|Vol|Fasc|Ed|Op|Spa|Srl)\./gi, "$1" + SEGNA);
+    // Abbreviazioni ricorrenti nei testi di legge stranieri. Sull'italiano il
+    // dizionario le ha già sciolte prima di arrivare qui; sui passaggi in
+    // lingua straniera il dizionario non si applica, e senza questa riga
+    // «art. 22.» verrebbe spezzato in due pronunce, la seconda «22.».
+    t = t.replace(/\b(art|arts|artt|al|par|para|parr|sec|ss|ch|cap|no|nos|nr|n|pp|p|cf|cfr|vgl|abs|lit|reg|regs|sched|subs|s)\.(?=\s*[\dIVXivx(«"'“]|\s+[a-zà-öø-ÿ])/g, "$1" + SEGNA);
     // nomi di dominio: «mediareinformati.it» non è la fine di una frase
     t = t.replace(/\.(it|com|org|net|eu|gov|edu|info|io)\b/gi, SEGNA + "$1");
     return t;
@@ -459,9 +510,14 @@
     }
     return fuse.map(ripristina);
   }
+  function èItaliano(l) { return !l || /^it(-|_|$)/i.test(l); }
+
   var coda = [];
   segmenti.forEach(function (s, idx) {
-    var fr = frasi(pronuncia(s.testo));
+    // Il dizionario scioglie le abbreviazioni GIURIDICHE ITALIANE: applicarlo a
+    // un testo francese o inglese lo guasterebbe («art.» diventerebbe
+    // «articolo» dentro una frase francese, «%» «per cento», e così via).
+    var fr = frasi(èItaliano(s.lang) ? pronuncia(s.testo) : s.testo);
     fr.forEach(function (p, j) {
       coda.push({
         testo: p,
@@ -480,8 +536,35 @@
   var voce = null, vociIt = [];
   var PREFERITE = ["Google italiano", "Natural", "Alice", "Federica", "Elsa", "Cosimo", "Luca", "Paolina", "Isabella"];
 
+  // Voce migliore disponibile per ciascuna lingua presente nell'articolo.
+  // Serve ai passaggi in lingua straniera: senza, la voce italiana leggerebbe
+  // il francese e l'inglese con la fonetica italiana, cioè il problema che si
+  // vuole risolvere.
+  var vociPerLingua = {};
+  var NOMI_LINGUA = {
+    en: "inglese", fr: "francese", es: "spagnolo", de: "tedesco", pt: "portoghese",
+    nl: "olandese", sv: "svedese", nb: "norvegese", no: "norvegese", da: "danese",
+    fi: "finlandese", pl: "polacco", cs: "ceco", sk: "slovacco", sl: "sloveno",
+    hu: "ungherese", ro: "rumeno", bg: "bulgaro", el: "greco", hr: "croato",
+    bs: "bosniaco", sr: "serbo", lt: "lituano", lv: "lettone", et: "estone",
+    ru: "russo", uk: "ucraino", tr: "turco", ar: "arabo", he: "ebraico",
+    zh: "cinese", ja: "giapponese", ko: "coreano", hi: "hindi", ms: "malese",
+    id: "indonesiano", sq: "albanese", hy: "armeno", az: "azero", is: "islandese",
+    ca: "catalano", ga: "irlandese", cy: "gallese", mt: "maltese"
+  };
+  function codice(l) { return String(l || "").toLowerCase().split(/[-_]/)[0]; }
+  function nomeLingua(l) { var c = codice(l); return NOMI_LINGUA[c] || c; }
+
   function elencaVoci() {
     var vs = synth.getVoices() || [];
+
+    vociPerLingua = {};
+    vs.forEach(function (v) {
+      var c = codice(v.lang);
+      if (!c) return;
+      if (!vociPerLingua[c] || punteggio(v) > punteggio(vociPerLingua[c])) vociPerLingua[c] = v;
+    });
+
     vociIt = vs.filter(function (v) { return /^it(-|_|$)/i.test(v.lang || ""); });
     if (!vociIt.length) return;
     vociIt.sort(function (a, b) { return punteggio(b) - punteggio(a); });
@@ -508,8 +591,9 @@
             .replace(/\s*\(.*\)$/, "").trim() || n;
   }
   elencaVoci();
+  aggiornaNotaLingue();
   if (synth.onvoiceschanged !== undefined) {
-        synth.addEventListener("voiceschanged", function () { elencaVoci(); selVoce.parentNode.style.display = vociIt.length ? "" : "none"; });
+        synth.addEventListener("voiceschanged", function () { elencaVoci(); aggiornaNotaLingue(); selVoce.parentNode.style.display = vociIt.length ? "" : "none"; });
   }
   if (!vociIt.length) selVoce.parentNode.style.display = "none";
 
@@ -541,14 +625,24 @@
     attesa = setTimeout(function () { attesa = null; if (inLettura && !inPausa) parla(); }, ms);
   }
 
+  // Voce da usare per un pezzo. Se per quella lingua non c'è alcuna voce
+  // installata si RESTA sulla voce italiana: lasciare il campo alla voce
+  // predefinita del browser (spesso inglese) sarebbe peggio, non meglio.
+  function vocePer(l) {
+    if (èItaliano(l)) return voce;
+    var v = vociPerLingua[codice(l)];
+    return v || voce;
+  }
+
   function parla() {
     if (pos >= coda.length) return fine();
     var pezzo = coda[pos];
     evidenzia(pezzo.seg);
     avanzamento(pos / coda.length);
     var u = new SpeechSynthesisUtterance(pezzo.testo);
-    if (voce) u.voice = voce;
-    u.lang = pezzo.lang || (voce && voce.lang) || "it-IT";
+    var vp = vocePer(pezzo.lang);
+    if (vp) u.voice = vp;
+    u.lang = (vp && vp.lang) || "it-IT";
     u.rate = velocita;
     u.pitch = 0.95;      // un filo più grave: meno cantilena, più tono di lettura
     u.volume = 1;
