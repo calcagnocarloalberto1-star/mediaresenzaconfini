@@ -368,7 +368,39 @@
     [/\b1º/g, "primo"], [/\b2º/g, "secondo"], [/\b3º/g, "terzo"]
   ];
 
+  var MESI = ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno",
+              "luglio", "agosto", "settembre", "ottobre", "novembre", "dicembre"];
+
+  /* Il punto delle migliaia manda in confusione la sintesi vocale: «2.420»
+     viene letto «due» e poi «quattrocentoventi», perché quel punto sembra la
+     fine di una frase. Qui il numero viene ricomposto in cifre continue
+     («2420»), che ogni voce italiana legge correttamente.
+     Si interviene solo se il numero ha la forma italiana esatta — gruppi di
+     tre cifre — così «17.12.2004» (una data) e «12.3» (un comma) restano
+     intatti. Un numero che comincia per zero non è una migliaia: si lascia. */
+  function migliaia(t) {
+    return t.replace(/\d[\d.,]*\d/g, function (n) {
+      var m = n.match(/^(\d{1,3}(?:\.\d{3})+)(,\d+)?$/);
+      if (!m || n.charAt(0) === "0") return n;
+      return m[1].split(".").join("") + (m[2] || "");
+    });
+  }
+
+  /* Le date in cifre puntate — «17.12.2004» — sarebbero lette punto per punto.
+     In italiano si sciolgono nel mese per esteso. Si converte solo quando i
+     valori sono plausibili come giorno e mese, nell'ordine europeo. */
+  function date(t) {
+    return t.replace(/\b(\d{1,2})\.(\d{1,2})\.(\d{4})\b/g, function (tutto, g, m, a) {
+      var gi = parseInt(g, 10), me = parseInt(m, 10);
+      if (gi < 1 || gi > 31 || me < 1 || me > 12) return tutto;
+      // in italiano il primo del mese si dice «primo», non «uno»
+      return (gi === 1 ? "primo" : gi) + " " + MESI[me - 1] + " " + a;
+    });
+  }
+
   function pronuncia(t) {
+    t = date(t);
+    t = migliaia(t);
     for (var i = 0; i < DIZIONARIO.length; i++) t = t.replace(DIZIONARIO[i][0], DIZIONARIO[i][1]);
     return t.replace(/\s{2,}/g, " ").trim();
   }
@@ -506,6 +538,11 @@
     // lingua straniera il dizionario non si applica, e senza questa riga
     // «art. 22.» verrebbe spezzato in due pronunce, la seconda «22.».
     t = t.replace(/\b(art|arts|artt|al|par|para|parr|sec|ss|ch|cap|no|nos|nr|n|pp|p|cf|cfr|vgl|abs|lit|reg|regs|sched|subs|s)\.(?=\s*[\dIVXivx(«"'“]|\s+[a-zà-öø-ÿ])/g, "$1" + SEGNA);
+    // Un punto fra due cifre non è mai fine di frase: «2.420», «12.3», una
+    // data. Sull'italiano di solito il numero è già stato ricomposto prima di
+    // arrivare qui; questa riga copre i casi restanti e i passaggi in lingua
+    // straniera, dove il dizionario non si applica.
+    t = t.replace(/(\d)\.(?=\d)/g, "$1" + SEGNA);
     // nomi di dominio: «mediareinformati.it» non è la fine di una frase
     t = t.replace(/\.(it|com|org|net|eu|gov|edu|info|io)\b/gi, SEGNA + "$1");
     return t;
