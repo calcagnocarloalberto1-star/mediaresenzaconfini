@@ -29,6 +29,25 @@
   var mp3 = piste.length ? piste[0].src : null;
   if (!mp3 && !hasTTS) return; // nessun motore disponibile: non mostriamo nulla
 
+  /* Tracciamento GoatCounter dell'avvio di un ascolto (un evento per pagina
+     per visita, non a ogni pausa/ripresa). Alimenta la classifica dei link
+     più ascoltati in /preferisci-ascoltare/. Se GoatCounter non è disponibile
+     (blocco pubblicità, offline) la lettura funziona comunque: nessun errore. */
+  var _mrcAscoltoTracciato = false;
+  function mrcTracciaAscolto() {
+    if (_mrcAscoltoTracciato) return;
+    _mrcAscoltoTracciato = true;
+    try {
+      if (window.goatcounter && typeof window.goatcounter.count === "function") {
+        window.goatcounter.count({
+          path: function (p) { return "ascolto" + p; },
+          title: document.title,
+          event: true
+        });
+      }
+    } catch (e) {}
+  }
+
   var PAROLE_AL_MINUTO = 155;      // ritmo medio di lettura in italiano
   var MAX_CHUNK = 420;             // si spezza solo dentro le frasi molto lunghe
   var PAUSA_FRASE = 300;           // ms di silenzio fra una frase e l'altra
@@ -291,6 +310,7 @@
 
     bPlay.addEventListener("click", function () {
       if (au.paused) {
+        mrcTracciaAscolto();
         au.playbackRate = velocita; au.play();
         bPlay.textContent = "Pausa"; bStop.disabled = false;
         dì("In riproduzione" + etichettaParte() + ".");
@@ -737,6 +757,7 @@
   function fermaKeepAlive() { if (keepAlive) { clearInterval(keepAlive); keepAlive = null; } }
 
   function avvia() {
+    mrcTracciaAscolto();
     if (!voce) elencaVoci();
     synth.cancel();
     inLettura = true; inPausa = false;
