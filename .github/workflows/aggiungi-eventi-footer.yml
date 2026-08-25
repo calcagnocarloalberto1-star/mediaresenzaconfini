@@ -1,0 +1,49 @@
+name: Aggiungi Eventi al footer
+
+# Solo manuale.
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (conta senza modificare nulla)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  aggiungi-eventi-footer:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Aggiungi il link Eventi al footer
+        run: |
+          if [ "${{ inputs.solo_prova }}" = "true" ]; then
+            python3 .github/scripts/aggiungi_eventi_footer.py --prova
+          else
+            python3 .github/scripts/aggiungi_eventi_footer.py
+          fi
+
+      - name: Riepilogo
+        run: |
+          echo "### Pagine toccate" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git diff --stat | tail -20 >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -u
+          git diff --cached --quiet || git commit -m "Aggiunge il link Eventi al footer su tutte le pagine"
+          git push
