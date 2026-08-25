@@ -24,6 +24,10 @@ jobs:
         run: |
           git config user.name "mediaresenzaconfini-bot"
           git config user.email "actions@users.noreply.github.com"
+          if [ ! -f static/ascolti.json ]; then
+            echo "static/ascolti.json non è stato scritto in questa esecuzione (manca il secret GOATCOUNTER_API_TOKEN, oppure lo script non ha trovato ascolti): nessun commit da fare."
+            exit 0
+          fi
           git add static/ascolti.json
           git diff --cached --quiet || git commit -m "Aggiorna classifica ascolti (automatico)"
           git push
