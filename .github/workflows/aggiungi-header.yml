@@ -1,0 +1,47 @@
+name: Aggiungi il link nel menu in alto
+
+# Solo manuale: non deve mai partire da sola.
+# Actions -> "Aggiungi il link nel menu in alto" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (genera senza fare commit/push)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  aggiungi-header:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Aggiunge il collegamento nel menu di navigazione di tutte le pagine
+        run: python3 .github/scripts/aggiungi_header/aggiungi_header.py .
+
+      - name: Mostra un riepilogo delle modifiche
+        run: |
+          echo "### File modificati" >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | wc -l >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | head -50 >> $GITHUB_STEP_SUMMARY
+          echo '... (elenco troncato)' >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- '*.html'
+          git diff --cached --quiet || git commit -m "Aggiunge il collegamento a Come si scrive e come si dice nel menu di navigazione di tutte le pagine"
+          git push
