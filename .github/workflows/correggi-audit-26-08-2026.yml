@@ -1,0 +1,46 @@
+name: Correggi i difetti dell'audit generale del 26/08/2026
+
+# Solo manuale: non deve mai partire da sola.
+# Actions -> "Correggi i difetti dell'audit generale del 26/08/2026" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (genera senza fare commit/push)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  correggi-audit:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Applica le 5 correzioni dell'audit generale
+        run: python3 .github/scripts/correggi_audit/correggi-audit-26-08-2026.py .
+
+      - name: Mostra un riepilogo delle modifiche
+        run: |
+          echo "### File modificati" >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | wc -l >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git status --porcelain >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- '*.html' 'sitemap.xml'
+          git diff --cached --quiet || git commit -m "Corregge i 5 difetti individuati dall'audit generale del 26/08/2026: link rotti nelle pagine tag, contenuto orfano nelle pagine duplicata, meta description rotte, pagine mancanti dal sitemap, h1 multipli nelle pagine testi-in-vigore"
+          git push
