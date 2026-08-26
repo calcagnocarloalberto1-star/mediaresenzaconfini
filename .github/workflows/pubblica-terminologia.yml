@@ -1,0 +1,47 @@
+name: Pubblica "Come si scrive e come si dice"
+
+# Solo manuale: non deve mai partire da sola.
+# Actions -> "Pubblica "Come si scrive e come si dice"" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (genera senza fare commit/push)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  pubblica-terminologia:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Genera le pagine, gli asset e i collegamenti
+        run: python3 .github/scripts/pubblica_terminologia/genera.py
+
+      - name: Mostra un riepilogo delle modifiche
+        run: |
+          echo "### File nuovi/modificati" >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | wc -l >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | head -50 >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- 'come-si-scrive-e-come-si-dice*' 'static/js/pronuncia.js' 'static/css/style.css' 'sitemap.xml' 'static/search-index.json' \
+            'index.html' 'about/index.html' 'link-utili/index.html' 'statistiche/index.html' \
+            'privacy-policy/index.html' 'cookie-policy/index.html' 'legislazione-internazionale/index.html' \
+            'cerca/index.html' 'contatti/index.html' 'pubblica/index.html'
+          git diff --cached --quiet || git commit -m "Aggiunge la sezione Come si scrive e come si dice (193 Stati, 94 lingue, IPA + pronuncia facilitata + ascolto per termine)"
+          git push
