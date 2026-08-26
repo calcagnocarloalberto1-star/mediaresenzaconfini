@@ -1,0 +1,46 @@
+name: Uniforma la navigazione delle pagine col template vecchio
+
+# Solo manuale: non deve mai partire da sola.
+# Actions -> "Uniforma la navigazione delle pagine col template vecchio" -> Run workflow.
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (genera senza fare commit/push)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  unifica-nav:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Uniforma il menu di navigazione sulle 19 pagine col template vecchio
+        run: python3 .github/scripts/unifica_nav/unifica-nav-legacy.py .
+
+      - name: Mostra un riepilogo delle modifiche
+        run: |
+          echo "### File modificati" >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | wc -l >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git status --porcelain >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- '*.html'
+          git diff --cached --quiet || git commit -m "Uniforma il menu di navigazione delle pagine col template vecchio a quello del resto del sito"
+          git push
