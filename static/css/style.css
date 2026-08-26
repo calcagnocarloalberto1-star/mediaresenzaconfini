@@ -76,6 +76,9 @@ nav.main-nav form.search-box { margin: 0; display: flex; align-items: center; }
 nav.main-nav form.search-box input { width: 150px; padding: 5px 14px; font-size: 0.82rem; border: 1px solid var(--line); border-radius: 20px; font-family: var(--sans); background: #fff; color: var(--ink); }
 nav.main-nav form.search-box input:focus { border-color: var(--gold-testo); width: 190px; transition: width .2s ease; }
 nav.main-nav form.search-box input::placeholder { color: #9aa2ac; }
+nav.main-nav .nav-counter { font-size: 0.78rem; color: var(--ink-soft); white-space: nowrap; }
+nav.main-nav .nav-counter b { color: var(--ink); font-weight: 600; }
+nav.main-nav .nav-counter-online::before { content: ''; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: #2e9e5b; margin-right: 5px; vertical-align: middle; }
 
 /* Hero */
 .hero { background: linear-gradient(180deg, var(--paper) 0%, var(--paper-alt) 100%); color: var(--ink); padding: 56px 0 64px; border-bottom: 1px solid var(--line); text-align: center; }
@@ -287,6 +290,8 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
   nav.main-nav form.search-box { flex-basis: 100%; order: 3; margin: 8px 0 2px; }
   nav.main-nav form.search-box input { width: 100%; }
   nav.main-nav form.search-box input:focus { width: 100%; }
+  nav.main-nav .nav-counter { flex-basis: 100%; order: 4; margin: 2px 0 0; text-align: center; }
+  nav.main-nav .nav-counter-online { order: 5; }
 }
 
 /* Storia della legislazione per paese — pagine con testo integrale delle leggi storiche */
