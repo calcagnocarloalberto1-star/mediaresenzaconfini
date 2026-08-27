@@ -71,10 +71,15 @@
       }
       var a = new Audio(src);
       audioCorrente = a;
-      a.play().catch(function () {
-        // riproduzione bloccata o file non raggiungibile: fallback alla sintesi vocale
+      var fallbackGiaFatto = false;
+      var vaiAlFallback = function () {
+        if (fallbackGiaFatto) return;
+        fallbackGiaFatto = true;
         fallbackSintesi(btn);
-      });
+      };
+      // errore di rete/decodifica (es. file mancante): non sempre fa fallire la promise di play()
+      a.addEventListener("error", vaiAlFallback);
+      a.play().catch(vaiAlFallback);
     } catch (e) {
       fallbackSintesi(btn);
     }
