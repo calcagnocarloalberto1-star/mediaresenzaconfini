@@ -2,21 +2,27 @@
  * pronuncia.js — ascolto del singolo termine nella sezione "Come si scrive e come si dice".
  *
  * Indipendente da ascolta.js (che non legge il contenuto delle tabelle, per scelta
- * deliberata sulle tabelle giuridiche del resto del sito). Usa la stessa tecnologia
- * di base — la sintesi vocale del browser (Web Speech API), con la voce scelta in
- * base alla lingua — ma applicata parola per parola invece che a un intero articolo:
- * un piccolo pulsante "altoparlante" accanto a ogni traduzione.
+ * deliberata sulle tabelle giuridiche del resto del sito). Due modalità di lettura:
  *
- * Nessuna dipendenza, nessuna richiesta di rete, nessun dato salvato.
+ * 1. Audio pre-registrato (ElevenLabs), quando il pulsante ha l'attributo
+ *    data-pron-audio: viene sempre preferito, perché garantisce una pronuncia
+ *    corretta su ogni dispositivo, indipendentemente dalle voci di sistema
+ *    installate nel browser di chi legge.
+ * 2. Sintesi vocale del browser (Web Speech API), come prima, per i termini che
+ *    non hanno ancora un audio pre-registrato: la voce è scelta in base alla lingua.
+ *
+ * Nessuna dipendenza, nessun dato salvato. L'unica richiesta di rete è, se presente,
+ * il file audio mp3 stesso (stessa origine del sito).
  */
 (function () {
   "use strict";
 
-  if (!("speechSynthesis" in window)) return;
-
+  var sintesiDisponibile = "speechSynthesis" in window;
   var registro = null; // lang (minuscolo) -> SpeechSynthesisVoice migliore disponibile
+  var audioCorrente = null; // <audio> in riproduzione, per poterlo fermare
 
   function costruisciRegistro() {
+    if (!sintesiDisponibile) return null;
     var voci = window.speechSynthesis.getVoices() || [];
     if (!voci.length) return null;
     var reg = {};
@@ -36,6 +42,7 @@
   }
 
   function vocePer(lang) {
+    if (!sintesiDisponibile) return null;
     if (!registro) registro = costruisciRegistro();
     if (!registro) return null;
     var l = (lang || "").toLowerCase();
@@ -46,6 +53,7 @@
   }
 
   function parla(testo, lang, voce) {
+    if (!sintesiDisponibile) return;
     try { window.speechSynthesis.cancel(); } catch (e) {}
     var u = new SpeechSynthesisUtterance(testo);
     u.lang = (voce && voce.lang) || lang || "it-IT";
@@ -55,9 +63,41 @@
     window.speechSynthesis.speak(u);
   }
 
+  function riproduciAudio(src, btn) {
+    try {
+      if (audioCorrente) {
+        audioCorrente.pause();
+        audioCorrente.currentTime = 0;
+      }
+      var a = new Audio(src);
+      audioCorrente = a;
+      a.play().catch(function () {
+        // riproduzione bloccata o file non raggiungibile: fallback alla sintesi vocale
+        fallbackSintesi(btn);
+      });
+    } catch (e) {
+      fallbackSintesi(btn);
+    }
+  }
+
+  function fallbackSintesi(btn) {
+    var testo = btn.getAttribute("data-pron-text") || "";
+    var lang = btn.getAttribute("data-pron-lang") || "";
+    if (!testo) return;
+    var v = vocePer(lang);
+    parla(testo, lang, v);
+  }
+
   function aggiornaPulsanti() {
     var pulsanti = document.querySelectorAll("[data-pron-speak]");
     Array.prototype.forEach.call(pulsanti, function (btn) {
+      var audioSrc = btn.getAttribute("data-pron-audio");
+      if (audioSrc) {
+        // Audio pre-registrato disponibile: il pulsante funziona sempre.
+        btn.classList.remove("pron-speak-fallback");
+        btn.title = "Ascolta la pronuncia";
+        return;
+      }
       var lang = btn.getAttribute("data-pron-lang");
       var v = vocePer(lang);
       if (v) {
@@ -74,23 +114,24 @@
     var btn = ev.target.closest && ev.target.closest("[data-pron-speak]");
     if (!btn) return;
     ev.preventDefault();
-    var testo = btn.getAttribute("data-pron-text") || "";
-    var lang = btn.getAttribute("data-pron-lang") || "";
-    if (!testo) return;
-    var v = vocePer(lang);
-    parla(testo, lang, v);
+    var audioSrc = btn.getAttribute("data-pron-audio");
     btn.classList.add("pron-speak-active");
     window.setTimeout(function () { btn.classList.remove("pron-speak-active"); }, 700);
+    if (audioSrc) {
+      riproduciAudio(audioSrc, btn);
+      return;
+    }
+    fallbackSintesi(btn);
   });
 
-  if (window.speechSynthesis.onvoiceschanged !== undefined) {
+  if (sintesiDisponibile && window.speechSynthesis.onvoiceschanged !== undefined) {
     window.speechSynthesis.onvoiceschanged = function () {
       registro = costruisciRegistro();
       aggiornaPulsanti();
     };
   }
   document.addEventListener("DOMContentLoaded", function () {
-    registro = costruisciRegistro();
+    if (sintesiDisponibile) registro = costruisciRegistro();
     aggiornaPulsanti();
   });
 })();
