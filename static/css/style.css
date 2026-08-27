@@ -1,27 +1,27 @@
 :root {
-  --ink: #22282f;
-  --ink-soft: #5b6470;
-  --navy: #1e2c3d;
-  --navy-deep: #131d29;
-  --gold: #8f7a55;          /* solo decorazione: bordi, filetti */
-  --gold-testo: #846f4c;    /* oro leggibile: testo e sfondi con testo bianco (4,6:1) */
-  --gold-soft: #b9a67e;
-  --paper: #faf9f6;
-  --paper-alt: #f1efe9;
-  --line: #e0dcd2;
-  --serif: "Source Serif 4", Georgia, "Times New Roman", serif;
-  --sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  --maxw: 1120px;
+--ink: #22282f;
+--ink-soft: #5b6470;
+--navy: #1e2c3d;
+--navy-deep: #131d29;
+--gold: #8f7a55; /* solo decorazione: bordi, filetti */
+--gold-testo: #846f4c; /* oro leggibile: testo e sfondi con testo bianco (4,6:1) */
+--gold-soft: #b9a67e;
+--paper: #faf9f6;
+--paper-alt: #f1efe9;
+--line: #e0dcd2;
+--serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+--sans: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+--maxw: 1120px;
 }
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
 body {
-  margin: 0;
-  font-family: var(--sans);
-  color: var(--ink);
-  background: var(--paper);
-  line-height: 1.6;
+margin: 0;
+font-family: var(--sans);
+color: var(--ink);
+background: var(--paper);
+line-height: 1.6;
 }
 img { max-width: 100%; height: auto; }
 a { color: var(--navy); text-decoration: none; }
@@ -33,39 +33,39 @@ a:hover { color: var(--gold-testo); text-decoration: underline; }
 .site-header { background: var(--navy); color: #fff; }
 
 .site-header-photo {
-  position: relative;
-  background-size: cover;
-  background-position: center 42%;
-  background-repeat: no-repeat;
-  border-bottom: 3px solid var(--gold);
-  height: clamp(340px, 58vh, 580px);
+position: relative;
+background-size: cover;
+background-position: center 42%;
+background-repeat: no-repeat;
+border-bottom: 3px solid var(--gold);
+height: clamp(340px, 58vh, 580px);
 }
 .site-header-overlay {
-  width: 100%;
-  position: absolute;
-  left: 0;
-  top: 42%;
-  transform: translateY(-50%);
+width: 100%;
+position: absolute;
+left: 0;
+top: 42%;
+transform: translateY(-50%);
 }
 .site-header-brand {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  text-align: center;
-  padding: 24px;
-  min-width: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+text-align: center;
+padding: 24px;
+min-width: 0;
 }
 .site-header-brand a { text-decoration: none; }
 .brand-name {
-  font-family: var(--serif);
-  font-size: clamp(1.4rem, 7vw, 4.2rem);
-  font-weight: 700;
-  letter-spacing: 0.015em;
-  color: #fff;
-  max-width: 100%;
-  overflow-wrap: break-word;
-  word-break: break-word;
-  text-shadow: 0 2px 10px rgba(0,0,0,0.6), 0 6px 30px rgba(0,0,0,0.5);
+font-family: var(--serif);
+font-size: clamp(1.4rem, 7vw, 4.2rem);
+font-weight: 700;
+letter-spacing: 0.015em;
+color: #fff;
+max-width: 100%;
+overflow-wrap: break-word;
+word-break: break-word;
+text-shadow: 0 2px 10px rgba(0,0,0,0.6), 0 6px 30px rgba(0,0,0,0.5);
 }
 
 nav.main-nav { background: var(--paper-alt); border-bottom: 3px solid var(--gold); }
@@ -124,9 +124,9 @@ article.post .post-meta .tag-pill { background: var(--paper-alt); border: 1px so
 .post-body { max-width: 760px; font-size: 1.05rem; color: #232b3a; }
 .post-body p { margin: 0 0 1.1em; }
 /* Un <p></p> del tutto vuoto (riga vuota lasciata per distanziare due paragrafi) non ha una
-   riga di testo propria: il suo margine si collassa con quello dei paragrafi adiacenti (regola
-   standard CSS) e sparisce alla vista. Questa regola gli dà una riga reale, così la spaziatura
-   voluta resta visibile anche sugli articoli già pubblicati. */
+riga di testo propria: il suo margine si collassa con quello dei paragrafi adiacenti (regola
+standard CSS) e sparisce alla vista. Questa regola gli dà una riga reale, così la spaziatura
+voluta resta visibile anche sugli articoli già pubblicati. */
 .post-body p:empty::before { content: "\00a0"; }
 .post-body h2, .post-body h3 { font-family: var(--serif); margin-top: 1.6em; }
 .post-body .table-wrap { overflow-x: auto; margin: 1.4em 0; }
@@ -279,19 +279,19 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
 .nav-toggle-label { display: none; cursor: pointer; font-size: 1.5rem; line-height: 1; color: var(--ink-soft); padding: 2px 6px; user-select: none; }
 .nav-links { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 18px; }
 @media (max-width: 720px) {
-  nav.main-nav .wrap { justify-content: space-between; padding-top: 10px; padding-bottom: 10px; }
-  /* Sotto i 720px la casella resta invisibile ma RAGGIUNGIBILE da tastiera:
-     con display:none il menu non si sarebbe potuto aprire senza mouse. */
-  .nav-toggle-input { pointer-events: auto; }
-  .nav-toggle-label { display: block; border-radius: 4px; }
-  .nav-toggle-input:focus-visible + .nav-toggle-label { outline: 3px solid var(--gold-testo); outline-offset: 2px; }
-  .nav-links { display: none; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 10px; }
-  .nav-toggle-input:checked ~ .nav-links { display: flex; }
-  nav.main-nav form.search-box { flex-basis: 100%; order: 3; margin: 8px 0 2px; }
-  nav.main-nav form.search-box input { width: 100%; }
-  nav.main-nav form.search-box input:focus { width: 100%; }
-  nav.main-nav .nav-counter { flex-basis: 100%; order: 4; margin: 2px 0 0; text-align: center; }
-  nav.main-nav .nav-counter-online { order: 5; }
+nav.main-nav .wrap { justify-content: space-between; padding-top: 10px; padding-bottom: 10px; }
+/* Sotto i 720px la casella resta invisibile ma RAGGIUNGIBILE da tastiera:
+con display:none il menu non si sarebbe potuto aprire senza mouse. */
+.nav-toggle-input { pointer-events: auto; }
+.nav-toggle-label { display: block; border-radius: 4px; }
+.nav-toggle-input:focus-visible + .nav-toggle-label { outline: 3px solid var(--gold-testo); outline-offset: 2px; }
+.nav-links { display: none; flex-basis: 100%; flex-direction: column; align-items: flex-start; gap: 2px; padding-top: 10px; }
+.nav-toggle-input:checked ~ .nav-links { display: flex; }
+nav.main-nav form.search-box { flex-basis: 100%; order: 3; margin: 8px 0 2px; }
+nav.main-nav form.search-box input { width: 100%; }
+nav.main-nav form.search-box input:focus { width: 100%; }
+nav.main-nav .nav-counter { flex-basis: 100%; order: 4; margin: 2px 0 0; text-align: center; }
+nav.main-nav .nav-counter-online { order: 5; }
 }
 
 /* Storia della legislazione per paese — pagine con testo integrale delle leggi storiche */
@@ -320,6 +320,7 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
 .bill-status { flex: 0 0 auto; display: inline-block; padding: 4px 11px; border-radius: 999px; font-family: var(--sans); font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.04em; white-space: nowrap; }
 .bill-status-pending { background: #f4ecd8; color: var(--gold-testo); border: 1px solid var(--gold-soft); }
 .bill-status-approved { background: #e4ece3; color: #3d6b4a; border: 1px solid #a9c7ae; }
+.bill-status-lapsed { background: #eee; color: #767676; border: 1px solid #ccc; }
 .bill-status-small { font-size: 0.66rem; padding: 3px 9px; margin-left: 6px; }
 .bill-body { flex: 1 1 320px; min-width: 0; }
 .bill-title { font-weight: 600; line-height: 1.4; margin: 0 0 6px; }
@@ -332,71 +333,81 @@ nav.main-nav { position: sticky; top: 0; z-index: 20; }
 .bill-none-detail { color: var(--ink-soft); font-size: 0.88rem; max-width: 780px; }
 .bill-count-none { color: var(--ink-soft); font-weight: 400; font-size: 0.85rem; }
 
+.bill-text-toggle { margin-top: 14px; }
+.bill-text-toggle summary { cursor: pointer; font-weight: 600; font-size: 0.88rem; color: var(--ink); }
+.bill-text-toggle summary:hover { color: var(--gold-testo); }
+.bill-text-block { margin-top: 14px; }
+.bill-text-block .law-block { border-top: 1px solid var(--line); padding-top: 14px; margin-top: 14px; }
+.bill-text-block .law-block:first-of-type { border-top: none; margin-top: 0; padding-top: 0; }
+.bill-text-block .law-block h4 { font-family: var(--serif); font-size: 1.02rem; margin: 0 0 6px; }
+.bill-text-block .law-source { margin: 0 0 14px; }
+.bill-text-block .law-fulltext { font-size: 0.92rem; }
+
 /* Pill degli argomenti nell'intestazione dell'articolo: ora sono link alla pagina della categoria (o del tag). */
 article.post .post-meta a.tag-pill { color: var(--navy); text-decoration: none; }
 article.post .post-meta a.tag-pill:hover { background: var(--navy); border-color: var(--navy); color: #fff; text-decoration: none; }
 
 /* ==========================================================================
-   Accessibilità — 21 agosto 2026
-   Aggiunte in coda perché prevalgano sulle regole precedenti a parità di peso.
-   ========================================================================== */
+Accessibilità — 21 agosto 2026
+Aggiunte in coda perché prevalgano sulle regole precedenti a parità di peso.
+========================================================================== */
 
 /* --- Focus visibile ------------------------------------------------------
-   Prima di questo blocco il sito non mostrava alcun indicatore di focus: chi
-   naviga da tastiera non poteva sapere dove si trovava. :focus-visible non
-   scatta con il mouse, quindi per chi punta e clicca nulla cambia. */
+Prima di questo blocco il sito non mostrava alcun indicatore di focus: chi
+naviga da tastiera non poteva sapere dove si trovava. :focus-visible non
+scatta con il mouse, quindi per chi punta e clicca nulla cambia. */
 :where(a, button, input, select, textarea, summary, [tabindex]):focus-visible {
-  outline: 3px solid var(--gold-testo);
-  outline-offset: 2px;
-  border-radius: 2px;
+outline: 3px solid var(--gold-testo);
+outline-offset: 2px;
+border-radius: 2px;
 }
 /* Sulla sola fascia fotografica scura l'oro non si staccherebbe: lì il
-   contorno è chiaro. La barra di navigazione, che ha fondo chiaro, resta
-   con il contorno dorato. */
+contorno è chiaro. La barra di navigazione, che ha fondo chiaro, resta
+con il contorno dorato. */
 .site-header-photo :where(a, button, input):focus-visible {
-  outline-color: #f4e9d2;
+outline-color: #f4e9d2;
 }
 
 /* --- Link nel corpo del testo --------------------------------------------
-   Nel testo corrente il colore da solo non basta a segnalare un link
-   (WCAG 1.4.1): dentro gli articoli vanno sottolineati. Restano esclusi i
-   menu, le schede, le pillole dei tag e la barra di condivisione, dove la
-   forma stessa dell'elemento dice già che è cliccabile. */
+Nel testo corrente il colore da solo non basta a segnalare un link
+(WCAG 1.4.1): dentro gli articoli vanno sottolineati. Restano esclusi i
+menu, le schede, le pillole dei tag e la barra di condivisione, dove la
+forma stessa dell'elemento dice già che è cliccabile. */
 .post-body a:not(.tag-pill):not(.btn) {
-  text-decoration: underline;
-  text-underline-offset: 2px;
-  text-decoration-thickness: 1px;
+text-decoration: underline;
+text-underline-offset: 2px;
+text-decoration-thickness: 1px;
 }
 .post-body a:not(.tag-pill):not(.btn):hover {
-  text-decoration-thickness: 2px;
+text-decoration-thickness: 2px;
 }
 
 /* --- Giustificazione ereditata da WordPress -------------------------------
-   400 pagine portano `style="text-align:justify;"` scritto dentro il tag,
-   28.812 volte in tutto: retaggio dell'esportazione da WordPress. Toglierlo
-   dal foglio di stile non basta, perche' lo stile in linea vince sempre.
-   Qui lo si neutralizza in un colpo solo, senza toccare le pagine.
-   La giustificazione allarga gli spazi fra le parole in modo irregolare e
-   forma i cosiddetti «fiumi» di bianco: e' una delle cause note di
-   affaticamento nella lettura, in particolare per chi ha dislessia. */
+400 pagine portano `style="text-align:justify;"` scritto dentro il tag,
+28.812 volte in tutto: retaggio dell'esportazione da WordPress. Toglierlo
+dal foglio di stile non basta, perche' lo stile in linea vince sempre.
+Qui lo si neutralizza in un colpo solo, senza toccare le pagine.
+La giustificazione allarga gli spazi fra le parole in modo irregolare e
+forma i cosiddetti «fiumi» di bianco: e' una delle cause note di
+affaticamento nella lettura, in particolare per chi ha dislessia. */
 .post-body [style*="text-align:justify"],
 .law-fulltext [style*="text-align:justify"],
 main [style*="text-align:justify"] {
-  text-align: left !important;
+text-align: left !important;
 }
 
 /* --- Movimento ridotto ---------------------------------------------------
-   Lo scorrimento animato può provocare nausea a chi soffre di disturbi
-   vestibolari. Chi ha chiesto meno movimento al proprio sistema operativo
-   ottiene lo scorrimento immediato. */
+Lo scorrimento animato può provocare nausea a chi soffre di disturbi
+vestibolari. Chi ha chiesto meno movimento al proprio sistema operativo
+ottiene lo scorrimento immediato. */
 @media (prefers-reduced-motion: reduce) {
-  html { scroll-behavior: auto; }
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-    scroll-behavior: auto !important;
-  }
+html { scroll-behavior: auto; }
+*, *::before, *::after {
+animation-duration: 0.01ms !important;
+animation-iteration-count: 1 !important;
+transition-duration: 0.01ms !important;
+scroll-behavior: auto !important;
+}
 }
 
 /* Come si scrive e come si dice (terminologia multilingue per Stato) */
@@ -419,15 +430,15 @@ main [style*="text-align:justify"] {
 .pron-ipa { font-style: italic; color: var(--ink-soft); }
 .pron-cell { display: flex; align-items: baseline; gap: 8px; justify-content: space-between; }
 .pron-speak {
-  flex: 0 0 auto; border: 1px solid var(--line); background: var(--paper);
-  border-radius: 50%; width: 26px; height: 26px; line-height: 24px; text-align: center;
-  cursor: pointer; font-size: 0.85rem; color: var(--navy); padding: 0;
+flex: 0 0 auto; border: 1px solid var(--line); background: var(--paper);
+border-radius: 50%; width: 26px; height: 26px; line-height: 24px; text-align: center;
+cursor: pointer; font-size: 0.85rem; color: var(--navy); padding: 0;
 }
 .pron-speak:hover { background: var(--navy); color: #fff; border-color: var(--navy); }
 .pron-speak-active { background: var(--gold-testo); color: #fff; border-color: var(--gold-testo); }
 .pron-speak-fallback { opacity: 0.4; cursor: help; }
 .pron-speak-fallback:hover { background: var(--paper); color: var(--navy); border-color: var(--line); }
 @media (max-width: 640px) {
-  .pron-cell { flex-direction: row; }
-  .pron-table th, .pron-table td { padding: 6px 8px; font-size: 0.85rem; }
+.pron-cell { flex-direction: row; }
+.pron-table th, .pron-table td { padding: 6px 8px; font-size: 0.85rem; }
 }
