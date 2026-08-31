@@ -352,7 +352,7 @@ Accessibilità — 21 agosto 2026
 Aggiunte in coda perché prevalgano sulle regole precedenti a parità di peso.
 ========================================================================== */
 
-/* --- Focus visibile ------------------------------------------------------
+/* --- Focus visible" ------------------------------------------------------
 Prima di questo blocco il sito non mostrava alcun indicatore di focus: chi
 naviga da tastiera non poteva sapere dove si trovava. :focus-visible non
 scatta con il mouse, quindi per chi punta e clicca nulla cambia. */
@@ -380,20 +380,6 @@ text-decoration-thickness: 1px;
 }
 .post-body a:not(.tag-pill):not(.btn):hover {
 text-decoration-thickness: 2px;
-}
-
-/* --- Giustificazione ereditata da WordPress -------------------------------
-400 pagine portano `style="text-align:justify;"` scritto dentro il tag,
-28.812 volte in tutto: retaggio dell'esportazione da WordPress. Toglierlo
-dal foglio di stile non basta, perche' lo stile in linea vince sempre.
-Qui lo si neutralizza in un colpo solo, senza toccare le pagine.
-La giustificazione allarga gli spazi fra le parole in modo irregolare e
-forma i cosiddetti «fiumi» di bianco: e' una delle cause note di
-affaticamento nella lettura, in particolare per chi ha dislessia. */
-.post-body [style*="text-align:justify"],
-.law-fulltext [style*="text-align:justify"],
-main [style*="text-align:justify"] {
-text-align: left !important;
 }
 
 /* --- Movimento ridotto ---------------------------------------------------
