@@ -1,0 +1,29 @@
+name: Genera indice articoli per la paginazione in home
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "20*/**"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  genera-indice:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Genera static/articles.json
+        run: python3 .github/scripts/genera_indice_articoli/genera-indice-articoli.py
+
+      - name: Commit e push se cambiato
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add static/articles.json
+          git diff --cached --quiet || git commit -m "Aggiorna l'indice degli articoli per la paginazione in home (automatico)"
+          git push
