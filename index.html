@@ -71,6 +71,7 @@
 </nav>
 </header>
 <script src="/static/js/nav-counter.js" defer></script>
+<script src="/static/js/latest-articles.js" defer></script>
 
 <div class="hero">
 <div class="wrap">
@@ -87,9 +88,14 @@
 
 <main class="wrap">
 
-<section class="section">
+<section class="section" id="ultimi-articoli">
 <h2>Ultimi articoli</h2>
-<div class="card-grid">
+<nav class="latest-nav latest-nav-top" aria-label="Sfoglia gli articoli" hidden>
+<button type="button" class="latest-nav-prev" aria-label="Articoli piu recenti" disabled>&larr; Piu recenti</button>
+<span class="latest-nav-page"></span>
+<button type="button" class="latest-nav-next" aria-label="Articoli meno recenti">Meno recenti &rarr;</button>
+</nav>
+<div class="card-grid" id="latest-grid">
 <div class="card">
 <div class="eyebrow">Mediazione</div>
 <h3><a href="/2026/09/03/perche-conoscere-la-mediazione/">Perché conoscere la mediazione?</a></h3>
@@ -132,6 +138,11 @@
 <p>Il dossier che chiude la serie. Nel 1882 a Napoli il conciliatore chiudeva ottantadue cause su cento; oggi in Italia quasi metà degli invitati non si presenta al primo incontro, ma quando le parti proseguono l'accordo arriva nel 53,1 per cento dei casi. La storia, il diritto vigente dopo il correttivo del 2025, i numeri veri, e un capitolo di sintesi che mette a confronto l'Italia con i ventotto paesi della serie, leva per leva.</p>
 </div>
 </div>
+<nav class="latest-nav latest-nav-bottom" aria-label="Sfoglia gli articoli" hidden>
+<button type="button" class="latest-nav-prev" aria-label="Articoli piu recenti" disabled>&larr; Piu recenti</button>
+<span class="latest-nav-page"></span>
+<button type="button" class="latest-nav-next" aria-label="Articoli meno recenti">Meno recenti &rarr;</button>
+</nav>
 </section>
 
 <section class="section">
