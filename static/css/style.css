@@ -439,3 +439,15 @@ cursor: pointer; font-size: 0.85rem; color: var(--navy); padding: 0;
 @media (max-width: 640px) {
 .post-nav-prev, .post-nav-next { white-space: normal; }
 }
+
+/* Paginazione della sezione "Ultimi articoli" in home */
+.latest-nav { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; }
+.latest-nav-top { margin: 0 0 20px; }
+.latest-nav-bottom { margin: 28px 0 0; padding-top: 20px; border-top: 1px solid var(--line); }
+.latest-nav-prev, .latest-nav-next { flex: 0 0 auto; background: none; border: 1px solid var(--line); border-radius: 6px; padding: 6px 12px; font: inherit; color: var(--navy); cursor: pointer; }
+.latest-nav-prev:hover:not(:disabled), .latest-nav-next:hover:not(:disabled) { background: var(--line); }
+.latest-nav-prev:disabled, .latest-nav-next:disabled { opacity: 0.35; cursor: default; }
+.latest-nav-page { flex: 1 1 auto; text-align: center; color: var(--ink-soft); }
+@media (max-width: 640px) {
+.latest-nav-page { display: none; }
+}
