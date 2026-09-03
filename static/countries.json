@@ -1,5 +1,81 @@
 {
-  "generated_at": null,
-  "count": 0,
-  "countries": []
+  "generated_at": "2026-09-03T23:06:33Z",
+  "count": 15,
+  "countries": [
+    {
+      "id": "IT",
+      "name": "Italy",
+      "count": 499
+    },
+    {
+      "id": "US",
+      "name": "United States",
+      "count": 47
+    },
+    {
+      "id": "FR",
+      "name": "France",
+      "count": 9
+    },
+    {
+      "id": "MA",
+      "name": "Morocco",
+      "count": 5
+    },
+    {
+      "id": "IE",
+      "name": "Ireland",
+      "count": 4
+    },
+    {
+      "id": "CA",
+      "name": "Canada",
+      "count": 3
+    },
+    {
+      "id": "DE",
+      "name": "Germany",
+      "count": 3
+    },
+    {
+      "id": "GB",
+      "name": "United Kingdom",
+      "count": 2
+    },
+    {
+      "id": "CH",
+      "name": "Switzerland",
+      "count": 1
+    },
+    {
+      "id": "ES",
+      "name": "Spain",
+      "count": 1
+    },
+    {
+      "id": "HR",
+      "name": "Croatia",
+      "count": 1
+    },
+    {
+      "id": "HU",
+      "name": "Hungary",
+      "count": 1
+    },
+    {
+      "id": "ME",
+      "name": "Montenegro",
+      "count": 1
+    },
+    {
+      "id": "SE",
+      "name": "Sweden",
+      "count": 1
+    },
+    {
+      "id": "TN",
+      "name": "Tunisia",
+      "count": 1
+    }
+  ]
 }
