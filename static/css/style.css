@@ -428,3 +428,14 @@ cursor: pointer; font-size: 0.85rem; color: var(--navy); padding: 0;
 .pron-cell { flex-direction: row; }
 .pron-table th, .pron-table td { padding: 6px 8px; font-size: 0.85rem; }
 }
+
+/* Navigazione tra articoli (frecce avanti/indietro + home) */
+.post-nav { max-width: 760px; display: flex; align-items: center; justify-content: space-between; gap: 12px; font-size: 0.85rem; }
+.post-nav-top { margin: 0 0 24px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+.post-nav-bottom { margin: 40px 0 0; padding-top: 20px; border-top: 1px solid var(--line); }
+.post-nav-prev, .post-nav-next, .post-nav-empty { flex: 1 1 0; min-width: 0; color: var(--ink-soft); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.post-nav-next { text-align: right; }
+.post-nav-home { flex: 0 0 auto; font-weight: 600; padding: 0 8px; color: var(--navy); }
+@media (max-width: 640px) {
+.post-nav-prev, .post-nav-next { white-space: normal; }
+}
