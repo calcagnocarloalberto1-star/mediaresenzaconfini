@@ -1,0 +1,1404 @@
+{
+  "package": "AGGIORNAMENTO_SITO_MEDIARESENZACONFINI_080926",
+  "package_date": "2026-09-08",
+  "branch": "aggiornamento-legislazione-080926",
+  "publication": {
+    "pushed": false,
+    "published": false
+  },
+  "summary": {
+    "operations_total": 111,
+    "operations_accounted_for": 111,
+    "main_operations": 20,
+    "verification_field_operations": 91,
+    "real_verification_dates_added": 1,
+    "verification_fields_without_invented_date": 90,
+    "new_project_pages": 4,
+    "new_current_text_context_or_liaison_pages": 4,
+    "site_problems_covered": 10
+  },
+  "supplemental_changes": [
+    {
+      "topic": "badge_AGGIORNATO",
+      "status": "completed",
+      "details": "Regola resa esplicita negli indici; Botswana riclassificato APPROVATO — EFFICACIA DA VERIFICARE e rimosso dal conteggio visivo AGGIORNATO."
+    },
+    {
+      "topic": "project_index_order",
+      "status": "completed",
+      "details": "201 link univoci in un’unica sequenza alfabetica; Unione europea alla U e ONU alla O."
+    },
+    {
+      "topic": "OHADA",
+      "status": "completed",
+      "details": "Burkina Faso e Repubblica del Congo qualificati come Stati parte; Madagascar escluso."
+    },
+    {
+      "topic": "Estonia_Ghana",
+      "status": "completed_no_substantive_change",
+      "details": "Controlli eseguiti senza introdurre false modifiche sostanziali."
+    },
+    {
+      "topic": "sitemap",
+      "status": "completed",
+      "details": "Aggiunte 8 nuove URL alla sitemap statica."
+    },
+    {
+      "topic": "feed",
+      "status": "not_changed_by_design",
+      "details": "Il feed RSS contiene articoli editoriali, non pagine statiche; nessuna voce aggiunta."
+    },
+    {
+      "topic": "manifest",
+      "status": "not_present",
+      "details": "Il repository non contiene un manifest da aggiornare."
+    }
+  ],
+  "qa": {
+    "git_diff_check": "passed",
+    "html_files_checked": 107,
+    "html_parse": "passed",
+    "single_h1": "passed",
+    "internal_links_on_touched_pages": "passed",
+    "sitemap_and_feed_xml_parse": "passed",
+    "placeholder_todo_check": "passed_no_editorial_markers",
+    "project_index_links": 201,
+    "project_index_unique_links": 201,
+    "project_index_alphabetical": true,
+    "current_text_index_links": 201,
+    "current_text_index_unique_links": 201,
+    "new_sitemap_urls": 8,
+    "sitemap_duplicate_urls": 0,
+    "visual_browser_preview": "not_available_in_cloud_browser_for_localhost; structural and parser QA completed"
+  },
+  "operations": [
+    {
+      "id": "MRC-001",
+      "slug": "legislazione-internazionale",
+      "action": "modificare_cappello_e_nota_perimetro",
+      "priority": "bloccante",
+      "status": "completed",
+      "files": [
+        "legislazione-internazionale/index.html"
+      ],
+      "publication_gate": "Revisione editoriale prima della pubblicazione",
+      "implementation_note": "Operazione applicata nel file indicato, preservando struttura e stile esistenti."
+    },
+    {
+      "id": "MRC-002",
+      "slug": "testi-in-vigore",
+      "action": "modificare_cappello_e_indice",
+      "priority": "bloccante",
+      "status": "completed",
+      "files": [
+        "testi-in-vigore/index.html"
+      ],
+      "publication_gate": "Revisione editoriale prima della pubblicazione",
+      "implementation_note": "Operazione applicata nel file indicato, preservando struttura e stile esistenti."
+    },
+    {
+      "id": "MRC-003",
+      "slug": "progetti-di-legge-in-itinere",
+      "action": "modificare_cappello_ordinare_alfabeticamente_aggiungere_4_voci",
+      "priority": "bloccante",
+      "status": "completed",
+      "files": [
+        "progetti-di-legge-in-itinere/index.html"
+      ],
+      "publication_gate": "Revisione editoriale prima della pubblicazione",
+      "implementation_note": "Operazione applicata nel file indicato, preservando struttura e stile esistenti."
+    },
+    {
+      "id": "MRC-004",
+      "slug": "storia-della-legislazione-per-paese",
+      "action": "modificare_cappello_e_rinvii",
+      "priority": "alta",
+      "status": "completed",
+      "files": [
+        "storia-della-legislazione-per-paese/index.html"
+      ],
+      "publication_gate": "Revisione editoriale prima della pubblicazione",
+      "implementation_note": "Operazione applicata nel file indicato, preservando struttura e stile esistenti."
+    },
+    {
+      "id": "MRC-005",
+      "slug": "progetti-di-legge-in-itinere-vaticano",
+      "action": "creare",
+      "priority": "alta",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "progetti-di-legge-in-itinere-vaticano/index.html"
+      ],
+      "publication_gate": "Verifica su fonti istituzionali e inserimento di una data reale; non pubblicare con data simulata",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-006",
+      "slug": "progetti-di-legge-in-itinere-libia",
+      "action": "creare",
+      "priority": "alta",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "progetti-di-legge-in-itinere-libia/index.html"
+      ],
+      "publication_gate": "Verifica su fonti istituzionali e inserimento di una data reale; non pubblicare con data simulata",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-007",
+      "slug": "progetti-di-legge-in-itinere-siria",
+      "action": "creare",
+      "priority": "alta",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "progetti-di-legge-in-itinere-siria/index.html"
+      ],
+      "publication_gate": "Verifica su fonti istituzionali e inserimento di una data reale; non pubblicare con data simulata",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-008",
+      "slug": "progetti-di-legge-in-itinere-yemen",
+      "action": "creare",
+      "priority": "alta",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "progetti-di-legge-in-itinere-yemen/index.html"
+      ],
+      "publication_gate": "Verifica su fonti istituzionali e inserimento di una data reale; non pubblicare con data simulata",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-009",
+      "slug": "testi-in-vigore-palestina",
+      "action": "creare",
+      "priority": "bloccante",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "testi-in-vigore-palestina/index.html"
+      ],
+      "publication_gate": "Verificare fonte, statuto, lingua e data; la pagina pronta è deliberatamente una scheda di perimetro",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-010",
+      "slug": "testi-in-vigore-tagikistan",
+      "action": "creare",
+      "priority": "bloccante",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "testi-in-vigore-tagikistan/index.html"
+      ],
+      "publication_gate": "Verificare fonte, statuto, lingua e data; la pagina pronta è deliberatamente una scheda di perimetro",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-011",
+      "slug": "testi-in-vigore-unione-europea",
+      "action": "creare",
+      "priority": "bloccante",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "testi-in-vigore-unione-europea/index.html"
+      ],
+      "publication_gate": "Verificare fonte, statuto, lingua e data; la pagina pronta è deliberatamente una scheda di perimetro",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-012",
+      "slug": "testi-in-vigore-onu",
+      "action": "creare",
+      "priority": "bloccante",
+      "status": "completed_draft_pending_publication_verification",
+      "files": [
+        "testi-in-vigore-onu/index.html"
+      ],
+      "publication_gate": "Verificare fonte, statuto, lingua e data; la pagina pronta è deliberatamente una scheda di perimetro",
+      "implementation_note": "Pagina creata con il testo pronto, data non simulata e gate editoriale esplicito; nessuna pubblicazione eseguita."
+    },
+    {
+      "id": "MRC-013",
+      "slug": "testi-in-vigore-belize",
+      "action": "modificare_atto_stato_fonte_nota_e_data",
+      "priority": "bloccante",
+      "status": "completed",
+      "files": [
+        "testi-in-vigore-belize/index.html"
+      ],
+      "publication_gate": "Revisione editoriale prima della pubblicazione",
+      "implementation_note": "Operazione applicata nel file indicato, preservando struttura e stile esistenti."
+    },
+    {
+      "id": "MRC-014",
+      "slug": "testi-in-vigore-san-marino",
+      "action": "modificare_avvertenza_verifica_senza_inventare_data",
+      "priority": "bloccante",
+      "status": "completed_pending_primary_source_verification",
+      "files": [
+        "testi-in-vigore-san-marino/index.html"
+      ],
+      "publication_gate": "Nuova verifica su fonte ufficiale; nessuna data o conferma di vigenza può essere simulata",
+      "implementation_note": "Testo editoriale applicato; la data resta espressamente da verificare e non è stato applicato AGGIORNATO."
+    },
+    {
+      "id": "MRC-015",
+      "slug": "testi-in-vigore-burkina-faso",
+      "action": "modificare_metadato_aggregato_e_uniformare_nota_ohada",
+      "priority": "alta",
+      "status": "completed_pending_primary_source_verification",
+      "files": [
+        "testi-in-vigore-burkina-faso/index.html"
+      ],
+      "publication_gate": "Verificare la data della scheda; non duplicare il richiamo all’Acte uniforme se è già presente nel corpo",
+      "implementation_note": "Testo editoriale applicato; la data resta espressamente da verificare e non è stato applicato AGGIORNATO."
+    },
+    {
+      "id": "MRC-016",
+      "slug": "testi-in-vigore-congo",
+      "action": "modificare_metadato_aggregato_e_uniformare_nota_ohada",
+      "priority": "alta",
+      "status": "completed_pending_primary_source_verification",
+      "files": [
+        "testi-in-vigore-congo/index.html"
+      ],
+      "publication_gate": "Verificare la data della scheda; non duplicare il richiamo all’Acte uniforme se è già presente nel corpo",
+      "implementation_note": "Testo editoriale applicato; la data resta espressamente da verificare e non è stato applicato AGGIORNATO."
+    },
+    {
+      "id": "MRC-017",
+      "slug": "testi-in-vigore-madagascar",
+      "action": "rimuovere_da_aggregato_ohada_e_preservare_solo_fonti_nazionali_verificate",
+      "priority": "bloccante",
+      "status": "completed_pending_primary_source_verification",
+      "files": [
+        "testi-in-vigore-madagascar/index.html"
+      ],
+      "publication_gate": "Controllare indice, badge, tassonomia e corpo pagina; se il corpo già non contiene OHADA, modificare soltanto aggregato/tassonomia",
+      "implementation_note": "Testo editoriale applicato; la data resta espressamente da verificare e non è stato applicato AGGIORNATO."
+    },
+    {
+      "id": "MRC-018",
+      "slug": "testi-in-vigore-estonia",
+      "action": "nessuna_modifica_sostanziale_immediata",
+      "priority": "media",
+      "status": "completed_no_substantive_change",
+      "files": [],
+      "publication_gate": "Nessuna pubblicazione se il controllo del collegamento non è stato eseguito",
+      "implementation_note": "Confermato il link alla versione consolidata 2022 e mantenuta la qualifica di estratto; file non modificato."
+    },
+    {
+      "id": "MRC-019",
+      "slug": "testi-in-vigore-ghana",
+      "action": "nessuna_modifica_sostanziale_immediata",
+      "priority": "media",
+      "status": "completed_no_substantive_change",
+      "files": [],
+      "publication_gate": "Revisione editoriale prima della pubblicazione",
+      "implementation_note": "Confermata la natura di estratto e l’avvertenza sulla sezione 80; file non modificato."
+    },
+    {
+      "id": "MRC-020",
+      "slug": "testi-in-vigore-israele",
+      "action": "verificare_prima_di_modificare_stato_e_consolidamento",
+      "priority": "alta",
+      "status": "completed_with_provisional_qualification_pending_verification",
+      "files": [
+        "testi-in-vigore-israele/index.html"
+      ],
+      "publication_gate": "Non sostituire “in vigore” con “incerto” sulla sola base della differenza editoriale; verificare fonte e consolidamento",
+      "implementation_note": "Aggiunta avvertenza su consolidamento ed emendamento 103/2024 senza mutare automaticamente lo stato di vigenza."
+    },
+    {
+      "id": "MRC-021",
+      "slug": "testi-in-vigore-afghanistan",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-afghanistan/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-022",
+      "slug": "testi-in-vigore-algeria",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-algeria/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-023",
+      "slug": "testi-in-vigore-andorra",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-andorra/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-024",
+      "slug": "testi-in-vigore-antigua-e-barbuda",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-antigua-e-barbuda/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-025",
+      "slug": "testi-in-vigore-bahrain",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-bahrain/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-026",
+      "slug": "testi-in-vigore-barbados",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-barbados/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-027",
+      "slug": "testi-in-vigore-belize",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verified_date_recorded",
+      "files": [
+        "testi-in-vigore-belize/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Registrata la data reale disponibile nel pacchetto: 8 settembre 2026."
+    },
+    {
+      "id": "MRC-028",
+      "slug": "testi-in-vigore-benin",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-benin/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-029",
+      "slug": "testi-in-vigore-bosnia-ed-erzegovina",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-bosnia-ed-erzegovina/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-030",
+      "slug": "testi-in-vigore-burkina-faso",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-burkina-faso/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-031",
+      "slug": "testi-in-vigore-camerun",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-camerun/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-032",
+      "slug": "testi-in-vigore-capo-verde",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-capo-verde/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-033",
+      "slug": "testi-in-vigore-ciad",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-ciad/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-034",
+      "slug": "testi-in-vigore-cina",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-cina/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-035",
+      "slug": "testi-in-vigore-comore",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-comore/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-036",
+      "slug": "testi-in-vigore-corea-del-nord",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-corea-del-nord/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-037",
+      "slug": "testi-in-vigore-corea-del-sud",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-corea-del-sud/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-038",
+      "slug": "testi-in-vigore-costa-d-avorio",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-costa-d-avorio/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-039",
+      "slug": "testi-in-vigore-dominica",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-dominica/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-040",
+      "slug": "testi-in-vigore-el-salvador",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-el-salvador/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-041",
+      "slug": "testi-in-vigore-eritrea",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-eritrea/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-042",
+      "slug": "testi-in-vigore-eswatini",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-eswatini/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-043",
+      "slug": "testi-in-vigore-etiopia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-etiopia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-044",
+      "slug": "testi-in-vigore-gabon",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-gabon/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-045",
+      "slug": "testi-in-vigore-gambia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-gambia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-046",
+      "slug": "testi-in-vigore-georgia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-georgia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-047",
+      "slug": "testi-in-vigore-germania",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-germania/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-048",
+      "slug": "testi-in-vigore-giappone",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-giappone/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-049",
+      "slug": "testi-in-vigore-gibuti",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-gibuti/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-050",
+      "slug": "testi-in-vigore-grenada",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-grenada/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-051",
+      "slug": "testi-in-vigore-guinea",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-guinea/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-052",
+      "slug": "testi-in-vigore-guinea-equatoriale",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-guinea-equatoriale/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-053",
+      "slug": "testi-in-vigore-guinea-bissau",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-guinea-bissau/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-054",
+      "slug": "testi-in-vigore-guyana",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-guyana/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-055",
+      "slug": "testi-in-vigore-honduras",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-honduras/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-056",
+      "slug": "testi-in-vigore-islanda",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-islanda/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-057",
+      "slug": "testi-in-vigore-isole-marshall",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-isole-marshall/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-058",
+      "slug": "testi-in-vigore-isole-salomone",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-isole-salomone/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-059",
+      "slug": "testi-in-vigore-israele",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-israele/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-060",
+      "slug": "testi-in-vigore-kirghizistan",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-kirghizistan/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-061",
+      "slug": "testi-in-vigore-kiribati",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-kiribati/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-062",
+      "slug": "testi-in-vigore-kuwait",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-kuwait/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-063",
+      "slug": "testi-in-vigore-laos",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-laos/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-064",
+      "slug": "testi-in-vigore-libia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-libia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-065",
+      "slug": "testi-in-vigore-macedonia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-macedonia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-066",
+      "slug": "testi-in-vigore-maldive",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-maldive/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-067",
+      "slug": "testi-in-vigore-mali",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-mali/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-068",
+      "slug": "testi-in-vigore-mauritania",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-mauritania/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-069",
+      "slug": "testi-in-vigore-messico",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-messico/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-070",
+      "slug": "testi-in-vigore-moldova",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-moldova/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-071",
+      "slug": "testi-in-vigore-monaco",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-monaco/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-072",
+      "slug": "testi-in-vigore-mozambico",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-mozambico/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-073",
+      "slug": "testi-in-vigore-myanmar",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-myanmar/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-074",
+      "slug": "testi-in-vigore-nauru",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-nauru/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-075",
+      "slug": "testi-in-vigore-nicaragua",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-nicaragua/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-076",
+      "slug": "testi-in-vigore-niger",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-niger/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-077",
+      "slug": "testi-in-vigore-norvegia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-norvegia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-078",
+      "slug": "testi-in-vigore-oman",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-oman/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-079",
+      "slug": "testi-in-vigore-pakistan",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-pakistan/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-080",
+      "slug": "testi-in-vigore-palau",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-palau/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-081",
+      "slug": "testi-in-vigore-panama",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-panama/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-082",
+      "slug": "testi-in-vigore-papua-nuova-guinea",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-papua-nuova-guinea/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-083",
+      "slug": "testi-in-vigore-paraguay",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-paraguay/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-084",
+      "slug": "testi-in-vigore-regno-unito",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-regno-unito/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-085",
+      "slug": "testi-in-vigore-repubblica-centrafricana",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-repubblica-centrafricana/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-086",
+      "slug": "testi-in-vigore-repubblica-dominicana",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-repubblica-dominicana/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-087",
+      "slug": "testi-in-vigore-congo",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-congo/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-088",
+      "slug": "testi-in-vigore-saint-kitts-e-nevis",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-saint-kitts-e-nevis/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-089",
+      "slug": "testi-in-vigore-saint-vincent-e-grenadine",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-saint-vincent-e-grenadine/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-090",
+      "slug": "testi-in-vigore-samoa",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-samoa/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-091",
+      "slug": "testi-in-vigore-saint-lucia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-saint-lucia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-092",
+      "slug": "testi-in-vigore-sierra-leone",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-sierra-leone/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-093",
+      "slug": "testi-in-vigore-somalia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-somalia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-094",
+      "slug": "testi-in-vigore-micronesia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-micronesia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-095",
+      "slug": "testi-in-vigore-stati-uniti",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-stati-uniti/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-096",
+      "slug": "testi-in-vigore-sud-sudan",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-sud-sudan/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-097",
+      "slug": "testi-in-vigore-suriname",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-suriname/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-098",
+      "slug": "testi-in-vigore-tanzania",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-tanzania/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-099",
+      "slug": "testi-in-vigore-timor-est",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-timor-est/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-100",
+      "slug": "testi-in-vigore-togo",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-togo/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-101",
+      "slug": "testi-in-vigore-tonga",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-tonga/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-102",
+      "slug": "testi-in-vigore-trinidad-e-tobago",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-trinidad-e-tobago/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-103",
+      "slug": "testi-in-vigore-tunisia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-tunisia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-104",
+      "slug": "testi-in-vigore-turchia",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-turchia/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-105",
+      "slug": "testi-in-vigore-turkmenistan",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-turkmenistan/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-106",
+      "slug": "testi-in-vigore-tuvalu",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-tuvalu/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-107",
+      "slug": "testi-in-vigore-uganda",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-uganda/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-108",
+      "slug": "testi-in-vigore-uruguay",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-uruguay/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-109",
+      "slug": "testi-in-vigore-vanuatu",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-vanuatu/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-110",
+      "slug": "testi-in-vigore-venezuela",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-venezuela/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    },
+    {
+      "id": "MRC-111",
+      "slug": "testi-in-vigore-yemen",
+      "action": "aggiungere_campo_data_dopo_verifica",
+      "priority": "alta",
+      "status": "completed_verification_field_added_without_invented_date",
+      "files": [
+        "testi-in-vigore-yemen/index.html"
+      ],
+      "publication_gate": "La pagina non può essere marcata AGGIORNATO finché registro, fonte e data reale non sono compilati",
+      "implementation_note": "Aggiunto il campo “Data di verifica: da verificare”; nessuna delle 90 date non disponibili è stata inventata."
+    }
+  ]
+}
