@@ -1,0 +1,53 @@
+name: Aggiungi i commenti (giscus) agli articoli del blog
+
+# Solo manuale: non deve mai partire da sola.
+# Actions -> "Aggiungi i commenti (giscus) agli articoli del blog" -> Run workflow.
+#
+# Prerequisiti da completare UNA VOLTA prima di eseguire con solo_prova=false:
+# 1. App giscus installata sulla repository: https://github.com/apps/giscus
+# 2. GitHub Discussions attivo (Settings -> General -> Features -> Discussions)
+# 3. data-repo-id e data-category-id compilati in
+#    .github/scripts/aggiungi_commenti_giscus/aggiungi-commenti-giscus.py
+#    (valori generati su https://giscus.app dopo il punto 1)
+on:
+  workflow_dispatch:
+    inputs:
+      solo_prova:
+        description: 'Solo prova (genera senza fare commit/push)'
+        type: boolean
+        default: true
+
+permissions:
+  contents: write
+
+jobs:
+  aggiungi-commenti:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Prepara Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Aggiunge il box commenti a tutti gli articoli del blog
+        run: python3 .github/scripts/aggiungi_commenti_giscus/aggiungi-commenti-giscus.py
+
+      - name: Mostra un riepilogo delle modifiche
+        run: |
+          echo "### File modificati" >> $GITHUB_STEP_SUMMARY
+          git status --porcelain | wc -l >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          git status --porcelain >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+      - name: Commit e push se cambiato
+        if: ${{ inputs.solo_prova == false }}
+        run: |
+          git config user.name "mediaresenzaconfini-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -A -- '*.html'
+          git diff --cached --quiet || git commit -m "Aggiunge il box commenti (giscus) a tutti gli articoli del blog"
+          git push
