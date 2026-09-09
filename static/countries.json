@@ -1,16 +1,21 @@
 {
-  "generated_at": "2026-09-08T08:53:01Z",
-  "count": 15,
+  "generated_at": "2026-09-09T08:58:43Z",
+  "count": 18,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 529
+      "count": 539
     },
     {
       "id": "US",
       "name": "United States",
-      "count": 50
+      "count": 51
+    },
+    {
+      "id": "BD",
+      "name": "Bangladesh",
+      "count": 23
     },
     {
       "id": "FR",
@@ -63,8 +68,18 @@
       "count": 1
     },
     {
+      "id": "KZ",
+      "name": "Kazakhstan",
+      "count": 1
+    },
+    {
       "id": "ME",
       "name": "Montenegro",
+      "count": 1
+    },
+    {
+      "id": "RO",
+      "name": "Romania",
       "count": 1
     },
     {
