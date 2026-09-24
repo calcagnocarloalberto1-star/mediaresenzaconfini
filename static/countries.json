@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-09-23T09:19:35Z",
-  "count": 19,
+  "generated_at": "2026-09-24T09:19:36Z",
+  "count": 20,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 647
+      "count": 658
     },
     {
       "id": "US",
@@ -80,6 +80,11 @@
     {
       "id": "ME",
       "name": "Montenegro",
+      "count": 1
+    },
+    {
+      "id": "PL",
+      "name": "Poland",
       "count": 1
     },
     {
