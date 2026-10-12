@@ -1,6 +1,6 @@
 {
-  "generated_at": "2026-10-11T10:50:17Z",
-  "count": 21,
+  "generated_at": "2026-10-12T12:00:58Z",
+  "count": 22,
   "countries": [
     {
       "id": "IT",
@@ -10,7 +10,7 @@
     {
       "id": "US",
       "name": "United States",
-      "count": 60
+      "count": 61
     },
     {
       "id": "BD",
@@ -41,6 +41,11 @@
       "id": "DE",
       "name": "Germany",
       "count": 3
+    },
+    {
+      "id": "BR",
+      "name": "Brazil",
+      "count": 2
     },
     {
       "id": "ES",
