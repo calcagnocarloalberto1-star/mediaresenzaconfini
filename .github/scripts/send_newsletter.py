@@ -15,6 +15,7 @@ tracking con il nuovo guid.
 import json
 import os
 import sys
+import urllib.error
 import urllib.request
 import xml.etree.ElementTree as ET
 
@@ -65,8 +66,12 @@ def send_email(api_key, subject, body):
             "Content-Type": "application/json",
         },
     )
-    with urllib.request.urlopen(req, timeout=30) as resp:
-        return json.load(resp)
+    try:
+        with urllib.request.urlopen(req, timeout=30) as resp:
+            return json.load(resp)
+    except urllib.error.HTTPError as e:
+        print("Errore Buttondown HTTP %s: %s" % (e.code, e.read().decode("utf-8", "replace")[:1000]))
+        raise
 
 
 def main():
