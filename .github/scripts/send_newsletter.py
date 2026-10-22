@@ -55,7 +55,7 @@ def send_email(api_key, subject, body):
     payload = json.dumps({
         "subject": subject,
         "body": body,
-        "status": "sent",
+        "status": "about_to_send",
     }).encode("utf-8")
     req = urllib.request.Request(
         API_URL,
