@@ -64,6 +64,7 @@ def send_email(api_key, subject, body):
         headers={
             "Authorization": "Token " + api_key,
             "Content-Type": "application/json",
+            "X-Buttondown-Live-Dangerously": "true",
         },
     )
     try:
