@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-10-22T09:25:37Z",
+  "generated_at": "2026-10-23T09:21:41Z",
   "count": 22,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 754
+      "count": 768
     },
     {
       "id": "US",
       "name": "United States",
-      "count": 65
+      "count": 67
     },
     {
       "id": "BD",
@@ -40,6 +40,11 @@
     {
       "id": "DE",
       "name": "Germany",
+      "count": 3
+    },
+    {
+      "id": "SE",
+      "name": "Sweden",
       "count": 3
     },
     {
@@ -100,11 +105,6 @@
     {
       "id": "RO",
       "name": "Romania",
-      "count": 1
-    },
-    {
-      "id": "SE",
-      "name": "Sweden",
       "count": 1
     },
     {
