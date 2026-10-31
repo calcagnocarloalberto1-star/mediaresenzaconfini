@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-30T10:52:40Z",
+  "generated_at": "2026-10-31T10:24:21Z",
   "count": 22,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 804
+      "count": 808
     },
     {
       "id": "US",
@@ -38,6 +38,11 @@
       "count": 4
     },
     {
+      "id": "BB",
+      "name": "Barbados",
+      "count": 3
+    },
+    {
       "id": "CA",
       "name": "Canada",
       "count": 3
@@ -61,11 +66,6 @@
       "id": "GB",
       "name": "United Kingdom",
       "count": 2
-    },
-    {
-      "id": "BB",
-      "name": "Barbados",
-      "count": 1
     },
     {
       "id": "CH",
