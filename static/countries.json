@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-10-31T10:24:21Z",
-  "count": 22,
+  "generated_at": "2026-11-03T11:56:51Z",
+  "count": 23,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 808
+      "count": 817
     },
     {
       "id": "US",
@@ -28,19 +28,24 @@
       "count": 6
     },
     {
+      "id": "BB",
+      "name": "Barbados",
+      "count": 5
+    },
+    {
       "id": "MA",
       "name": "Morocco",
       "count": 5
     },
     {
-      "id": "IE",
-      "name": "Ireland",
+      "id": "ES",
+      "name": "Spain",
       "count": 4
     },
     {
-      "id": "BB",
-      "name": "Barbados",
-      "count": 3
+      "id": "IE",
+      "name": "Ireland",
+      "count": 4
     },
     {
       "id": "CA",
@@ -55,11 +60,6 @@
     {
       "id": "BR",
       "name": "Brazil",
-      "count": 2
-    },
-    {
-      "id": "ES",
-      "name": "Spain",
       "count": 2
     },
     {
@@ -110,6 +110,11 @@
     {
       "id": "TN",
       "name": "Tunisia",
+      "count": 1
+    },
+    {
+      "id": "ZM",
+      "name": "Zambia",
       "count": 1
     }
   ]
