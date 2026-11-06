@@ -1,16 +1,16 @@
 {
-  "generated_at": "2026-11-05T12:23:23Z",
+  "generated_at": "2026-11-06T12:08:11Z",
   "count": 23,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 822
+      "count": 835
     },
     {
       "id": "US",
       "name": "United States",
-      "count": 67
+      "count": 68
     },
     {
       "id": "BD",
