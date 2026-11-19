@@ -1,11 +1,11 @@
 {
-  "generated_at": "2026-11-18T13:04:47Z",
-  "count": 24,
+  "generated_at": "2026-11-19T13:11:51Z",
+  "count": 25,
   "countries": [
     {
       "id": "IT",
       "name": "Italy",
-      "count": 861
+      "count": 866
     },
     {
       "id": "US",
@@ -80,6 +80,11 @@
     {
       "id": "HU",
       "name": "Hungary",
+      "count": 1
+    },
+    {
+      "id": "JO",
+      "name": "Hashemite Kingdom of Jordan",
       "count": 1
     },
     {
